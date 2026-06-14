@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MishradAI — Misrad HaPnim AI Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #5b21b6;
+    --blue-light: #ede9fe;
+    --blue-mid: #7c3aed;
+    --green: #0f9d58;
+    --green-light: #e6f4ea;
+    --amber: #f59e0b;
+    --amber-light: #fffbeb;
+    --red: #dc2626;
+    --red-light: #fef2f2;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+    --white: #ffffff;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #f5f3ff;
+    color: var(--gray-800);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--white);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600;
+    font-size: 18px;
+    color: var(--blue);
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 16px;
+  }
+  .lang-switcher {
+    display: flex; gap: 6px;
+  }
+  .lang-btn {
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--gray-200);
+    background: var(--white);
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--gray-600);
+    transition: all 0.15s;
+  }
+  .lang-btn.active {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 60px);
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--white);
+    border-right: 1px solid var(--gray-200);
+    padding: 1.5rem 1rem;
+  }
+  .sidebar-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray-400);
+    padding: 0 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-600);
+    transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: var(--gray-50); }
+  .nav-item.active {
+    background: var(--blue-light);
+    color: var(--blue);
+  }
+  .nav-icon {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .step-badge {
+    margin-left: auto;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    color: var(--gray-600);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step-badge.done {
+    background: var(--green);
+    color: white;
+  }
+  .step-badge.active-badge {
+    background: var(--blue);
+    color: white;
+  }
+
+  .progress-bar {
+    margin: 1.5rem 0.5rem 0;
+    height: 4px;
+    background: var(--gray-200);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--blue);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--gray-400);
+    margin-top: 6px;
+    padding: 0 0.5rem;
+  }
+
+  /* ── MAIN ── */
+  .main {
+    padding: 2rem;
+    overflow-y: auto;
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-header {
+    margin-bottom: 1.5rem;
+  }
+  .panel-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--gray-800);
+  }
+  .panel-subtitle {
+    font-size: 14px;
+    color: var(--gray-600);
+    margin-top: 4px;
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .card + .card { margin-top: 1rem; }
+
+  /* ── WELCOME ── */
+  .welcome-hero {
+    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+  .welcome-hero h2 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .welcome-hero p {
+    font-size: 15px;
+    opacity: 0.88;
+    max-width: 480px;
+    line-height: 1.6;
+  }
+  .start-btn {
+    margin-top: 1.5rem;
+    padding: 12px 24px;
+    background: white;
+    color: var(--blue);
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .start-btn:hover { transform: translateY(-1px); }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .feature-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .feature-emoji { font-size: 28px; margin-bottom: 8px; }
+  .feature-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .feature-desc { font-size: 13px; color: var(--gray-600); line-height: 1.5; }
+
+  /* ── KYC ── */
+  .service-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .service-option {
+    border: 2px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--white);
+  }
+  .service-option:hover { border-color: var(--blue-mid); background: var(--blue-light); }
+  .service-option.selected { border-color: var(--blue); background: var(--blue-light); }
+  .service-option-icon { font-size: 24px; margin-bottom: 6px; }
+  .service-option-title { font-weight: 600; font-size: 14px; }
+  .service-option-desc { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
+
+  .eligibility-result {
+    background: var(--green-light);
+    border: 1px solid #a7f3d0;
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-top: 1rem;
+    display: none;
+  }
+  .eligibility-result.show { display: block; }
+  .eligibility-result.warn {
+    background: var(--amber-light);
+    border-color: #fcd34d;
+  }
+  .eligibility-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+    color: var(--gray-800);
+  }
+  .eligibility-desc {
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.5;
+  }
+  .eligibility-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .badge-green { background: #d1fae5; color: #065f46; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+
+  .sub-options {
+    display: none;
+    margin-top: 1rem;
+  }
+  .sub-options.show { display: block; }
+  .sub-options label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-800);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .sub-option-btn {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--gray-200);
+    font-size: 13px;
+    cursor: pointer;
+    margin: 3px;
+    background: var(--white);
+    color: var(--gray-600);
+    transition: all 0.15s;
+  }
+  .sub-option-btn:hover, .sub-option-btn.selected {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
+
+  .action-btn {
+    margin-top: 1.25rem;
+    padding: 10px 20px;
+    background: var(--blue);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .action-btn:hover { background: #4c1d95; }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── DOCUMENT TREE ── */
+  .doc-tree {
+    margin-top: 1rem;
+  }
+  .doc-category {
+    margin-bottom: 1.25rem;
+  }
+  .doc-category-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--gray-800);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--gray-100);
+    margin-bottom: 8px;
+  }
+  .doc-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 4px;
+    transition: background 0.1s;
+  }
+  .doc-item:hover { background: var(--gray-50); }
+  .doc-checkbox {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--gray-200);
+    flex-shrink: 0;
+    margin-top: 1px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .doc-checkbox.checked {
+    background: var(--green);
+    border-color: var(--green);
+    color: white;
+    font-size: 11px;
+  }
+  .doc-info { flex: 1; }
+  .doc-name { font-size: 14px; font-weight: 500; }
+  .doc-note { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+  .doc-tag {
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-new { background: #fee2e2; color: #991b1b; }
+  .tag-cached { background: #d1fae5; color: #065f46; }
+  .tag-optional { background: var(--gray-100); color: var(--gray-600); }
+
+  .doc-summary-bar {
+    background: var(--blue-light);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 13px;
+  }
+  .doc-summary-item { display: flex; align-items: center; gap: 6px; }
+  .doc-count { font-weight: 700; font-size: 18px; color: var(--blue); }
+  .doc-label { color: var(--gray-600); }
+
+  /* ── CHATBOT ── */
+  .chat-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 180px);
+    background: var(--white);
+    border-radius: var(--radius);
+    border: 1px solid var(--gray-200);
+    overflow: hidden;
+  }
+  .chat-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--gray-100);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .chat-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--blue);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 16px;
+  }
+  .chat-name { font-weight: 600; font-size: 14px; }
+  .chat-status { font-size: 12px; color: var(--green); }
+  .online-dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 4px;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .message {
+    max-width: 80%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .message.bot { align-self: flex-start; }
+  .message.user { align-self: flex-end; }
+  .message-bubble {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .message.bot .message-bubble {
+    background: var(--gray-100);
+    color: var(--gray-800);
+    border-bottom-left-radius: 4px;
+  }
+  .message.user .message-bubble {
+    background: var(--blue);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+  .message-time {
+    font-size: 11px;
+    color: var(--gray-400);
+    padding: 0 4px;
+  }
+  .message.user .message-time { text-align: right; }
+
+  .quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+  .quick-reply {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--blue);
+    color: var(--blue);
+    font-size: 13px;
+    cursor: pointer;
+    background: white;
+    transition: all 0.15s;
+  }
+  .quick-reply:hover { background: var(--blue); color: white; }
+
+  .chat-input-area {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--gray-100);
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .chat-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid var(--gray-200);
+    border-radius: 20px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    max-height: 100px;
+    transition: border-color 0.15s;
+  }
+  .chat-input:focus { border-color: var(--blue-mid); }
+  .send-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--blue);
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+  }
+  .send-btn:hover { background: #4c1d95; }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 14px;
+    background: var(--gray-100);
+    border-radius: 12px;
+    border-bottom-left-radius: 4px;
+    width: fit-content;
+  }
+  .typing-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--gray-400);
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  /* ── NOTIFICATION PANEL ── */
+  .notif-timeline { margin-top: 1rem; }
+  .notif-item {
+    display: flex;
+    gap: 14px;
+    padding-bottom: 1.25rem;
+    position: relative;
+  }
+  .notif-item::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 32px;
+    bottom: 0;
+    width: 2px;
+    background: var(--gray-200);
+  }
+  .notif-item:last-child::before { display: none; }
+  .notif-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .notif-dot.done { background: var(--green-light); }
+  .notif-dot.active { background: var(--blue-light); }
+  .notif-dot.pending { background: var(--gray-100); }
+  .notif-content { flex: 1; padding-top: 4px; }
+  .notif-title { font-weight: 600; font-size: 14px; }
+  .notif-desc { font-size: 13px; color: var(--gray-600); margin-top: 2px; }
+  .notif-time { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+
+  .whatsapp-mock {
+    background: #075e54;
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    color: white;
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .whatsapp-icon { font-size: 28px; }
+  .whatsapp-text p:first-child { font-weight: 600; font-size: 14px; }
+  .whatsapp-text p:last-child { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+  /* ── RTL support ── */
+  .rtl { direction: rtl; text-align: right; }
+  .rtl .message.user { align-self: flex-start; }
+  .rtl .message.bot { align-self: flex-end; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .feature-grid { grid-template-columns: 1fr; }
+    .service-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">🏛️</div>
+    MishradAI
+  </div>
+  <div class="lang-switcher">
+    <button class="lang-btn active" onclick="setLang('en')">EN</button>
+    <button class="lang-btn" onclick="setLang('he')">עב</button>
+    <button class="lang-btn" onclick="setLang('ru')">РУ</button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-label" id="sl-steps">Your Journey</div>
+    <div class="nav-item active" onclick="showPanel('welcome')" id="nav-welcome">
+      <div class="nav-icon">🏠</div>
+      <span id="nl-welcome">Welcome</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('kyc')" id="nav-kyc">
+      <div class="nav-icon">✅</div>
+      <span id="nl-kyc">Eligibility Check</span>
+      <div class="step-badge active-badge" id="badge-kyc">1</div>
+    </div>
+    <div class="nav-item" onclick="showPanel('docs')" id="nav-docs">
+      <div class="nav-icon">📋</div>
+      <span id="nl-docs">Document Checklist</span>
+      <div class="step-badge" id="badge-docs">2</div>
+    </div>
+    <div class="nav-item" onclick="showPanel('chat')" id="nav-chat">
+      <div class="nav-icon">💬</div>
+      <span id="nl-chat">AI Assistant</span>
+      <div class="step-badge" id="badge-chat">3</div>
+    </div>
+    <div class="nav-item" onclick="showPanel('status')" id="nav-status">
+      <div class="nav-icon">🔔</div>
+      <span id="nl-status">Status Updates</span>
+      <div class="step-badge" id="badge-status">4</div>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+    <div class="progress-label" id="progress-label">0 of 4 steps complete</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- WELCOME PANEL -->
+    <div class="panel active" id="panel-welcome">
+      <div class="welcome-hero">
+        <h2 id="wh-title">Welcome to MishradAI</h2>
+        <p id="wh-sub">Your AI-powered guide for Ministry of Interior services. No more wasted trips. No more missing documents. We speak your language.</p>
+        <button class="start-btn" onclick="showPanel('kyc')" id="wh-btn">Get Started →</button>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-emoji">🎯</div>
+          <div class="feature-title" id="fc1-title">Eligibility Pre-Check</div>
+          <div class="feature-desc" id="fc1-desc">Know if you qualify before you travel. Our AI screens your situation in minutes, not weeks.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-emoji">📄</div>
+          <div class="feature-title" id="fc2-title">Smart Document Tree</div>
+          <div class="feature-desc" id="fc2-desc">See exactly what to bring. Documents already on file are automatically removed from your list.</div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-emoji">🌍</div>
+          <div class="feature-title" id="fc3-title">Multilingual Support</div>
+          <div class="feature-desc" id="fc3-desc">Hebrew, Arabic, Russian, and English — full access regardless of language background.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KYC PANEL -->
+    <div class="panel" id="panel-kyc">
+      <div class="panel-header">
+        <div class="panel-title" id="kyc-title">Eligibility Pre-Screening</div>
+        <div class="panel-subtitle" id="kyc-sub">Tell us your situation — we'll verify your pathway before you book an appointment.</div>
+      </div>
+      <div class="card">
+        <div style="font-weight:600; font-size:14px; margin-bottom:4px" id="kyc-q1">What service do you need?</div>
+        <div style="font-size:13px; color:var(--gray-600)" id="kyc-q1-hint">Select the service that applies to your situation</div>
+        <div class="service-grid" id="service-grid">
+          <div class="service-option" onclick="selectService('aliya')" id="svc-aliya">
+            <div class="service-option-icon">✡️</div>
+            <div class="service-option-title" id="svc-aliya-t">Aliya (Law of Return)</div>
+            <div class="service-option-desc" id="svc-aliya-d">Immigration via Jewish heritage</div>
+          </div>
+          <div class="service-option" onclick="selectService('reunification')" id="svc-reun">
+            <div class="service-option-icon">👨‍👩‍👧</div>
+            <div class="service-option-title" id="svc-reun-t">Family Reunification</div>
+            <div class="service-option-desc" id="svc-reun-d">Spouse or family of Israeli citizen</div>
+          </div>
+          <div class="service-option" onclick="selectService('id')" id="svc-id">
+            <div class="service-option-icon">🪪</div>
+            <div class="service-option-title" id="svc-id-t">ID / Passport Renewal</div>
+            <div class="service-option-desc" id="svc-id-d">Renew your Teudat Zehut or passport</div>
+          </div>
+          <div class="service-option" onclick="selectService('visa')" id="svc-visa">
+            <div class="service-option-icon">🛂</div>
+            <div class="service-option-title" id="svc-visa-t">Visa Extension</div>
+            <div class="service-option-desc" id="svc-visa-d">Work, student, or tourist visa</div>
+          </div>
+          <div class="service-option" onclick="selectService('birth')" id="svc-birth">
+            <div class="service-option-icon">👶</div>
+            <div class="service-option-title" id="svc-birth-t">Birth Registration</div>
+            <div class="service-option-desc" id="svc-birth-d">Register a newborn with the registry</div>
+          </div>
+          <div class="service-option" onclick="selectService('marriage')" id="svc-marr">
+            <div class="service-option-icon">💍</div>
+            <div class="service-option-title" id="svc-marr-t">Marriage Certificate</div>
+            <div class="service-option-desc" id="svc-marr-d">Register or obtain marriage records</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="sub-options-card" style="display:none">
+        <div class="sub-options show" id="sub-options-content"></div>
+      </div>
+
+      <div class="eligibility-result" id="eligibility-result">
+        <div class="eligibility-badge badge-green" id="elig-badge">✅ Eligible</div>
+        <div class="eligibility-title" id="elig-title">You qualify for this service</div>
+        <div class="eligibility-desc" id="elig-desc"></div>
+      </div>
+
+      <button class="action-btn" id="kyc-next-btn" onclick="completeKYC()" style="display:none" id="kyc-proceed">Confirm & Build Document Checklist →</button>
+    </div>
+
+    <!-- DOCS PANEL -->
+    <div class="panel" id="panel-docs">
+      <div class="panel-header">
+        <div class="panel-title" id="docs-title">Your Document Checklist</div>
+        <div class="panel-subtitle" id="docs-sub">Based on your service and existing file — only what you actually need to bring.</div>
+      </div>
+
+      <div class="doc-summary-bar" id="doc-summary">
+        <div class="doc-summary-item">
+          <span class="doc-count" id="docs-new-count">3</span>
+          <span class="doc-label" id="dl-new">documents to bring</span>
+        </div>
+        <div class="doc-summary-item">
+          <span class="doc-count" style="color:var(--green)" id="docs-cached-count">2</span>
+          <span class="doc-label" id="dl-cached">already on file (saved)</span>
+        </div>
+        <div class="doc-summary-item">
+          <span class="doc-count" style="color:var(--gray-400)" id="docs-opt-count">1</span>
+          <span class="doc-label" id="dl-opt">optional</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="doc-tree" id="doc-tree">
+          <!-- Populated by JS -->
+        </div>
+        <button class="action-btn" onclick="completeDocs()" id="docs-book-btn">Book Appointment with Verified Checklist →</button>
+      </div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div class="panel" id="panel-chat">
+      <div class="panel-header">
+        <div class="panel-title" id="chat-title">AI Assistant</div>
+        <div class="panel-subtitle" id="chat-sub">Ask anything about your application — in any language.</div>
+      </div>
+      <div class="chat-wrapper" id="chat-wrapper">
+        <div class="chat-header">
+          <div class="chat-avatar">🤖</div>
+          <div>
+            <div class="chat-name">Miri — MishradAI Assistant</div>
+            <div class="chat-status"><span class="online-dot"></span><span id="cs-online">Online · Replies instantly</span></div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="message bot">
+            <div class="message-bubble" id="cm-greeting">
+              שלום! I'm Miri, your personal guide for Ministry of Interior services. I can help you in Hebrew, English, Russian, or Arabic. What would you like to know?
+            </div>
+            <div class="quick-replies">
+              <div class="quick-reply" onclick="sendQuick('What documents do I need for Teudat Zehut?')">📋 Documents for Teudat Zehut</div>
+              <div class="quick-reply" onclick="sendQuick('How long does the process take?')">⏱️ Processing time</div>
+              <div class="quick-reply" onclick="sendQuick('Which branch handles visas in Tel Aviv?')">📍 Tel Aviv branch</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <textarea class="chat-input" id="chat-input" placeholder="Type your question in any language..." rows="1" onkeydown="handleKey(event)"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS PANEL -->
+    <div class="panel" id="panel-status">
+      <div class="panel-header">
+        <div class="panel-title" id="status-title">Application Status</div>
+        <div class="panel-subtitle" id="status-sub">Real-time updates pushed to you — no need to call.</div>
+      </div>
+
+      <div class="whatsapp-mock">
+        <div class="whatsapp-icon">📱</div>
+        <div class="whatsapp-text">
+          <p id="wa-title">WhatsApp / SMS Notifications Active</p>
+          <p id="wa-sub">Updates sent to +972-50-XXX-XXXX · Hebrew · Last: 2 hours ago</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:1rem">
+        <div class="notif-timeline" id="notif-timeline">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:600; font-size:14px; margin-bottom:8px" id="ref-title">Reference Number</div>
+        <div style="font-size:24px; font-weight:700; color:var(--blue); letter-spacing:0.1em">MHP-2026-084712</div>
+        <div style="font-size:12px; color:var(--gray-400); margin-top:4px" id="ref-hint">Keep this number to track or follow up on your application</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+/* ── STATE ── */
+let currentLang = 'en';
+let selectedService = null;
+let selectedSubOption = null;
+let stepsComplete = 0;
+
+/* ── TRANSLATIONS ── */
+const T = {
+  en: {
+    slSteps: 'Your Journey',
+    nlWelcome: 'Welcome', nlKyc: 'Eligibility Check', nlDocs: 'Document Checklist',
+    nlChat: 'AI Assistant', nlStatus: 'Status Updates',
+    whTitle: 'Welcome to MishradAI',
+    whSub: 'Your AI-powered guide for Ministry of Interior services. No more wasted trips. No more missing documents. We speak your language.',
+    whBtn: 'Get Started →',
+    fc1Title: 'Eligibility Pre-Check', fc1Desc: 'Know if you qualify before you travel. Our AI screens your situation in minutes, not weeks.',
+    fc2Title: 'Smart Document Tree', fc2Desc: 'See exactly what to bring. Documents already on file are automatically removed from your list.',
+    fc3Title: 'Multilingual Support', fc3Desc: 'Hebrew, Arabic, Russian, and English — full access regardless of language background.',
+    kycTitle: 'Eligibility Pre-Screening', kycSub: 'Tell us your situation — we\'ll verify your pathway before you book an appointment.',
+    kycQ1: 'What service do you need?', kycQ1Hint: 'Select the service that applies to your situation',
+    svcAliyaT: 'Aliya (Law of Return)', svcAliyaD: 'Immigration via Jewish heritage',
+    svcReunT: 'Family Reunification', svcReunD: 'Spouse or family of Israeli citizen',
+    svcIdT: 'ID / Passport Renewal', svcIdD: 'Renew your Teudat Zehut or passport',
+    svcVisaT: 'Visa Extension', svcVisaD: 'Work, student, or tourist visa',
+    svcBirthT: 'Birth Registration', svcBirthD: 'Register a newborn with the registry',
+    svcMarrT: 'Marriage Certificate', svcMarrD: 'Register or obtain marriage records',
+    docsTitle: 'Your Document Checklist', docsSub: 'Based on your service and existing file — only what you actually need to bring.',
+    dlNew: 'documents to bring', dlCached: 'already on file (saved)', dlOpt: 'optional',
+    chatTitle: 'AI Assistant', chatSub: 'Ask anything about your application — in any language.',
+    csOnline: 'Online · Replies instantly',
+    statusTitle: 'Application Status', statusSub: 'Real-time updates pushed to you — no need to call.',
+    waTitle: 'WhatsApp / SMS Notifications Active', waSub: 'Updates sent to +972-50-XXX-XXXX · Hebrew · Last: 2 hours ago',
+    refTitle: 'Reference Number', refHint: 'Keep this number to track or follow up on your application',
+    chatGreeting: 'שלום! I\'m Miri, your personal guide for Ministry of Interior services. I can help you in Hebrew, English, Russian, or Arabic. What would you like to know?',
+    progressLabel: (n) => `${n} of 4 steps complete`,
+    kycProceed: 'Confirm & Build Document Checklist →',
+    docsBook: 'Book Appointment with Verified Checklist →',
+  },
+  he: {
+    slSteps: 'המסע שלך',
+    nlWelcome: 'ברוכים הבאים', nlKyc: 'בדיקת זכאות', nlDocs: 'רשימת מסמכים',
+    nlChat: 'עוזר AI', nlStatus: 'עדכוני סטטוס',
+    whTitle: 'ברוכים הבאים למשרדAI',
+    whSub: 'המדריך החכם שלך לשירותי משרד הפנים. ללא נסיעות מיותרות. ללא מסמכים חסרים.',
+    whBtn: 'התחל →',
+    fc1Title: 'בדיקת זכאות מקדימה', fc1Desc: 'דע אם אתה זכאי לפני שנוסעים.',
+    fc2Title: 'עץ מסמכים חכם', fc2Desc: 'ראה בדיוק מה להביא. מסמכים שכבר קיימים יוסרו אוטומטית.',
+    fc3Title: 'תמיכה רב-לשונית', fc3Desc: 'עברית, ערבית, רוסית ואנגלית — גישה מלאה לכולם.',
+    kycTitle: 'סינון זכאות מקדים', kycSub: 'ספר לנו את המצב שלך — נאמת את הנתיב לפני שתזמין תור.',
+    kycQ1: 'איזה שירות אתה צריך?', kycQ1Hint: 'בחר את השירות המתאים למצבך',
+    svcAliyaT: 'עלייה (חוק השבות)', svcAliyaD: 'הגירה על בסיס מורשת יהודית',
+    svcReunT: 'איחוד משפחות', svcReunD: 'בן/בת זוג או משפחה של אזרח ישראלי',
+    svcIdT: 'חידוש ת.ז. / דרכון', svcIdD: 'חדש את תעודת הזהות או הדרכון שלך',
+    svcVisaT: 'הארכת ויזה', svcVisaD: 'ויזת עבודה, לימודים או תיירות',
+    svcBirthT: 'רישום לידה', svcBirthD: 'רשום יילוד ברשם האוכלוסין',
+    svcMarrT: 'תעודת נישואין', svcMarrD: 'רשום או קבל תעודת נישואין',
+    docsTitle: 'רשימת המסמכים שלך', docsSub: 'על בסיס השירות ותיק הקיים שלך — רק מה שצריך להביא בפועל.',
+    dlNew: 'מסמכים להביא', dlCached: 'כבר בתיק (נחסך)', dlOpt: 'אופציונלי',
+    chatTitle: 'עוזר AI', chatSub: 'שאל כל שאלה על הבקשה שלך — בכל שפה.',
+    csOnline: 'מחובר · עונה מיידית',
+    statusTitle: 'סטטוס בקשה', statusSub: 'עדכונים בזמן אמת — ללא צורך בשיחה.',
+    waTitle: 'WhatsApp / SMS פעיל', waSub: 'עדכונים לטלפון +972-50-XXX-XXXX · עברית · לפני שעתיים',
+    refTitle: 'מספר אסמכתא', refHint: 'שמור מספר זה למעקב או פנייה',
+    chatGreeting: 'שלום! אני מירי, המדריך האישי שלך לשירותי משרד הפנים. אני יכולה לעזור בעברית, אנגלית, רוסית או ערבית. במה אוכל לעזור?',
+    progressLabel: (n) => `${n} מתוך 4 שלבים הושלמו`,
+    kycProceed: 'אשר ובנה רשימת מסמכים →',
+    docsBook: 'קבע תור עם רשימה מאומתת →',
+  },
+  ru: {
+    slSteps: 'Ваш путь',
+    nlWelcome: 'Добро пожаловать', nlKyc: 'Проверка права', nlDocs: 'Список документов',
+    nlChat: 'Помощник AI', nlStatus: 'Статус заявки',
+    whTitle: 'Добро пожаловать в MishradAI',
+    whSub: 'Ваш ИИ-гид по услугам МВД Израиля. Никаких лишних поездок. Никаких забытых документов.',
+    whBtn: 'Начать →',
+    fc1Title: 'Предварительная проверка права', fc1Desc: 'Узнайте заранее, имеете ли вы право на услугу.',
+    fc2Title: 'Умный список документов', fc2Desc: 'Точный список того, что нужно принести. Документы, уже имеющиеся в деле, удаляются автоматически.',
+    fc3Title: 'Многоязычная поддержка', fc3Desc: 'Иврит, арабский, русский и английский — полный доступ для всех.',
+    kycTitle: 'Предварительная проверка права', kycSub: 'Расскажите о вашей ситуации — мы подтвердим путь до записи на приём.',
+    kycQ1: 'Какая услуга вам нужна?', kycQ1Hint: 'Выберите услугу, соответствующую вашей ситуации',
+    svcAliyaT: 'Алия (Закон о возвращении)', svcAliyaD: 'Иммиграция через еврейское происхождение',
+    svcReunT: 'Воссоединение семьи', svcReunD: 'Супруг(а) или родственник гражданина Израиля',
+    svcIdT: 'Обновление удостоверения / паспорта', svcIdD: 'Обновить теудат зеhут или загранпаспорт',
+    svcVisaT: 'Продление визы', svcVisaD: 'Рабочая, учебная или туристическая виза',
+    svcBirthT: 'Регистрация рождения', svcBirthD: 'Зарегистрировать новорождённого',
+    svcMarrT: 'Свидетельство о браке', svcMarrD: 'Зарегистрировать брак или получить документ',
+    docsTitle: 'Ваш список документов', docsSub: 'На основании вашей услуги и имеющегося дела — только то, что нужно принести.',
+    dlNew: 'документов принести', dlCached: 'уже в деле (сэкономлено)', dlOpt: 'необязательные',
+    chatTitle: 'Помощник AI', chatSub: 'Задайте любой вопрос — на любом языке.',
+    csOnline: 'Онлайн · Отвечает мгновенно',
+    statusTitle: 'Статус заявки', statusSub: 'Обновления в реальном времени — без необходимости звонить.',
+    waTitle: 'WhatsApp / SMS уведомления активны', waSub: 'Обновления на +972-50-XXX-XXXX · Русский · 2 часа назад',
+    refTitle: 'Номер обращения', refHint: 'Сохраните этот номер для отслеживания заявки',
+    chatGreeting: 'Шалом! Я Мири, ваш личный помощник по услугам МВД Израиля. Я могу помочь на иврите, английском, русском или арабском. Чем могу помочь?',
+    progressLabel: (n) => `${n} из 4 шагов завершено`,
+    kycProceed: 'Подтвердить и построить список →',
+    docsBook: 'Записаться на приём с проверенным списком →',
+  }
+};
+
+/* ── DOC TREES per service ── */
+const DOC_TREES = {
+  aliya: {
+    required: [
+      { name: 'Jewish heritage documentation', note: 'Birth cert, rabbinic letter, or family tree', tag: 'new' },
+      { name: 'Valid foreign passport', note: 'Must be valid for 6+ months', tag: 'new' },
+      { name: 'Criminal background check', note: 'From country of origin, apostilled', tag: 'new' },
+    ],
+    cached: [
+      { name: 'Original birth certificate', note: 'On file from 2019 application — not needed again', tag: 'cached' },
+    ],
+    optional: [
+      { name: 'Letter from Jewish community', note: 'Strengthens your application — not required', tag: 'optional' },
+    ]
+  },
+  id: {
+    required: [
+      { name: 'Current Teudat Zehut (original)', note: 'Your existing ID card', tag: 'new' },
+      { name: 'Recent biometric photo', note: 'Taken within 6 months, 35×45mm', tag: 'new' },
+    ],
+    cached: [
+      { name: 'Birth certificate', note: 'Already on file from 2009 — saved!', tag: 'cached' },
+      { name: 'Parent identity documents', note: 'Verified during original registration — not needed', tag: 'cached' },
+    ],
+    optional: []
+  },
+  reunification: {
+    required: [
+      { name: 'Marriage certificate (apostilled)', note: 'Must be certified and translated to Hebrew', tag: 'new' },
+      { name: 'Israeli spouse\'s Teudat Zehut', note: 'Copy of both sides', tag: 'new' },
+      { name: 'Proof of shared residence', note: 'Utility bill or lease agreement', tag: 'new' },
+    ],
+    cached: [
+      { name: 'Your passport copy', note: 'Submitted during visa application — on file', tag: 'cached' },
+    ],
+    optional: [
+      { name: 'Photos showing relationship history', note: 'Helps establish genuine relationship', tag: 'optional' },
+    ]
+  },
+  visa: {
+    required: [
+      { name: 'Signed employment contract', note: 'Or accepted offer letter with start date', tag: 'new' },
+      { name: 'Employer\'s company registration (Nihul Takan)', note: 'Current certificate from Companies Authority', tag: 'new' },
+    ],
+    cached: [
+      { name: 'Passport bio page', note: 'Submitted with previous visa — on file', tag: 'cached' },
+    ],
+    optional: [
+      { name: 'Proof of accommodation', note: 'Lease or hotel booking for initial period', tag: 'optional' },
+    ]
+  },
+  birth: {
+    required: [
+      { name: 'Hospital birth certificate (tofes 17)', note: 'Original issued by the hospital', tag: 'new' },
+      { name: 'Both parents\' Teudat Zehut', note: 'Original + photocopy of each', tag: 'new' },
+    ],
+    cached: [
+      { name: 'Parents\' marriage certificate', note: 'Already registered — no need to resubmit', tag: 'cached' },
+    ],
+    optional: []
+  },
+  marriage: {
+    required: [
+      { name: 'Both parties\' Teudat Zehut', note: 'Original + photocopy', tag: 'new' },
+      { name: 'Proof of Jewish status (if applicable)', note: 'Rabbinic certificate or conversion certificate', tag: 'new' },
+    ],
+    cached: [
+      { name: 'Your birth certificate', note: 'On file from immigration — not needed again', tag: 'cached' },
+    ],
+    optional: [
+      { name: 'Prenuptial agreement', note: 'Optional but can be registered at same time', tag: 'optional' },
+    ]
+  }
+};
+
+/* ── ELIGIBILITY RESULTS ── */
+const ELIG_DATA = {
+  aliya: { eligible: true, title: 'You qualify via the Law of Return', desc: 'Based on your documentation, you are eligible for Aliya. Your pathway will be: document verification → Ministry interview → Aliya approval → ID registration.' },
+  'aliya-uncertain': { eligible: false, title: 'Further documentation may be needed', desc: 'We need to verify your Jewish heritage documents before confirming eligibility. Our AI will guide you through what to prepare, and a pre-screening call can be scheduled.' },
+  reunification: { eligible: true, title: 'Family reunification pathway confirmed', desc: 'You qualify for family reunification as a spouse of an Israeli citizen. Process time: approximately 3–6 months. We\'ll build your document list now.' },
+  id: { eligible: true, title: 'Renewal confirmed — you\'re eligible', desc: 'Your Teudat Zehut is eligible for renewal. Good news: 2 of 4 documents are already on file from your 2009 application — we saved you a trip to find them.' },
+  visa: { eligible: true, title: 'Work visa pathway confirmed', desc: 'With a verified job offer from a registered Israeli employer, you qualify for a B/1 work visa. Processing time: 2–4 weeks.' },
+  birth: { eligible: true, title: 'Birth registration confirmed', desc: 'You can register your newborn. Both parents must be present or one can attend with a notarized power of attorney from the other.' },
+  marriage: { eligible: true, title: 'Marriage registration confirmed', desc: 'You\'re eligible to register your marriage. Both parties must attend in person with the required documents.' },
+};
+
+/* ── SUB OPTIONS ── */
+const SUB_OPTIONS = {
+  aliya: {
+    label: 'Do you have documented proof of Jewish heritage?',
+    options: ['Yes — birth cert, rabbinic letter, or family tree', 'Partially — some but not all', 'Not yet — need guidance'],
+    values: ['yes', 'partial', 'no']
+  },
+  visa: {
+    label: 'Type of visa you need:',
+    options: ['Work visa (B/1)', 'Student visa', 'Tourist extension'],
+    values: ['work', 'student', 'tourist']
+  }
+};
+
+/* ── TIMELINE ── */
+const TIMELINE_EVENTS = [
+  { icon: '✅', status: 'done', title: 'Application submitted', desc: 'Your documents were received and logged in the system.', time: 'June 2, 2026 — 09:14' },
+  { icon: '✅', status: 'done', title: 'Initial document verification', desc: 'All 3 required documents passed automated review.', time: 'June 3, 2026 — 14:30' },
+  { icon: '🔵', status: 'active', title: 'Pending officer review', desc: 'Your file is in the queue for a caseworker. Estimated: 5–7 business days.', time: 'In progress' },
+  { icon: '⬜', status: 'pending', title: 'Decision notification', desc: 'You will receive a WhatsApp message the moment a decision is made.', time: 'Upcoming' },
+  { icon: '⬜', status: 'pending', title: 'Document collection / pickup', desc: 'If approved, your ID will be ready for pickup at your chosen branch.', time: 'Upcoming' },
+];
+
+/* ── LANGUAGE ── */
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+
+  const t = T[lang];
+  const isHe = lang === 'he';
+
+  document.body.style.direction = isHe ? 'rtl' : 'ltr';
+
+  const ids = {
+    'sl-steps': t.slSteps,
+    'nl-welcome': t.nlWelcome, 'nl-kyc': t.nlKyc, 'nl-docs': t.nlDocs,
+    'nl-chat': t.nlChat, 'nl-status': t.nlStatus,
+    'wh-title': t.whTitle, 'wh-sub': t.whSub, 'wh-btn': t.whBtn,
+    'fc1-title': t.fc1Title, 'fc1-desc': t.fc1Desc,
+    'fc2-title': t.fc2Title, 'fc2-desc': t.fc2Desc,
+    'fc3-title': t.fc3Title, 'fc3-desc': t.fc3Desc,
+    'kyc-title': t.kycTitle, 'kyc-sub': t.kycSub,
+    'kyc-q1': t.kycQ1, 'kyc-q1-hint': t.kycQ1Hint,
+    'svc-aliya-t': t.svcAliyaT, 'svc-aliya-d': t.svcAliyaD,
+    'svc-reun-t': t.svcReunT, 'svc-reun-d': t.svcReunD,
+    'svc-id-t': t.svcIdT, 'svc-id-d': t.svcIdD,
+    'svc-visa-t': t.svcVisaT, 'svc-visa-d': t.svcVisaD,
+    'svc-birth-t': t.svcBirthT, 'svc-birth-d': t.svcBirthD,
+    'svc-marr-t': t.svcMarrT, 'svc-marr-d': t.svcMarrD,
+    'docs-title': t.docsTitle, 'docs-sub': t.docsSub,
+    'dl-new': t.dlNew, 'dl-cached': t.dlCached, 'dl-opt': t.dlOpt,
+    'chat-title': t.chatTitle, 'chat-sub': t.chatSub,
+    'cs-online': t.csOnline,
+    'status-title': t.statusTitle, 'status-sub': t.statusSub,
+    'wa-title': t.waTitle, 'wa-sub': t.waSub,
+    'ref-title': t.refTitle, 'ref-hint': t.refHint,
+    'kyc-next-btn': t.kycProceed, 'docs-book-btn': t.docsBook,
+  };
+  for (const [id, val] of Object.entries(ids)) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  const pl = document.getElementById('progress-label');
+  if (pl) pl.textContent = t.progressLabel(stepsComplete);
+
+  const cg = document.getElementById('cm-greeting');
+  if (cg) cg.textContent = t.chatGreeting;
+}
+
+/* ── NAVIGATION ── */
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+
+function updateProgress() {
+  const pct = (stepsComplete / 4) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = T[currentLang].progressLabel(stepsComplete);
+}
+
+/* ── KYC ── */
+function selectService(svc) {
+  selectedService = svc;
+  selectedSubOption = null;
+  document.querySelectorAll('.service-option').forEach(o => o.classList.remove('selected'));
+  document.getElementById('svc-' + (svc === 'reunification' ? 'reun' : svc === 'marriage' ? 'marr' : svc)).classList.add('selected');
+
+  const eligEl = document.getElementById('eligibility-result');
+  eligEl.classList.remove('show');
+
+  const subCard = document.getElementById('sub-options-card');
+  if (SUB_OPTIONS[svc]) {
+    subCard.style.display = 'block';
+    const sub = SUB_OPTIONS[svc];
+    let html = `<label style="font-size:14px; font-weight:600; margin-bottom:10px; display:block">${sub.label}</label><div>`;
+    sub.options.forEach((opt, i) => {
+      html += `<span class="sub-option-btn" onclick="selectSub('${svc}','${sub.values[i]}',this)">${opt}</span>`;
+    });
+    html += '</div>';
+    document.getElementById('sub-options-content').innerHTML = html;
+  } else {
+    subCard.style.display = 'none';
+    showEligibility(svc);
+  }
+}
+
+function selectSub(svc, val, el) {
+  document.querySelectorAll('.sub-option-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSubOption = val;
+  const key = (svc === 'aliya' && val !== 'yes') ? 'aliya-uncertain' : svc;
+  showEligibility(key);
+}
+
+function showEligibility(key) {
+  const data = ELIG_DATA[key] || ELIG_DATA[selectedService];
+  const el = document.getElementById('eligibility-result');
+  el.classList.remove('warn');
+  if (!data.eligible) el.classList.add('warn');
+
+  document.getElementById('elig-badge').textContent = data.eligible ? '✅ Eligible' : '⚠️ Needs Review';
+  document.getElementById('elig-badge').className = 'eligibility-badge ' + (data.eligible ? 'badge-green' : 'badge-amber');
+  document.getElementById('elig-title').textContent = data.title;
+  document.getElementById('elig-desc').textContent = data.desc;
+  el.classList.add('show');
+
+  const btn = document.getElementById('kyc-next-btn');
+  btn.style.display = 'block';
+  if (!data.eligible) btn.disabled = true;
+  else btn.disabled = false;
+}
+
+function completeKYC() {
+  buildDocTree();
+  if (stepsComplete < 1) { stepsComplete = 1; }
+  document.getElementById('badge-kyc').textContent = '✓';
+  document.getElementById('badge-kyc').className = 'step-badge done';
+  document.getElementById('badge-docs').className = 'step-badge active-badge';
+  updateProgress();
+  showPanel('docs');
+}
+
+/* ── DOCS ── */
+function buildDocTree() {
+  const data = DOC_TREES[selectedService] || DOC_TREES['id'];
+  const tree = document.getElementById('doc-tree');
+
+  document.getElementById('docs-new-count').textContent = data.required.length;
+  document.getElementById('docs-cached-count').textContent = data.cached.length;
+  document.getElementById('docs-opt-count').textContent = data.optional.length;
+
+  let html = '';
+
+  if (data.required.length) {
+    html += `<div class="doc-category">
+      <div class="doc-category-header">📋 Required documents <span style="color:var(--gray-400); font-weight:400; font-size:12px; margin-left:4px">(${data.required.length})</span></div>`;
+    data.required.forEach((doc, i) => {
+      html += docItemHTML(doc, 'req-' + i);
+    });
+    html += '</div>';
+  }
+
+  if (data.cached.length) {
+    html += `<div class="doc-category">
+      <div class="doc-category-header" style="color:var(--green)">✅ Already on file — no need to bring <span style="color:var(--gray-400); font-weight:400; font-size:12px; margin-left:4px">(${data.cached.length})</span></div>`;
+    data.cached.forEach((doc, i) => {
+      html += docItemHTML(doc, 'cache-' + i);
+    });
+    html += '</div>';
+  }
+
+  if (data.optional.length) {
+    html += `<div class="doc-category">
+      <div class="doc-category-header" style="color:var(--gray-400)">💡 Optional <span style="color:var(--gray-400); font-weight:400; font-size:12px; margin-left:4px">(${data.optional.length})</span></div>`;
+    data.optional.forEach((doc, i) => {
+      html += docItemHTML(doc, 'opt-' + i);
+    });
+    html += '</div>';
+  }
+
+  tree.innerHTML = html;
+}
+
+function docItemHTML(doc, id) {
+  const tagClass = { new: 'tag-new', cached: 'tag-cached', optional: 'tag-optional' }[doc.tag];
+  const tagLabel = { new: 'Bring', cached: 'On File', optional: 'Optional' }[doc.tag];
+  const isCached = doc.tag === 'cached';
+  return `<div class="doc-item">
+    <div class="doc-checkbox ${isCached ? 'checked' : ''}" id="cb-${id}" onclick="toggleDoc('${id}', this)">${isCached ? '✓' : ''}</div>
+    <div class="doc-info">
+      <div class="doc-name" style="${isCached ? 'text-decoration:line-through;color:var(--gray-400)' : ''}">${doc.name}</div>
+      <div class="doc-note">${doc.note}</div>
+    </div>
+    <span class="doc-tag ${tagClass}">${tagLabel}</span>
+  </div>`;
+}
+
+function toggleDoc(id, el) {
+  if (el.classList.contains('checked')) {
+    el.classList.remove('checked');
+    el.textContent = '';
+  } else {
+    el.classList.add('checked');
+    el.textContent = '✓';
+  }
+}
+
+function completeDocs() {
+  if (stepsComplete < 2) { stepsComplete = 2; }
+  document.getElementById('badge-docs').textContent = '✓';
+  document.getElementById('badge-docs').className = 'step-badge done';
+  document.getElementById('badge-chat').className = 'step-badge active-badge';
+  updateProgress();
+  showPanel('chat');
+}
+
+/* ── CHAT (real Claude API) ── */
+const chatHistory = [];
+let isTyping = false;
+
+const SYSTEM_PROMPT = `You are Miri, an AI assistant for Misrad HaPnim (Israel's Ministry of Interior). You help users navigate bureaucratic processes in Israel.
+
+You speak Hebrew, English, Russian, and Arabic — always respond in the same language the user writes to you.
+
+Your knowledge includes:
+- Teudat Zehut (Israeli ID card) renewal process
+- Passport (darkon) renewal
+- Aliya process and Law of Return
+- Visa extensions (B/1 work, student, tourist)  
+- Birth and marriage registration
+- Branch locations and hours (Tel Aviv Metzuyan branch: Ibn Gabirol 68, Sun-Thu 8:00-16:00)
+- Common documents required for each service
+- Approximate wait times and processing durations
+
+Be concise, helpful, and empathetic. Users are often frustrated by bureaucracy. If you mention specific wait times, note they are approximate. Never fabricate specific policy details — if unsure, say so and suggest calling 3450* (the national Ministry hotline).
+
+Always be warm and remember: users often feel lost and anxious. A clear, calm answer makes a real difference.`;
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text || isTyping) return;
+
+  addMessage('user', text);
+  input.value = '';
+  chatHistory.push({ role: 'user', content: text });
+
+  showTyping();
+  isTyping = true;
+  document.getElementById('send-btn').disabled = true;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content?.find(c => c.type === 'text')?.text || 'Sorry, I had trouble answering. Please try again.';
+    chatHistory.push({ role: 'assistant', content: reply });
+    hideTyping();
+    addMessage('bot', reply);
+  } catch (err) {
+    hideTyping();
+    addMessage('bot', 'Connection issue — please try again. You can also call 3450* for immediate help.');
+  }
+
+  isTyping = false;
+  document.getElementById('send-btn').disabled = false;
+
+  if (stepsComplete < 3) { stepsComplete = 3; }
+  document.getElementById('badge-chat').textContent = '✓';
+  document.getElementById('badge-chat').className = 'step-badge done';
+  document.getElementById('badge-status').className = 'step-badge active-badge';
+  updateProgress();
+}
+
+function sendQuick(text) {
+  document.getElementById('chat-input').value = text;
+  sendMessage();
+}
+
+function addMessage(role, text) {
+  const msgs = document.getElementById('chat-messages');
+  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const div = document.createElement('div');
+  div.className = 'message ' + role;
+  div.innerHTML = `<div class="message-bubble">${text.replace(/\n/g, '<br>')}</div><div class="message-time">${now}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.id = 'typing-indicator';
+  div.className = 'message bot';
+  div.innerHTML = '<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+/* ── STATUS TIMELINE ── */
+function buildTimeline() {
+  const container = document.getElementById('notif-timeline');
+  let html = '';
+  TIMELINE_EVENTS.forEach(ev => {
+    html += `<div class="notif-item">
+      <div class="notif-dot ${ev.status}">${ev.icon}</div>
+      <div class="notif-content">
+        <div class="notif-title">${ev.title}</div>
+        <div class="notif-desc">${ev.desc}</div>
+        <div class="notif-time">${ev.time}</div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+/* ── NAV ITEM click for status ── */
+document.getElementById('nav-status').addEventListener('click', () => {
+  if (stepsComplete < 4) { stepsComplete = 4; }
+  document.getElementById('badge-status').textContent = '✓';
+  document.getElementById('badge-status').className = 'step-badge done';
+  updateProgress();
+});
+
+/* ── INIT ── */
+buildTimeline();
+</script>
+</body>
+</html>
