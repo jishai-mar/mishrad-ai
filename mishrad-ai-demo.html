@@ -5,1214 +5,769 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MishradAI — Misrad HaPnim AI Assistant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── RESET & BASE ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  :root {
-    --blue: #5b21b6;
-    --blue-light: #ede9fe;
-    --blue-mid: #7c3aed;
-    --green: #0f9d58;
-    --green-light: #e6f4ea;
-    --amber: #f59e0b;
-    --amber-light: #fffbeb;
-    --red: #dc2626;
-    --red-light: #fef2f2;
-    --gray-50: #f9fafb;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-400: #9ca3af;
-    --gray-600: #4b5563;
-    --gray-800: #1f2937;
-    --white: #ffffff;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.04);
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
-    --shadow-lg: 0 8px 28px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
-    --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  }
+:root{
+  --c-blue:#2563eb;
+  --c-blue-deep:#1e3a8a;
+  --c-blue-hover:#1d4ed8;
+  --c-blue-light:#eff6ff;
+  --c-blue-mid:#bfdbfe;
+  --c-bg:#f8faff;
+  --c-white:#ffffff;
+  --c-text:#0c1a2e;
+  --c-text-2:#374151;
+  --c-text-3:#6b7280;
+  --c-border:#e2e8f0;
+  --c-border-light:#f1f5f9;
+  --c-success:#059669;
+  --c-success-light:#ecfdf5;
+  --c-success-mid:#a7f3d0;
+  --c-warning:#d97706;
+  --c-warning-light:#fffbeb;
+  --f-display:'Playfair Display',Georgia,serif;
+  --f-body:'Inter',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono','Courier New',monospace;
+  --t-11:11px;--t-12:12px;--t-13:13px;--t-14:14px;
+  --t-16:16px;--t-20:20px;--t-28:28px;--t-38:38px;
+  --r-sm:6px;--r:10px;--r-lg:16px;--r-xl:20px;
+  --sh-xs:0 1px 2px rgba(0,0,0,.04);
+  --sh-sm:0 1px 3px rgba(0,0,0,.06),0 1px 6px rgba(0,0,0,.04);
+  --sh:0 2px 8px rgba(0,0,0,.07),0 1px 3px rgba(0,0,0,.05);
+  --sh-md:0 4px 16px rgba(0,0,0,.09),0 1px 4px rgba(0,0,0,.05);
+  --sh-lg:0 8px 32px rgba(0,0,0,.11),0 2px 8px rgba(0,0,0,.05);
+  --sh-blue:0 4px 16px rgba(37,99,235,.2),0 1px 4px rgba(37,99,235,.1);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
 
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #f5f3ff;
-    color: var(--gray-800);
-    min-height: 100vh;
-  }
+body{font-family:var(--f-body);background:var(--c-bg);color:var(--c-text);min-height:100vh;overflow-x:hidden}
 
-  /* ── HEADER ── */
-  .header {
-    background: var(--white);
-    border-bottom: 1px solid var(--gray-200);
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 60px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 1px 0 var(--gray-200), 0 2px 12px rgba(0,0,0,0.05);
-  }
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600;
-    font-size: 18px;
-    color: var(--blue);
-  }
-  .logo-icon {
-    width: 32px; height: 32px;
-    background: var(--blue);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 16px;
-  }
-  .lang-switcher {
-    display: flex; gap: 6px;
-  }
-  .lang-btn {
-    padding: 5px 11px;
-    border-radius: 20px;
-    border: 1px solid var(--gray-200);
-    background: var(--white);
-    font-size: 13px;
-    cursor: pointer;
-    color: var(--gray-600);
-    font-weight: 500;
-    transition: all 0.18s var(--ease);
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    line-height: 1;
-  }
-  .lang-btn:hover {
-    border-color: var(--gray-400);
-    background: var(--gray-50);
-    color: var(--gray-800);
-  }
-  .lang-btn.active {
-    background: var(--blue);
-    color: white;
-    border-color: var(--blue);
-    box-shadow: 0 2px 8px rgba(91,33,182,0.28);
-  }
-  .lang-btn:active { transform: scale(0.95); }
+/* ── PANEL TRANSITIONS ── */
+@keyframes panelIn    {from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)}}
+@keyframes panelInRtl {from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)}}
+.panel{display:none}
+.panel.active{display:block;animation:panelIn .2s var(--ease) both}
+body[dir=rtl] .panel.active{animation:panelInRtl .2s var(--ease) both}
 
-  /* ── LAYOUT ── */
-  .layout {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    min-height: calc(100vh - 60px);
-  }
+/* lang fade */
+.main{transition:opacity .15s}
+body.lang-fade .main{opacity:0}
 
-  /* ── SIDEBAR ── */
-  .sidebar {
-    background: var(--white);
-    border-right: 1px solid var(--gray-200);
-    padding: 1.5rem 1rem;
-  }
-  .sidebar-label {
-    font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--gray-400);
-    padding: 0 0.5rem;
-    margin-bottom: 0.5rem;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--gray-600);
-    transition: all 0.15s;
-    margin-bottom: 2px;
-  }
-  .nav-item:hover {
-    background: var(--gray-50);
-    color: var(--gray-800);
-    transform: translateX(2px);
-  }
-  .nav-item.active {
-    background: var(--blue-light);
-    color: var(--blue);
-    font-weight: 600;
-  }
-  .nav-icon {
-    width: 20px; height: 20px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-  .step-badge {
-    margin-left: auto;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    background: var(--gray-200);
-    color: var(--gray-600);
-    font-size: 11px;
-    font-weight: 600;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .step-badge.done {
-    background: var(--green);
-    color: white;
-  }
-  .step-badge.active-badge {
-    background: var(--blue);
-    color: white;
-  }
+/* ── HEADER ── */
+.header{
+  position:sticky;top:0;z-index:200;
+  background:rgba(248,250,255,.88);
+  backdrop-filter:blur(16px) saturate(180%);
+  -webkit-backdrop-filter:blur(16px) saturate(180%);
+  border-bottom:1px solid rgba(226,232,240,.8);
+  box-shadow:0 1px 0 rgba(226,232,240,.5),0 2px 16px rgba(37,99,235,.05);
+}
+.header-inner{display:flex;align-items:center;height:64px;padding:0 1.5rem;gap:1.5rem}
+.header-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+.header-logo-icon{
+  width:36px;height:36px;border-radius:10px;background:var(--c-blue);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 8px rgba(37,99,235,.3);flex-shrink:0;
+}
+.header-logo-text{font-family:var(--f-display);font-size:var(--t-20);font-weight:700;color:var(--c-blue-deep);letter-spacing:-.3px;white-space:nowrap}
+.header-breadcrumb{flex:1;display:flex;align-items:center;justify-content:center}
+.bc-step{display:flex;align-items:center;gap:6px;font-size:var(--t-12);font-weight:500;color:var(--c-text-3);cursor:pointer;transition:color .15s;white-space:nowrap;padding:4px 6px;border-radius:var(--r-sm)}
+.bc-step:hover{color:var(--c-blue)}
+.bc-step.active{color:var(--c-blue);font-weight:600}
+.bc-step.done{color:var(--c-success)}
+.bc-num{width:20px;height:20px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:var(--t-11);font-weight:700;flex-shrink:0;transition:all .2s}
+.bc-step.active .bc-num{background:var(--c-blue);border-color:var(--c-blue);color:#fff}
+.bc-step.done .bc-num{background:var(--c-success);border-color:var(--c-success);color:#fff}
+.bc-line{width:24px;height:1px;background:var(--c-border);flex-shrink:0;margin:0 2px}
+.header-lang{display:flex;gap:4px;flex-shrink:0}
+.lang-btn{padding:5px 10px;border-radius:20px;border:1.5px solid var(--c-border);background:var(--c-white);font-size:var(--t-12);cursor:pointer;color:var(--c-text-2);font-weight:500;transition:all .18s var(--ease);display:inline-flex;align-items:center;gap:4px;font-family:var(--f-body)}
+.lang-btn:hover{border-color:var(--c-blue);color:var(--c-blue);background:var(--c-blue-light)}
+.lang-btn.active{background:var(--c-blue);color:#fff;border-color:var(--c-blue);box-shadow:var(--sh-blue)}
+.lang-btn:active{transform:scale(.95)}
+.header-progress{height:2px;background:var(--c-blue-light);position:relative;overflow:hidden}
+.header-progress-fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--c-blue) 0%,#60a5fa 100%);transition:width .6s var(--ease);width:0}
 
-  .progress-bar {
-    margin: 1.5rem 0.5rem 0;
-    height: 4px;
-    background: var(--gray-200);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--blue) 0%, var(--blue-mid) 100%);
-    border-radius: 2px;
-    transition: width 0.5s var(--ease);
-    box-shadow: 0 0 6px rgba(91,33,182,0.4);
-  }
-  .progress-label {
-    font-size: 12px;
-    color: var(--gray-400);
-    margin-top: 6px;
-    padding: 0 0.5rem;
-  }
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 66px)}
 
-  /* ── MAIN ── */
-  .main {
-    padding: 2rem;
-    overflow-y: auto;
-  }
+/* ── SIDEBAR ── */
+.sidebar{background:var(--c-white);border-right:1px solid var(--c-border);padding:1.5rem 0;display:flex;flex-direction:column;position:sticky;top:66px;height:calc(100vh - 66px);overflow-y:auto}
+.sidebar-label{font-size:var(--t-11);font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--c-text-3);padding:0 1.25rem;margin-bottom:.75rem}
+.sidebar-nav{flex:1}
+.nav-item{display:flex;align-items:center;padding:13px 1.25rem;cursor:pointer;position:relative;transition:all .18s var(--ease);border-left:3px solid transparent;gap:12px}
+.nav-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c-blue);transform:scaleY(0);transform-origin:center;transition:transform .2s var(--ease)}
+.nav-item:hover{background:var(--c-blue-light)}
+.nav-item:hover::before{transform:scaleY(1)}
+.nav-item.active{background:var(--c-blue-light);border-left-color:var(--c-blue)}
+.nav-item.active::before{transform:scaleY(1)}
+.nav-item.done{border-left-color:var(--c-success-mid)}
+.nav-num{font-family:var(--f-display);font-size:26px;font-weight:900;color:var(--c-blue-mid);line-height:1;width:34px;text-align:center;flex-shrink:0;transition:all .2s;-webkit-text-stroke:.5px var(--c-blue-mid)}
+.nav-item.active .nav-num{color:var(--c-blue);-webkit-text-stroke:.5px var(--c-blue)}
+.nav-num.done{font-family:var(--f-body);font-size:var(--t-13);font-weight:700;color:var(--c-success);background:var(--c-success-light);border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;-webkit-text-stroke:0}
+.nav-label{font-size:var(--t-14);font-weight:500;color:var(--c-text-3);flex:1;transition:color .15s;line-height:1.3}
+.nav-item.active .nav-label{color:var(--c-blue);font-weight:700}
+.nav-item.done .nav-label{color:var(--c-text-2)}
 
-  /* ── PANELS ── */
-  .panel { display: none; }
-  .panel.active { display: block; }
+/* Sidebar footer with circular progress */
+.sidebar-footer{padding:1.25rem;border-top:1px solid var(--c-border-light);display:flex;align-items:center;gap:12px;margin-top:auto}
+.circ-progress{flex-shrink:0;position:relative;width:60px;height:60px}
+.circ-progress-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.circ-pct{font-family:var(--f-mono);font-size:var(--t-14);font-weight:700;color:var(--c-blue);line-height:1}
+.circ-of-text{font-size:9px;color:var(--c-text-3)}
+.sidebar-progress-label{font-size:var(--t-13);font-weight:500;color:var(--c-text-2)}
+.sidebar-progress-hint{font-size:var(--t-11);color:var(--c-text-3);margin-top:2px}
 
-  .panel-header {
-    margin-bottom: 1.5rem;
-  }
-  .panel-title {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--gray-800);
-  }
-  .panel-subtitle {
-    font-size: 14px;
-    color: var(--gray-600);
-    margin-top: 4px;
-  }
+/* ── MAIN ── */
+.main{padding:2rem 1.75rem;overflow-y:auto}
 
-  /* ── CARD ── */
-  .card {
-    background: var(--white);
-    border-radius: var(--radius);
-    border: 1px solid var(--gray-200);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .card + .card { margin-top: 1rem; }
+/* ── SECTION HEADER ── */
+.section-header{margin-bottom:1.75rem}
+.section-title{font-family:var(--f-display);font-size:var(--t-28);font-weight:700;color:var(--c-text);letter-spacing:-.5px;line-height:1.2}
+.section-sub{font-size:var(--t-14);color:var(--c-text-3);margin-top:6px;line-height:1.55}
 
-  /* ── WELCOME ── */
-  @keyframes heroShift {
-    0%   { background-position: 0% 50%; }
-    50%  { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  @keyframes stripeGlow {
-    0%, 100% { opacity: 0.45; transform: scaleX(0.85); }
-    50%       { opacity: 1;    transform: scaleX(1); }
-  }
-  @keyframes orbDrift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    40%       { transform: translate(-18px, 12px) scale(1.12); }
-    70%       { transform: translate(10px, -10px) scale(0.93); }
-  }
+/* ── CARDS ── */
+.card{background:var(--c-white);border-radius:var(--r-lg);border:1px solid var(--c-border);padding:1.5rem;box-shadow:var(--sh-sm)}
 
-  .welcome-hero {
-    background: linear-gradient(-45deg, #3b0f8c, #0038b8, #5b21b6, #1d4ed8, #7c3aed, #0038b8);
-    background-size: 400% 400%;
-    animation: heroShift 14s ease infinite;
-    border-radius: var(--radius);
-    padding: 2.5rem 2.5rem 2.25rem;
-    color: white;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-  /* Israeli flag blue accent stripes — top */
-  .welcome-hero::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.55) 25%, rgba(255,255,255,0.95) 50%, rgba(147,197,253,0.55) 75%, transparent 100%);
-    animation: stripeGlow 4s ease-in-out infinite;
-  }
-  /* Israeli flag blue accent stripes — bottom */
-  .welcome-hero::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.55) 25%, rgba(255,255,255,0.95) 50%, rgba(147,197,253,0.55) 75%, transparent 100%);
-    animation: stripeGlow 4s ease-in-out infinite;
-    animation-delay: 2s;
-  }
-  .hero-orb {
-    position: absolute;
-    width: 300px; height: 300px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(0,56,184,0.38) 0%, transparent 70%);
-    top: -90px; right: -70px;
-    animation: orbDrift 9s ease-in-out infinite;
-    pointer-events: none;
-  }
-  .welcome-hero h2 {
-    font-family: 'DM Sans', sans-serif;
-    font-size: 30px;
-    font-weight: 700;
-    margin-bottom: 10px;
-    position: relative;
-    letter-spacing: -0.3px;
-  }
-  .welcome-hero p {
-    font-size: 15px;
-    opacity: 0.88;
-    max-width: 480px;
-    line-height: 1.65;
-    position: relative;
-  }
-  .start-btn {
-    margin-top: 1.5rem;
-    padding: 12px 26px;
-    background: white;
-    color: #0038b8;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    position: relative;
-    transition: transform 0.15s, box-shadow 0.15s;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.22);
-  }
-  .start-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 22px rgba(0,56,184,0.38);
-  }
+/* ── BUTTONS ── */
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--c-blue);color:#fff;border:none;border-radius:var(--r);font-size:var(--t-14);font-weight:600;cursor:pointer;font-family:var(--f-body);transition:all .18s var(--ease);box-shadow:0 2px 8px rgba(37,99,235,.3);letter-spacing:-.1px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(37,99,235,.4);background:var(--c-blue-hover)}
+.btn-primary:active{transform:scale(.97)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 
-  .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  .feature-card {
-    background: var(--white);
-    border: 1px solid var(--gray-200);
-    border-top: 3px solid rgba(0,56,184,0.65);
-    border-radius: var(--radius);
-    padding: 1.25rem;
-    transition: transform 0.15s, box-shadow 0.15s;
-  }
-  .feature-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0,56,184,0.1);
-  }
-  .feature-emoji { font-size: 28px; margin-bottom: 8px; }
-  .feature-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
-  .feature-desc { font-size: 13px; color: var(--gray-600); line-height: 1.5; }
+/* ── WELCOME PANEL ── */
+@keyframes diagLines{0%{background-position:0 0}100%{background-position:60px 60px}}
+.welcome-hero{border-radius:var(--r-xl);background:linear-gradient(135deg,var(--c-blue-deep) 0%,#1d4ed8 55%,#2563eb 100%);padding:2.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.welcome-hero::before{content:'';position:absolute;inset:0;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 28px);background-size:28px 28px;animation:diagLines 10s linear infinite}
+.welcome-hero-content{position:relative;z-index:1}
+.welcome-eyebrow{font-size:var(--t-12);font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--c-blue-mid);margin-bottom:.875rem}
+.welcome-headline-he{font-family:var(--f-display);font-size:var(--t-38);font-weight:900;color:#fff;line-height:1.15;letter-spacing:-.5px;margin-bottom:6px}
+.welcome-headline-en{font-size:var(--t-16);color:rgba(255,255,255,.68);font-weight:400;margin-bottom:1.75rem;line-height:1.5}
+.welcome-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.875rem;margin-bottom:1.75rem}
+.welcome-stat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:var(--r);padding:.875rem 1.125rem;backdrop-filter:blur(8px)}
+.welcome-stat-num{font-family:var(--f-mono);font-size:var(--t-28);font-weight:700;color:#fff;line-height:1;margin-bottom:3px}
+.welcome-stat-label{font-size:var(--t-12);color:rgba(255,255,255,.6);line-height:1.4}
+.welcome-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;background:#fff;color:var(--c-blue-deep);border:none;border-radius:var(--r);font-size:var(--t-14);font-weight:700;cursor:pointer;font-family:var(--f-body);transition:all .18s var(--ease);box-shadow:0 4px 16px rgba(0,0,0,.15);letter-spacing:-.1px}
+.welcome-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.welcome-cta:active{transform:scale(.97)}
 
-  /* ── KYC ── */
-  .service-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    margin-top: 1rem;
-  }
-  .service-option {
-    border: 2px solid var(--gray-200);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    cursor: pointer;
-    transition: all 0.18s var(--ease);
-    background: var(--white);
-    box-shadow: var(--shadow-sm);
-  }
-  .service-option:hover {
-    border-color: var(--blue-mid);
-    background: var(--blue-light);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(91,33,182,0.12);
-  }
-  .service-option.selected {
-    border-color: var(--blue);
-    background: var(--blue-light);
-    box-shadow: 0 0 0 3px rgba(91,33,182,0.12), 0 4px 12px rgba(91,33,182,0.1);
-  }
-  .service-option:active { transform: scale(0.98); }
-  .service-option-icon { font-size: 24px; margin-bottom: 6px; }
-  .service-option-title { font-weight: 600; font-size: 14px; }
-  .service-option-desc { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
+/* Feature cards */
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.875rem}
+.feature-card{background:var(--c-white);border:1px solid var(--c-border);border-top:2px solid var(--c-border);border-radius:var(--r-lg);padding:1.5rem;position:relative;overflow:hidden;transition:box-shadow .2s var(--ease),transform .2s var(--ease),border-top-color .25s;box-shadow:var(--sh-sm);cursor:default}
+.feature-card:hover{transform:translateY(-3px);box-shadow:var(--sh-md);border-top-color:var(--c-blue)}
+.feature-num{font-family:var(--f-display);font-size:44px;font-weight:900;color:var(--c-blue-light);line-height:1;margin-bottom:.625rem;-webkit-text-stroke:1px var(--c-blue-mid)}
+.feature-badge{display:inline-block;font-size:var(--t-11);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-blue);background:var(--c-blue-light);border-radius:4px;padding:2px 7px;margin-bottom:9px}
+.feature-title{font-size:var(--t-16);font-weight:700;color:var(--c-text);margin-bottom:5px;letter-spacing:-.2px}
+.feature-desc{font-size:var(--t-13);color:var(--c-text-3);line-height:1.55}
 
-  .eligibility-result {
-    background: var(--green-light);
-    border: 1px solid #a7f3d0;
-    border-radius: var(--radius);
-    padding: 1.25rem 1.5rem;
-    margin-top: 1rem;
-    display: none;
-  }
-  .eligibility-result.show { display: block; }
-  .eligibility-result.warn {
-    background: var(--amber-light);
-    border-color: #fcd34d;
-  }
-  .eligibility-title {
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 4px;
-    color: var(--gray-800);
-  }
-  .eligibility-desc {
-    font-size: 13px;
-    color: var(--gray-600);
-    line-height: 1.5;
-  }
-  .eligibility-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-  .badge-green { background: #d1fae5; color: #065f46; }
-  .badge-amber { background: #fef3c7; color: #92400e; }
+/* ── KYC PANEL ── */
+.field-label{font-size:var(--t-14);font-weight:700;color:var(--c-text);margin-bottom:4px}
+.field-hint{font-size:var(--t-13);color:var(--c-text-3);margin-bottom:1.125rem}
+.service-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.875rem;margin-top:.25rem}
+.service-option{border:1.5px solid var(--c-border);border-radius:var(--r-lg);padding:1.125rem 1.25rem;cursor:pointer;background:var(--c-white);transition:all .18s var(--ease);box-shadow:var(--sh-xs);display:flex;gap:.875rem;align-items:flex-start}
+.service-option:hover{border-color:var(--c-blue);box-shadow:var(--sh-blue);transform:translateY(-2px)}
+.service-option.selected{border-color:var(--c-blue);background:var(--c-blue-light);box-shadow:0 0 0 3px rgba(37,99,235,.12),var(--sh-blue)}
+.service-option:active{transform:scale(.98)}
+.service-icon-wrap{width:42px;height:42px;border-radius:9px;border:1.5px solid var(--c-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--c-bg);transition:all .18s;color:var(--c-blue)}
+.service-option:hover .service-icon-wrap,.service-option.selected .service-icon-wrap{background:var(--c-blue);color:#fff;border-color:var(--c-blue)}
+.service-info{flex:1;min-width:0}
+.service-option-title{font-weight:700;font-size:var(--t-14);color:var(--c-text);margin-bottom:2px}
+.service-option-desc{font-size:var(--t-13);color:var(--c-text-3);line-height:1.4}
 
-  .sub-options {
-    display: none;
-    margin-top: 1rem;
-  }
-  .sub-options.show { display: block; }
-  .sub-options label {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--gray-800);
-    margin-bottom: 6px;
-    display: block;
-  }
-  .sub-option-btn {
-    display: inline-block;
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid var(--gray-200);
-    font-size: 13px;
-    cursor: pointer;
-    margin: 3px;
-    background: var(--white);
-    color: var(--gray-600);
-    transition: all 0.15s;
-  }
-  .sub-option-btn:hover, .sub-option-btn.selected {
-    background: var(--blue);
-    color: white;
-    border-color: var(--blue);
-  }
+/* Eligibility banner */
+.eligibility-result{display:none;margin-top:1.25rem;background:var(--c-white);border-radius:var(--r-lg);border:1px solid var(--c-border);box-shadow:var(--sh-sm);overflow:hidden}
+.eligibility-result.show{display:flex}
+.eligibility-result.warn .elig-stripe{background:var(--c-warning)}
+.elig-stripe{width:5px;background:var(--c-success);flex-shrink:0}
+.elig-body{padding:1.125rem 1.375rem;flex:1}
+.eligibility-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:var(--t-12);font-weight:600;margin-bottom:7px}
+.badge-green{background:var(--c-success-light);color:var(--c-success)}
+.badge-amber{background:var(--c-warning-light);color:var(--c-warning)}
+.eligibility-title{font-weight:700;font-size:var(--t-16);color:var(--c-text);margin-bottom:4px}
+.eligibility-desc{font-size:var(--t-13);color:var(--c-text-3);line-height:1.5}
 
-  .action-btn {
-    margin-top: 1.25rem;
-    padding: 11px 22px;
-    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
-    color: white;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.18s var(--ease);
-    box-shadow: 0 2px 8px rgba(91,33,182,0.32);
-  }
-  .action-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(91,33,182,0.42);
-    filter: brightness(1.08);
-  }
-  .action-btn:active { transform: scale(0.97); box-shadow: 0 1px 4px rgba(91,33,182,0.2); }
-  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
+/* Sub-options */
+.sub-option-btn{display:inline-flex;align-items:center;padding:6px 13px;border-radius:20px;border:1.5px solid var(--c-border);font-size:var(--t-13);font-weight:500;cursor:pointer;margin:3px;background:var(--c-white);color:var(--c-text-2);transition:all .15s;font-family:var(--f-body)}
+.sub-option-btn:hover,.sub-option-btn.selected{background:var(--c-blue);color:#fff;border-color:var(--c-blue);box-shadow:var(--sh-blue)}
+.sub-option-btn:active{transform:scale(.97)}
 
-  /* ── DOCUMENT TREE ── */
-  @keyframes strikeIn {
-    from { transform: scaleX(0); }
-    to   { transform: scaleX(1); }
-  }
+/* ── DOCUMENT CHECKLIST ── */
+.doc-summary-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:.875rem;margin-bottom:1.25rem}
+.doc-summary-card{background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:1.125rem;box-shadow:var(--sh-xs);display:flex;align-items:center;gap:11px}
+.doc-summary-icon{width:38px;height:38px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;font-weight:700}
+.doc-summary-icon.req-icon{background:var(--c-blue-light);color:var(--c-blue)}
+.doc-summary-icon.cached-icon{background:var(--c-success-light);color:var(--c-success)}
+.doc-summary-icon.opt-icon{background:#f3f4f6;color:var(--c-text-3)}
+.doc-sum-num{font-family:var(--f-mono);font-size:22px;font-weight:700;line-height:1}
+.doc-sum-num.req-num{color:var(--c-blue)}
+.doc-sum-num.cached-num{color:var(--c-success)}
+.doc-sum-num.opt-num{color:var(--c-text-3)}
+.doc-sum-label{font-size:var(--t-12);color:var(--c-text-3);margin-top:2px;line-height:1.3}
 
-  .doc-tree { margin-top: 1rem; }
-  .doc-category { margin-bottom: 1.5rem; }
-  .doc-category-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 700;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--gray-400);
-    padding: 6px 0 8px;
-    border-bottom: 1px solid var(--gray-100);
-    margin-bottom: 6px;
-  }
-  .doc-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 2px;
-    transition: background 0.15s var(--ease);
-  }
-  .doc-item:hover { background: var(--gray-50); }
-  .doc-item.is-cached { opacity: 0.75; }
-  .doc-item.is-cached:hover { opacity: 0.9; }
+/* Readiness stepper */
+.readiness-stepper{display:flex;align-items:center;background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:.875rem 1.25rem;margin-bottom:1.25rem;box-shadow:var(--sh-xs)}
+.rs-step{display:flex;align-items:center;gap:7px;font-size:var(--t-13);font-weight:500;color:var(--c-text-3);flex:1}
+.rs-step.rs-done{color:var(--c-success)}
+.rs-step.rs-active{color:var(--c-blue);font-weight:600}
+.rs-dot{width:22px;height:22px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:var(--t-11);font-weight:700;flex-shrink:0}
+.rs-step.rs-done .rs-dot{background:var(--c-success);border-color:var(--c-success);color:#fff}
+.rs-step.rs-active .rs-dot{background:var(--c-blue);border-color:var(--c-blue);color:#fff}
+.rs-connector{flex:1;height:1.5px;background:var(--c-border);margin:0 6px;min-width:12px}
 
-  .doc-checkbox {
-    width: 18px; height: 18px;
-    border-radius: 4px;
-    border: 2px solid var(--gray-200);
-    flex-shrink: 0;
-    margin-top: 2px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.18s var(--ease);
-  }
-  .doc-checkbox:hover { border-color: var(--green); }
-  .doc-checkbox.checked {
-    background: var(--green);
-    border-color: var(--green);
-    color: white;
-    font-size: 11px;
-    box-shadow: 0 1px 4px rgba(15,157,88,0.35);
-  }
-  .doc-info { flex: 1; min-width: 0; }
-  .doc-name {
-    font-size: 14px;
-    font-weight: 500;
-    position: relative;
-    display: block;
-  }
-  .doc-item.is-cached .doc-name {
-    color: var(--gray-400);
-  }
-  .doc-item.is-cached .doc-name::after {
-    content: '';
-    position: absolute;
-    left: 0; top: 52%;
-    width: 100%; height: 1.5px;
-    background: var(--gray-400);
-    transform-origin: left;
-    animation: strikeIn 0.45s var(--ease) 0.1s both;
-  }
-  .doc-note { font-size: 12px; color: var(--gray-400); margin-top: 2px; line-height: 1.4; }
-  .doc-tag {
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .tag-new      { background: #fee2e2; color: #991b1b; }
-  .tag-cached   { background: #d1fae5; color: #065f46; }
-  .tag-optional { background: var(--gray-100); color: var(--gray-600); }
+/* Doc tree */
+.doc-tree{display:flex;flex-direction:column;gap:0}
+.doc-category{margin-bottom:1.375rem;display:flex;flex-direction:column;gap:6px}
+.doc-category-header{font-size:var(--t-11);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-text-3);display:flex;align-items:center;gap:7px;padding-bottom:2px}
+.doc-category-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.doc-category-dot.required{background:var(--c-blue)}
+.doc-category-dot.cached{background:var(--c-success)}
+.doc-category-dot.optional{background:var(--c-text-3)}
 
-  .doc-summary-bar {
-    background: linear-gradient(135deg, var(--blue-light) 0%, #f0f4ff 100%);
-    border: 1px solid rgba(91,33,182,0.1);
-    border-radius: var(--radius);
-    padding: 14px 20px;
-    display: flex;
-    gap: 2rem;
-    margin-bottom: 1.25rem;
-    font-size: 13px;
-    box-shadow: var(--shadow-sm);
-  }
-  .doc-summary-item { display: flex; align-items: center; gap: 8px; }
-  .doc-count { font-weight: 800; font-size: 20px; color: var(--blue); line-height: 1; }
-  .doc-label { color: var(--gray-600); font-size: 12px; }
+@keyframes strikeIn{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes cbPop{0%{transform:scale(1)}40%{transform:scale(1.35)}70%{transform:scale(.9)}100%{transform:scale(1)}}
 
-  /* ── CHATBOT ── */
-  .chat-wrapper {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 180px);
-    background: var(--white);
-    border-radius: var(--radius);
-    border: 1px solid var(--gray-200);
-    overflow: hidden;
-  }
-  .chat-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--gray-100);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .chat-avatar {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #5b21b6 0%, #0038b8 100%);
-    display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 18px;
-    box-shadow: 0 2px 10px rgba(0,56,184,0.35);
-    flex-shrink: 0;
-  }
-  .chat-name { font-weight: 600; font-size: 14px; }
-  .chat-status { font-size: 12px; color: var(--green); }
-  .online-dot {
-    width: 8px; height: 8px;
-    background: var(--green);
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 4px;
-  }
+.doc-item{display:flex;align-items:flex-start;gap:11px;padding:12px 14px;border-radius:var(--r);border:1px solid var(--c-border);background:var(--c-white);transition:box-shadow .15s var(--ease);box-shadow:var(--sh-xs)}
+.doc-item.required-item{border-left:3px solid var(--c-blue)}
+.doc-item.is-cached{border-left:3px solid var(--c-success);background:var(--c-success-light);opacity:.85}
+.doc-item.is-cached:hover{opacity:1}
+.doc-item.optional-item{border:1.5px dashed var(--c-border);background:var(--c-bg);box-shadow:none}
+.doc-item:hover{box-shadow:var(--sh)}
+.doc-checkbox{width:20px;height:20px;border-radius:5px;border:2px solid var(--c-border);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s var(--ease);font-size:11px;font-weight:700}
+.doc-checkbox:hover{border-color:var(--c-blue)}
+.doc-checkbox.checked{background:var(--c-success);border-color:var(--c-success);color:#fff;animation:cbPop .3s var(--spring);box-shadow:0 1px 4px rgba(5,150,105,.35)}
+.doc-info{flex:1;min-width:0}
+.doc-name{font-size:var(--t-14);font-weight:600;color:var(--c-text);position:relative;display:block}
+.doc-item.is-cached .doc-name{color:var(--c-text-3)}
+.doc-item.is-cached .doc-name::after{content:'';position:absolute;left:0;top:52%;width:100%;height:1.5px;background:var(--c-text-3);transform-origin:left;animation:strikeIn .45s var(--ease) .1s both}
+.doc-note{font-size:var(--t-12);color:var(--c-text-3);margin-top:3px;line-height:1.4}
+.doc-tag{padding:3px 9px;border-radius:20px;font-size:var(--t-11);font-weight:700;white-space:nowrap;flex-shrink:0;letter-spacing:.03em}
+.tag-new{background:var(--c-blue-light);color:var(--c-blue)}
+.tag-cached{background:var(--c-success-light);color:var(--c-success)}
+.tag-optional{background:#f3f4f6;color:var(--c-text-3)}
 
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  @keyframes msgIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  .message {
-    max-width: 80%;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    animation: msgIn 0.22s var(--ease) both;
-  }
-  .message.bot { align-self: flex-start; }
-  .message.user { align-self: flex-end; }
-  .message-bubble {
-    padding: 11px 15px;
-    border-radius: 16px;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-  .message.bot .message-bubble {
-    background: #f0f0f5;
-    color: var(--gray-800);
-    border-bottom-left-radius: 4px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 2px 6px rgba(0,0,0,0.04);
-  }
-  .message.user .message-bubble {
-    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
-    color: white;
-    border-bottom-right-radius: 4px;
-    box-shadow: 0 2px 10px rgba(91,33,182,0.3), 0 1px 3px rgba(91,33,182,0.2);
-  }
-  .message-time {
-    font-size: 11px;
-    color: var(--gray-400);
-    padding: 0 4px;
-  }
-  .message.user .message-time { text-align: right; }
+/* ── CHAT PANEL ── */
+.chat-wrapper{display:flex;flex-direction:column;height:calc(100vh - 210px);min-height:460px;background:var(--c-white);border-radius:var(--r-xl);border:1px solid var(--c-border);overflow:hidden;box-shadow:var(--sh-md)}
+.chat-head{padding:1.125rem 1.375rem;border-bottom:1px solid var(--c-border-light);display:flex;align-items:center;gap:12px;background:var(--c-white)}
+.chat-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#3b82f6 0%,var(--c-blue-deep) 100%);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 12px rgba(37,99,235,.35)}
+.chat-name{font-weight:700;font-size:var(--t-14);color:var(--c-text)}
+.chat-status{font-size:var(--t-12);color:var(--c-success);display:flex;align-items:center;gap:5px;margin-top:2px}
+.online-dot{width:7px;height:7px;background:var(--c-success);border-radius:50%;display:inline-block;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.faq-chips{display:flex;gap:7px;padding:10px 14px;overflow-x:auto;border-bottom:1px solid var(--c-border-light);background:var(--c-white);scrollbar-width:none}
+.faq-chips::-webkit-scrollbar{display:none}
+.quick-reply{padding:5px 13px;border-radius:20px;border:1.5px solid var(--c-blue-mid);color:var(--c-blue);font-size:var(--t-13);font-weight:500;cursor:pointer;background:var(--c-white);white-space:nowrap;transition:all .15s;font-family:var(--f-body)}
+.quick-reply:hover{background:var(--c-blue);color:#fff;border-color:var(--c-blue);transform:translateY(-1px)}
+.quick-reply:active{transform:scale(.96)}
+.chat-messages{flex:1;overflow-y:auto;padding:1.25rem;display:flex;flex-direction:column;gap:14px;background:var(--c-bg)}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.message{display:flex;flex-direction:column;gap:3px;animation:msgIn .22s var(--ease) both;max-width:78%}
+.message.bot{align-self:flex-start}
+.message.user{align-self:flex-end}
+.message.bot .message-bubble{background:var(--c-white);color:var(--c-text);border:1px solid var(--c-border);border-left:3px solid var(--c-blue);border-radius:0 14px 14px 14px;padding:11px 14px;font-size:var(--t-14);line-height:1.65;box-shadow:var(--sh-xs)}
+.message.user .message-bubble{background:var(--c-blue);color:#fff;border-radius:14px 14px 0 14px;padding:11px 14px;font-size:var(--t-14);line-height:1.65;box-shadow:0 2px 10px rgba(37,99,235,.3)}
+.message-time{font-size:var(--t-11);color:var(--c-text-3);padding:0 4px}
+.message.user .message-time{text-align:right}
+.typing-indicator{display:flex;align-items:center;gap:4px;padding:11px 14px;background:var(--c-white);border:1px solid var(--c-border);border-left:3px solid var(--c-blue);border-radius:0 14px 14px 14px;width:fit-content}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--c-text-3);animation:tdot 1.2s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.chat-input-area{padding:.875rem 1.125rem;border-top:1px solid var(--c-border-light);display:flex;gap:9px;align-items:flex-end;background:var(--c-white)}
+.chat-input{flex:1;padding:10px 14px;border:1.5px solid var(--c-border);border-radius:var(--r-xl);font-size:var(--t-14);font-family:var(--f-body);resize:none;outline:none;max-height:96px;transition:border-color .18s,box-shadow .18s;color:var(--c-text);background:var(--c-bg)}
+.chat-input:focus{border-color:var(--c-blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:#fff}
+.chat-input::placeholder{color:var(--c-text-3)}
+.send-btn{width:42px;height:42px;border-radius:50%;background:var(--c-blue);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(37,99,235,.4);transition:all .18s var(--ease)}
+.send-btn:hover{transform:scale(1.1);box-shadow:0 4px 16px rgba(37,99,235,.5);background:var(--c-blue-hover)}
+.send-btn:active{transform:scale(.93)}
+.send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 
-  .quick-replies {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
-  }
-  .quick-reply {
-    padding: 7px 13px;
-    border-radius: 20px;
-    border: 1.5px solid rgba(91,33,182,0.3);
-    color: var(--blue);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    background: white;
-    transition: all 0.18s var(--ease);
-    box-shadow: 0 1px 3px rgba(91,33,182,0.08);
-  }
-  .quick-reply:hover {
-    background: var(--blue);
-    color: white;
-    border-color: var(--blue);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 10px rgba(91,33,182,0.25);
-  }
-  .quick-reply:active { transform: scale(0.96); }
+/* ── STATUS PANEL ── */
+.status-notification{background:#064e3b;border-radius:var(--r-lg);padding:1rem 1.375rem;color:#fff;margin-bottom:1.375rem;display:flex;align-items:center;gap:13px;box-shadow:var(--sh-sm)}
+.wa-icon{font-size:22px;flex-shrink:0}
+.wa-body p:first-child{font-weight:600;font-size:var(--t-14)}
+.wa-body p:last-child{font-size:var(--t-12);opacity:.72;margin-top:3px}
 
-  .chat-input-area {
-    padding: 1rem 1.25rem;
-    border-top: 1px solid var(--gray-100);
-    display: flex;
-    gap: 8px;
-    align-items: flex-end;
-  }
-  .chat-input {
-    flex: 1;
-    padding: 10px 14px;
-    border: 1px solid var(--gray-200);
-    border-radius: 20px;
-    font-size: 14px;
-    font-family: inherit;
-    resize: none;
-    outline: none;
-    max-height: 100px;
-    transition: border-color 0.15s;
-  }
-  .chat-input:focus { border-color: var(--blue-mid); }
-  .send-btn {
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.18s var(--ease);
-    flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(91,33,182,0.35);
-  }
-  .send-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 0 4px 14px rgba(91,33,182,0.45);
-    filter: brightness(1.1);
-  }
-  .send-btn:active { transform: scale(0.94); }
-  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
+/* Timeline */
+@keyframes lineFill{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes dotPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes activePulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.4)}50%{box-shadow:0 0 0 8px rgba(37,99,235,0)}}
+@keyframes activeRing{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.2);opacity:0}}
 
-  .typing-indicator {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 10px 14px;
-    background: var(--gray-100);
-    border-radius: 12px;
-    border-bottom-left-radius: 4px;
-    width: fit-content;
-  }
-  .typing-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--gray-400);
-    animation: bounce 1.2s infinite;
-  }
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-6px); }
-  }
+.timeline{display:flex;flex-direction:column;margin-bottom:1rem}
+.timeline-card{display:flex;gap:0}
+.tl-spine{display:flex;flex-direction:column;align-items:center;width:48px;flex-shrink:0;padding-top:14px}
+.tl-dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;position:relative;animation:dotPop .3s var(--spring) both;z-index:1}
+.tl-dot.done{background:var(--c-success-light);color:var(--c-success)}
+.tl-dot.active{background:var(--c-blue);color:#fff;animation:dotPop .3s var(--spring) both,activePulse 2s ease-in-out .5s infinite}
+.tl-dot.active::before{content:'';position:absolute;inset:0;border-radius:50%;background:rgba(37,99,235,.5);animation:activeRing 1.8s ease-out .5s infinite}
+.tl-dot.pending{background:#f3f4f6;color:var(--c-text-3);border:2px dashed var(--c-border)}
+.tl-line{width:2px;flex:1;min-height:16px;background:var(--c-border);transform-origin:top;animation:lineFill .45s var(--ease) both}
+.tl-line.done{background:var(--c-success)}
+.tl-line.active{background:linear-gradient(to bottom,var(--c-success) 40%,var(--c-border) 40%)}
+.tl-body{flex:1;background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:.875rem 1.125rem;margin:8px 0 8px 8px;box-shadow:var(--sh-xs)}
+.tl-body.done-body{border-left:3px solid var(--c-success)}
+.tl-body.active-body{border-left:3px solid var(--c-blue);background:var(--c-blue-light)}
+.tl-body.pending-body{opacity:.6}
+.tl-title{font-weight:700;font-size:var(--t-14);color:var(--c-text)}
+.tl-body.active-body .tl-title{color:var(--c-blue)}
+.tl-body.pending-body .tl-title{color:var(--c-text-3)}
+.tl-desc{font-size:var(--t-13);color:var(--c-text-3);margin-top:3px;line-height:1.45}
+.tl-time{font-family:var(--f-mono);font-size:var(--t-11);color:var(--c-text-3);margin-top:5px}
 
-  /* ── NOTIFICATION PANEL ── */
-  @keyframes lineDraw {
-    from { transform: scaleY(0); }
-    to   { transform: scaleY(1); }
-  }
-  @keyframes dotPop {
-    from { transform: scale(0.4); opacity: 0; }
-    to   { transform: scale(1);   opacity: 1; }
-  }
-  @keyframes activePulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.45), 0 0 12px 2px rgba(37,99,235,0.18); }
-    50%       { box-shadow: 0 0 0 9px rgba(37,99,235,0.08), 0 0 22px 6px rgba(37,99,235,0.28); }
-  }
-  @keyframes activeRing {
-    0%   { transform: scale(1); opacity: 0.7; }
-    100% { transform: scale(2.5); opacity: 0; }
-  }
+.ref-card{background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--r-lg);padding:1.375rem;box-shadow:var(--sh-sm);margin-top:.875rem}
+.ref-label{font-size:var(--t-12);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--c-text-3);margin-bottom:7px}
+.ref-number{font-family:var(--f-mono);font-size:var(--t-28);font-weight:700;color:var(--c-blue);letter-spacing:.06em}
+.ref-hint{font-size:var(--t-12);color:var(--c-text-3);margin-top:5px}
 
-  .notif-timeline { margin-top: 1rem; }
-  .notif-item {
-    display: flex;
-    gap: 14px;
-  }
-  .notif-spine {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex-shrink: 0;
-  }
-  .notif-line {
-    width: 2px;
-    flex: 1;
-    min-height: 28px;
-    background: var(--gray-200);
-    transform-origin: top;
-    animation: lineDraw 0.45s ease-out both;
-  }
-  .notif-line.done    { background: #22c55e; }
-  .notif-line.active  { background: linear-gradient(to bottom, #22c55e 40%, var(--gray-200) 40%); }
+/* ── AI GUIDE ── */
+@keyframes guideBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes guideWiggle{0%{transform:rotate(0) scale(1)}18%{transform:rotate(-11deg) scale(1.06)}42%{transform:rotate(9deg) scale(1.06)}62%{transform:rotate(-6deg) scale(1.02)}80%{transform:rotate(4deg) scale(1.01)}100%{transform:rotate(0) scale(1)}}
+@keyframes guideRingPulse{0%{transform:scale(1);opacity:.65}100%{transform:scale(1.6);opacity:0}}
+@keyframes guideMsgIn{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-  .notif-dot {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px; font-weight: 700;
-    flex-shrink: 0;
-    position: relative;
-    animation: dotPop 0.3s ease-out both;
-  }
-  .notif-dot.done {
-    background: #dcfce7;
-    color: #16a34a;
-  }
-  .notif-dot.active {
-    background: var(--blue);
-    color: white;
-    font-size: 12px;
-    animation: dotPop 0.3s ease-out both, activePulse 2.2s ease-in-out 0.4s infinite;
-  }
-  .notif-dot.active::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: rgba(37,99,235,0.55);
-    animation: activeRing 2s ease-out 0.4s infinite;
-  }
-  .notif-dot.pending {
-    background: var(--gray-100);
-    border: 2px dashed var(--gray-300);
-  }
+#guide-character{position:fixed;bottom:28px;right:28px;left:auto;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;pointer-events:none}
+#guide-character.rtl{right:auto;left:28px;align-items:flex-start}
+.guide-inner{display:flex;flex-direction:column;align-items:inherit;gap:10px;animation:guideBob 4.2s ease-in-out infinite;pointer-events:auto}
+.guide-bubble{background:#fff;border:1.5px solid var(--c-blue);border-radius:16px;padding:11px 15px;max-width:252px;min-width:170px;box-shadow:0 4px 24px rgba(37,99,235,.14),0 2px 8px rgba(0,0,0,.08);position:relative;animation:guideMsgIn .38s var(--spring) both;transform-origin:bottom center;cursor:default}
+.guide-bubble.guide-hidden{display:none}
+.guide-bubble p{font-size:var(--t-13);font-weight:500;color:var(--c-blue-deep);line-height:1.55;margin:0}
+.guide-bubble::before{content:'';position:absolute;bottom:-10px;right:21px;border:9px solid transparent;border-top-color:var(--c-blue);border-bottom:none}
+.guide-bubble::after{content:'';position:absolute;bottom:-8px;right:22.5px;border:7.5px solid transparent;border-top-color:#fff;border-bottom:none}
+#guide-character.rtl .guide-bubble::before{right:auto;left:21px}
+#guide-character.rtl .guide-bubble::after{right:auto;left:22.5px}
+.guide-float{position:relative;width:62px;height:62px;display:flex;align-items:center;justify-content:center;align-self:flex-end}
+#guide-character.rtl .guide-float{align-self:flex-start}
+.guide-ring{position:absolute;inset:-8px;border-radius:50%;border:2.5px solid rgba(37,99,235,.5);animation:guideRingPulse 3s ease-out infinite;pointer-events:none}
+.guide-ring2{position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(37,99,235,.25);animation:guideRingPulse 3s ease-out 1.5s infinite;pointer-events:none}
+.guide-avatar{width:62px;height:62px;border-radius:50%;background:linear-gradient(145deg,#3b82f6 0%,var(--c-blue) 55%,var(--c-blue-deep) 100%);cursor:pointer;border:none;padding:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 22px rgba(37,99,235,.52),0 2px 8px rgba(0,0,0,.16);transition:transform .2s var(--ease),box-shadow .2s var(--ease);position:relative;z-index:1}
+.guide-avatar:hover{transform:scale(1.1);box-shadow:0 8px 32px rgba(37,99,235,.62)}
+.guide-avatar:active{transform:scale(.95)}
+.guide-avatar.wiggle{animation:guideWiggle .52s ease-in-out}
+.guide-avatar svg{width:100%;height:100%;display:block}
 
-  .notif-content {
-    flex: 1;
-    padding-top: 5px;
-    padding-bottom: 1.4rem;
-  }
-  .notif-title { font-weight: 600; font-size: 14px; }
-  .notif-item.active .notif-title { color: var(--blue); }
-  .notif-item.pending .notif-title  { color: var(--gray-400); }
-  .notif-item.pending .notif-desc   { color: var(--gray-300); }
-  .notif-desc { font-size: 13px; color: var(--gray-600); margin-top: 2px; line-height: 1.45; }
-  .notif-time { font-size: 11px; color: var(--gray-400); margin-top: 5px; font-variant-numeric: tabular-nums; }
+/* ── RTL ── */
+body[dir=rtl] .message.user{align-self:flex-start}
+body[dir=rtl] .message.bot{align-self:flex-end}
+body[dir=rtl] .message.bot .message-bubble{border-radius:14px 0 14px 14px;border-left:1px solid var(--c-border);border-right:3px solid var(--c-blue)}
+body[dir=rtl] .message.user .message-bubble{border-radius:14px 14px 14px 0}
+body[dir=rtl] .nav-item{border-left:none;border-right:3px solid transparent}
+body[dir=rtl] .nav-item::before{left:auto;right:0}
+body[dir=rtl] .nav-item.active{border-right-color:var(--c-blue)}
+body[dir=rtl] .nav-item.done{border-right-color:var(--c-success-mid)}
+body[dir=rtl] .doc-item.required-item{border-left:1px solid var(--c-border);border-right:3px solid var(--c-blue)}
+body[dir=rtl] .doc-item.is-cached{border-left:1px solid var(--c-success-mid);border-right:3px solid var(--c-success)}
+body[dir=rtl] .tl-body{margin:8px 8px 8px 0}
+body[dir=rtl] .tl-body.done-body{border-right:3px solid var(--c-success);border-left-width:1px}
+body[dir=rtl] .tl-body.active-body{border-right:3px solid var(--c-blue);border-left-width:1px}
+body[dir=rtl] .elig-stripe{order:1}
+body[dir=rtl] .elig-body{order:0}
+body[dir=rtl] .message.bot .message-bubble{border-radius:14px 0 14px 14px}
+body[dir=rtl] .doc-item.is-cached .doc-name::after{transform-origin:right}
+body[dir=rtl] .welcome-hero::before{animation-direction:reverse}
 
-  .whatsapp-mock {
-    background: #075e54;
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
-    color: white;
-    margin-top: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .whatsapp-icon { font-size: 28px; }
-  .whatsapp-text p:first-child { font-weight: 600; font-size: 14px; }
-  .whatsapp-text p:last-child { font-size: 12px; opacity: 0.8; margin-top: 2px; }
-
-  /* ── RTL support ── */
-  .rtl { direction: rtl; text-align: right; }
-  .rtl .message.user { align-self: flex-start; }
-  .rtl .message.bot { align-self: flex-end; }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    .layout { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
-    .feature-grid { grid-template-columns: 1fr; }
-    .service-grid { grid-template-columns: 1fr; }
-  }
-
-  /* ── AI GUIDE CHARACTER ── */
-  @keyframes guideBob {
-    0%, 100% { transform: translateY(0px); }
-    50%       { transform: translateY(-9px); }
-  }
-  @keyframes guideWiggle {
-    0%   { transform: rotate(0deg)   scale(1);    }
-    18%  { transform: rotate(-11deg) scale(1.06); }
-    42%  { transform: rotate(9deg)   scale(1.06); }
-    62%  { transform: rotate(-6deg)  scale(1.02); }
-    80%  { transform: rotate(4deg)   scale(1.01); }
-    100% { transform: rotate(0deg)   scale(1);    }
-  }
-  @keyframes guideRingPulse {
-    0%   { transform: scale(1);    opacity: 0.65; }
-    100% { transform: scale(1.6);  opacity: 0;    }
-  }
-  @keyframes guideMsgIn {
-    from { opacity: 0; transform: translateY(10px) scale(0.94); }
-    to   { opacity: 1; transform: translateY(0)    scale(1);    }
-  }
-
-  #guide-character {
-    position: fixed;
-    bottom: 28px;
-    right: 28px;
-    left: auto;
-    z-index: 9999;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    pointer-events: none;
-  }
-  #guide-character.rtl {
-    right: auto;
-    left: 28px;
-    align-items: flex-start;
-  }
-  .guide-inner {
-    display: flex;
-    flex-direction: column;
-    align-items: inherit;
-    gap: 10px;
-    animation: guideBob 4.2s ease-in-out infinite;
-    pointer-events: auto;
-  }
-
-  /* Speech bubble */
-  .guide-bubble {
-    background: #ffffff;
-    border: 1.5px solid #2563eb;
-    border-radius: 16px;
-    padding: 12px 16px;
-    max-width: 256px;
-    min-width: 175px;
-    box-shadow: 0 4px 24px rgba(37,99,235,0.14), 0 2px 8px rgba(0,0,0,0.08);
-    position: relative;
-    animation: guideMsgIn 0.38s cubic-bezier(0.34,1.56,0.64,1) both;
-    transform-origin: bottom center;
-    cursor: default;
-  }
-  .guide-bubble.guide-hidden { display: none; }
-  .guide-bubble p {
-    font-family: 'Inter', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    color: #1e3a8a;
-    line-height: 1.58;
-    margin: 0;
-  }
-  /* Tail — blue outline triangle */
-  .guide-bubble::before {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    right: 21px;
-    border: 9px solid transparent;
-    border-top-color: #2563eb;
-    border-bottom: none;
-  }
-  /* Tail — white fill triangle (sits inside ::before) */
-  .guide-bubble::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    right: 22.5px;
-    border: 7.5px solid transparent;
-    border-top-color: #ffffff;
-    border-bottom: none;
-  }
-  #guide-character.rtl .guide-bubble::before { right: auto; left: 21px; }
-  #guide-character.rtl .guide-bubble::after  { right: auto; left: 22.5px; }
-
-  /* Avatar float + ring */
-  .guide-float {
-    position: relative;
-    width: 62px; height: 62px;
-    display: flex; align-items: center; justify-content: center;
-    align-self: flex-end;
-  }
-  #guide-character.rtl .guide-float { align-self: flex-start; }
-
-  .guide-ring {
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    border: 2.5px solid rgba(37,99,235,0.5);
-    animation: guideRingPulse 3s ease-out infinite;
-    pointer-events: none;
-  }
-  /* Second, slower ring for depth */
-  .guide-ring2 {
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    border: 2px solid rgba(37,99,235,0.25);
-    animation: guideRingPulse 3s ease-out 1.5s infinite;
-    pointer-events: none;
-  }
-
-  .guide-avatar {
-    width: 62px; height: 62px;
-    border-radius: 50%;
-    background: linear-gradient(145deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%);
-    cursor: pointer;
-    border: none;
-    padding: 7px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 22px rgba(37,99,235,0.52), 0 2px 8px rgba(0,0,0,0.16);
-    transition: transform 0.2s var(--ease, ease), box-shadow 0.2s var(--ease, ease);
-    position: relative;
-    z-index: 1;
-  }
-  .guide-avatar:hover {
-    transform: scale(1.1);
-    box-shadow: 0 8px 32px rgba(37,99,235,0.62), 0 2px 10px rgba(0,0,0,0.2);
-  }
-  .guide-avatar:active { transform: scale(0.95); }
-  .guide-avatar.wiggle  { animation: guideWiggle 0.52s ease-in-out; }
-  .guide-avatar svg { width: 100%; height: 100%; display: block; }
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .feature-grid{grid-template-columns:1fr}
+  .service-grid{grid-template-columns:1fr}
+  .welcome-stat-row{grid-template-columns:repeat(2,1fr)}
+  .doc-summary-bar{grid-template-columns:repeat(3,1fr)}
+  .header-breadcrumb{display:none}
+  .main{padding:1.25rem 1rem}
+}
 </style>
 </head>
 <body>
 
+<!-- ── HEADER ── -->
 <header class="header">
-  <div class="logo">
-    <div class="logo-icon">🏛️</div>
-    MishradAI
+  <div class="header-inner">
+    <a class="header-logo" href="#">
+      <div class="header-logo-icon">
+        <svg viewBox="0 0 48 48" fill="white" width="22" height="22" aria-hidden="true">
+          <ellipse cx="17" cy="34" rx="11" ry="9"/>
+          <circle cx="29" cy="22" r="9"/>
+          <ellipse cx="24" cy="10" rx="3.2" ry="8" transform="rotate(-28 24 18)"/>
+          <ellipse cx="28" cy="9" rx="3.2" ry="8" transform="rotate(0 28 17)"/>
+          <ellipse cx="32" cy="10" rx="3.2" ry="8" transform="rotate(25 32 18)"/>
+          <path d="M36,19 L47,22 L36,25 Z"/>
+        </svg>
+      </div>
+      <span class="header-logo-text">MishradAI</span>
+    </a>
+
+    <nav class="header-breadcrumb">
+      <div class="bc-step active" onclick="showPanel('welcome')"><span class="bc-num">1</span><span>Welcome</span></div>
+      <div class="bc-line"></div>
+      <div class="bc-step" onclick="showPanel('kyc')"><span class="bc-num">2</span><span>Eligibility</span></div>
+      <div class="bc-line"></div>
+      <div class="bc-step" onclick="showPanel('docs')"><span class="bc-num">3</span><span>Documents</span></div>
+      <div class="bc-line"></div>
+      <div class="bc-step" onclick="showPanel('chat')"><span class="bc-num">4</span><span>Assistant</span></div>
+      <div class="bc-line"></div>
+      <div class="bc-step" onclick="showPanel('status')"><span class="bc-num">5</span><span>Status</span></div>
+    </nav>
+
+    <div class="header-lang">
+      <button class="lang-btn active" onclick="setLang('en')">🇺🇸 EN</button>
+      <button class="lang-btn" onclick="setLang('he')">🇮🇱 עב</button>
+      <button class="lang-btn" onclick="setLang('ru')">🇷🇺 РУ</button>
+      <button class="lang-btn" onclick="setLang('ar')">🇸🇦 عر</button>
+    </div>
   </div>
-  <div class="lang-switcher">
-    <button class="lang-btn active" onclick="setLang('en')">🇺🇸 EN</button>
-    <button class="lang-btn" onclick="setLang('he')">🇮🇱 עב</button>
-    <button class="lang-btn" onclick="setLang('ru')">🇷🇺 РУ</button>
-    <button class="lang-btn" onclick="setLang('ar')">🇸🇦 عر</button>
+  <div class="header-progress">
+    <div class="header-progress-fill" id="progress-fill"></div>
   </div>
 </header>
 
+<!-- ── LAYOUT ── -->
 <div class="layout">
+
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-label" id="sl-steps">Your Journey</div>
-    <div class="nav-item active" onclick="showPanel('welcome')" id="nav-welcome">
-      <div class="nav-icon">🏠</div>
-      <span id="nl-welcome">Welcome</span>
-    </div>
-    <div class="nav-item" onclick="showPanel('kyc')" id="nav-kyc">
-      <div class="nav-icon">✅</div>
-      <span id="nl-kyc">Eligibility Check</span>
-      <div class="step-badge active-badge" id="badge-kyc">1</div>
-    </div>
-    <div class="nav-item" onclick="showPanel('docs')" id="nav-docs">
-      <div class="nav-icon">📋</div>
-      <span id="nl-docs">Document Checklist</span>
-      <div class="step-badge" id="badge-docs">2</div>
-    </div>
-    <div class="nav-item" onclick="showPanel('chat')" id="nav-chat">
-      <div class="nav-icon">💬</div>
-      <span id="nl-chat">AI Assistant</span>
-      <div class="step-badge" id="badge-chat">3</div>
-    </div>
-    <div class="nav-item" onclick="showPanel('status')" id="nav-status">
-      <div class="nav-icon">🔔</div>
-      <span id="nl-status">Status Updates</span>
-      <div class="step-badge" id="badge-status">4</div>
-    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" id="nav-welcome" onclick="showPanel('welcome')">
+        <span class="nav-num">01</span>
+        <span class="nav-label" id="nl-welcome">Welcome</span>
+      </div>
+      <div class="nav-item" id="nav-kyc" onclick="showPanel('kyc')">
+        <span class="nav-num" id="badge-kyc">02</span>
+        <span class="nav-label" id="nl-kyc">Eligibility Check</span>
+      </div>
+      <div class="nav-item" id="nav-docs" onclick="showPanel('docs')">
+        <span class="nav-num" id="badge-docs">03</span>
+        <span class="nav-label" id="nl-docs">Document Checklist</span>
+      </div>
+      <div class="nav-item" id="nav-chat" onclick="showPanel('chat')">
+        <span class="nav-num" id="badge-chat">04</span>
+        <span class="nav-label" id="nl-chat">AI Assistant</span>
+      </div>
+      <div class="nav-item" id="nav-status" onclick="showPanel('status')">
+        <span class="nav-num" id="badge-status">05</span>
+        <span class="nav-label" id="nl-status">Status Updates</span>
+      </div>
+    </nav>
 
-    <div class="progress-bar">
-      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    <div class="sidebar-footer">
+      <div class="circ-progress">
+        <svg width="60" height="60" style="display:block">
+          <circle cx="30" cy="30" r="24" fill="none" stroke="#eff6ff" stroke-width="5"/>
+          <circle cx="30" cy="30" r="24" fill="none" stroke="#2563eb" stroke-width="5"
+                  stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round"
+                  transform="rotate(-90 30 30)" id="circ-fill"
+                  style="transition:stroke-dashoffset .6s var(--ease)"/>
+        </svg>
+        <div class="circ-progress-text">
+          <span class="circ-pct" id="circ-pct">0%</span>
+          <span class="circ-of-text" id="progress-label">0 of 4</span>
+        </div>
+      </div>
+      <div>
+        <div class="sidebar-progress-label">Progress</div>
+        <div class="sidebar-progress-hint">Complete all steps</div>
+      </div>
     </div>
-    <div class="progress-label" id="progress-label">0 of 4 steps complete</div>
   </aside>
 
   <!-- MAIN -->
   <main class="main">
 
-    <!-- WELCOME PANEL -->
+    <!-- ── WELCOME PANEL ── -->
     <div class="panel active" id="panel-welcome">
       <div class="welcome-hero">
-        <div class="hero-orb"></div>
-        <h2 id="wh-title">Welcome to MishradAI</h2>
-        <p id="wh-sub">Your AI-powered guide for Ministry of Interior services. No more wasted trips. No more missing documents. We speak your language.</p>
-        <button class="start-btn" onclick="showPanel('kyc')" id="wh-btn">Get Started →</button>
+        <div class="welcome-hero-content">
+          <div class="welcome-eyebrow">🇮🇱 Ministry of Interior · Misrad HaPnim</div>
+          <div class="welcome-headline-he" id="wh-title">Welcome to MishradAI</div>
+          <div class="welcome-headline-en" id="wh-sub">Your AI-powered guide for Ministry of Interior services. No more wasted trips. No more missing documents. We speak your language.</div>
+          <div class="welcome-stat-row">
+            <div class="welcome-stat">
+              <div class="welcome-stat-num">2 min</div>
+              <div class="welcome-stat-label">Average eligibility<br>screening time</div>
+            </div>
+            <div class="welcome-stat">
+              <div class="welcome-stat-num">4 langs</div>
+              <div class="welcome-stat-label">Hebrew, Arabic,<br>Russian, English</div>
+            </div>
+            <div class="welcome-stat">
+              <div class="welcome-stat-num">6 svcs</div>
+              <div class="welcome-stat-label">Services covered<br>end-to-end</div>
+            </div>
+          </div>
+          <button class="welcome-cta" onclick="showPanel('kyc')">
+            <span id="wh-btn">Get Started →</span>
+          </button>
+        </div>
       </div>
+
       <div class="feature-grid">
         <div class="feature-card">
-          <div class="feature-emoji">🎯</div>
+          <div class="feature-num">01</div>
+          <div class="feature-badge">Eligibility</div>
           <div class="feature-title" id="fc1-title">Eligibility Pre-Check</div>
           <div class="feature-desc" id="fc1-desc">Know if you qualify before you travel. Our AI screens your situation in minutes, not weeks.</div>
         </div>
         <div class="feature-card">
-          <div class="feature-emoji">📄</div>
+          <div class="feature-num">02</div>
+          <div class="feature-badge">Documents</div>
           <div class="feature-title" id="fc2-title">Smart Document Tree</div>
           <div class="feature-desc" id="fc2-desc">See exactly what to bring. Documents already on file are automatically removed from your list.</div>
         </div>
         <div class="feature-card">
-          <div class="feature-emoji">🌍</div>
+          <div class="feature-num">03</div>
+          <div class="feature-badge">Languages</div>
           <div class="feature-title" id="fc3-title">Multilingual Support</div>
           <div class="feature-desc" id="fc3-desc">Hebrew, Arabic, Russian, and English — full access regardless of language background.</div>
         </div>
       </div>
     </div>
 
-    <!-- KYC PANEL -->
+    <!-- ── KYC PANEL ── -->
     <div class="panel" id="panel-kyc">
-      <div class="panel-header">
-        <div class="panel-title" id="kyc-title">Eligibility Pre-Screening</div>
-        <div class="panel-subtitle" id="kyc-sub">Tell us your situation — we'll verify your pathway before you book an appointment.</div>
+      <div class="section-header">
+        <h1 class="section-title" id="kyc-title">Eligibility Pre-Screening</h1>
+        <p class="section-sub" id="kyc-sub">Tell us your situation — we'll verify your pathway before you book an appointment.</p>
       </div>
+
       <div class="card">
-        <div style="font-weight:600; font-size:14px; margin-bottom:4px" id="kyc-q1">What service do you need?</div>
-        <div style="font-size:13px; color:var(--gray-600)" id="kyc-q1-hint">Select the service that applies to your situation</div>
-        <div class="service-grid" id="service-grid">
+        <div class="field-label" id="kyc-q1">What service do you need?</div>
+        <div class="field-hint" id="kyc-q1-hint">Select the service that applies to your situation</div>
+        <div class="service-grid">
+
           <div class="service-option" onclick="selectService('aliya')" id="svc-aliya">
-            <div class="service-option-icon">✡️</div>
-            <div class="service-option-title" id="svc-aliya-t">Aliya (Law of Return)</div>
-            <div class="service-option-desc" id="svc-aliya-d">Immigration via Jewish heritage</div>
+            <div class="service-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="11,1 13.5,7.5 20.5,7.5 15,12 17,18.5 11,14.5 5,18.5 7,12 1.5,7.5 8.5,7.5"/>
+              </svg>
+            </div>
+            <div class="service-info">
+              <div class="service-option-title" id="svc-aliya-t">Aliya (Law of Return)</div>
+              <div class="service-option-desc" id="svc-aliya-d">Immigration via Jewish heritage</div>
+            </div>
           </div>
+
           <div class="service-option" onclick="selectService('reunification')" id="svc-reun">
-            <div class="service-option-icon">👨‍👩‍👧</div>
-            <div class="service-option-title" id="svc-reun-t">Family Reunification</div>
-            <div class="service-option-desc" id="svc-reun-d">Spouse or family of Israeli citizen</div>
+            <div class="service-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="7" cy="6" r="3"/><circle cx="15" cy="6" r="3"/>
+                <path d="M1 20c0-3.3 2.7-6 6-6h8c3.3 0 6 2.7 6 6"/>
+              </svg>
+            </div>
+            <div class="service-info">
+              <div class="service-option-title" id="svc-reun-t">Family Reunification</div>
+              <div class="service-option-desc" id="svc-reun-d">Spouse or family of Israeli citizen</div>
+            </div>
           </div>
+
           <div class="service-option" onclick="selectService('id')" id="svc-id">
-            <div class="service-option-icon">🪪</div>
-            <div class="service-option-title" id="svc-id-t">ID / Passport Renewal</div>
-            <div class="service-option-desc" id="svc-id-d">Renew your Teudat Zehut or passport</div>
+            <div class="service-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="5" width="20" height="13" rx="2"/>
+                <circle cx="7.5" cy="11.5" r="2.5"/>
+                <line x1="12" y1="9" x2="19" y2="9"/><line x1="12" y1="13" x2="17" y2="13"/>
+              </svg>
+            </div>
+            <div class="service-info">
+              <div class="service-option-title" id="svc-id-t">ID / Passport Renewal</div>
+              <div class="service-option-desc" id="svc-id-d">Renew your Teudat Zehut or passport</div>
+            </div>
           </div>
+
           <div class="service-option" onclick="selectService('visa')" id="svc-visa">
-            <div class="service-option-icon">🛂</div>
-            <div class="service-option-title" id="svc-visa-t">Visa Extension</div>
-            <div class="service-option-desc" id="svc-visa-d">Work, student, or tourist visa</div>
+            <div class="service-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="1" width="16" height="20" rx="2"/>
+                <line x1="3" y1="7" x2="19" y2="7"/>
+                <line x1="7" y1="1" x2="7" y2="7"/>
+                <circle cx="11" cy="13.5" r="3"/>
+              </svg>
+            </div>
+            <div class="service-info">
+              <div class="service-option-title" id="svc-visa-t">Visa Extension</div>
+              <div class="service-option-desc" id="svc-visa-d">Work, student, or tourist visa</div>
+            </div>
           </div>
+
           <div class="service-option" onclick="selectService('birth')" id="svc-birth">
-            <div class="service-option-icon">👶</div>
-            <div class="service-option-title" id="svc-birth-t">Birth Registration</div>
-            <div class="service-option-desc" id="svc-birth-d">Register a newborn with the registry</div>
+            <div class="service-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="4"/>
+                <line x1="11" y1="1" x2="11" y2="5"/><line x1="11" y1="17" x2="11" y2="21"/>
+                <line x1="1" y1="11" x2="5" y2="11"/><line x1="17" y1="11" x2="21" y2="11"/>
+                <line x1="3.6" y1="3.6" x2="6.5" y2="6.5"/><line x1="15.5" y1="15.5" x2="18.4" y2="18.4"/>
+                <line x1="18.4" y1="3.6" x2="15.5" y2="6.5"/><line x1="6.5" y1="15.5" x2="3.6" y2="18.4"/>
+              </svg>
+            </div>
+            <div class="service-info">
+              <div class="service-option-title" id="svc-birth-t">Birth Registration</div>
+              <div class="service-option-desc" id="svc-birth-d">Register a newborn with the registry</div>
+            </div>
           </div>
+
           <div class="service-option" onclick="selectService('marriage')" id="svc-marr">
-            <div class="service-option-icon">💍</div>
-            <div class="service-option-title" id="svc-marr-t">Marriage Certificate</div>
-            <div class="service-option-desc" id="svc-marr-d">Register or obtain marriage records</div>
+            <div class="service-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="7.5" cy="13" r="5.5"/>
+                <circle cx="14.5" cy="13" r="5.5"/>
+                <path d="M7.5 7.5 C7.5 4.5 10 2 11 2 C12 2 14.5 4.5 14.5 7.5"/>
+              </svg>
+            </div>
+            <div class="service-info">
+              <div class="service-option-title" id="svc-marr-t">Marriage Certificate</div>
+              <div class="service-option-desc" id="svc-marr-d">Register or obtain marriage records</div>
+            </div>
           </div>
+
         </div>
       </div>
 
-      <div class="card" id="sub-options-card" style="display:none">
-        <div class="sub-options show" id="sub-options-content"></div>
+      <div class="card" id="sub-options-card" style="display:none;margin-top:.875rem">
+        <div id="sub-options-content"></div>
       </div>
 
       <div class="eligibility-result" id="eligibility-result">
-        <div class="eligibility-badge badge-green" id="elig-badge">✅ Eligible</div>
-        <div class="eligibility-title" id="elig-title">You qualify for this service</div>
-        <div class="eligibility-desc" id="elig-desc"></div>
+        <div class="elig-stripe"></div>
+        <div class="elig-body">
+          <div class="eligibility-badge badge-green" id="elig-badge">✅ Eligible</div>
+          <div class="eligibility-title" id="elig-title">You qualify for this service</div>
+          <div class="eligibility-desc" id="elig-desc"></div>
+        </div>
       </div>
 
-      <button class="action-btn" id="kyc-next-btn" onclick="completeKYC()" style="display:none" id="kyc-proceed">Confirm & Build Document Checklist →</button>
+      <button class="btn-primary" id="kyc-next-btn" onclick="completeKYC()" style="display:none;margin-top:1.375rem">
+        Confirm &amp; Build Document Checklist →
+      </button>
     </div>
 
-    <!-- DOCS PANEL -->
+    <!-- ── DOCS PANEL ── -->
     <div class="panel" id="panel-docs">
-      <div class="panel-header">
-        <div class="panel-title" id="docs-title">Your Document Checklist</div>
-        <div class="panel-subtitle" id="docs-sub">Based on your service and existing file — only what you actually need to bring.</div>
+      <div class="section-header">
+        <h1 class="section-title" id="docs-title">Your Document Checklist</h1>
+        <p class="section-sub" id="docs-sub">Based on your service and existing file — only what you actually need to bring.</p>
       </div>
 
-      <div class="doc-summary-bar" id="doc-summary">
-        <div class="doc-summary-item">
-          <span class="doc-count" id="docs-new-count">3</span>
-          <span class="doc-label" id="dl-new">documents to bring</span>
+      <div class="doc-summary-bar">
+        <div class="doc-summary-card">
+          <div class="doc-summary-icon req-icon">📋</div>
+          <div>
+            <div class="doc-sum-num req-num" id="docs-new-count">3</div>
+            <div class="doc-sum-label" id="dl-new">documents to bring</div>
+          </div>
         </div>
-        <div class="doc-summary-item">
-          <span class="doc-count" style="color:var(--green)" id="docs-cached-count">2</span>
-          <span class="doc-label" id="dl-cached">already on file (saved)</span>
+        <div class="doc-summary-card">
+          <div class="doc-summary-icon cached-icon">✓</div>
+          <div>
+            <div class="doc-sum-num cached-num" id="docs-cached-count">2</div>
+            <div class="doc-sum-label" id="dl-cached">already on file (saved)</div>
+          </div>
         </div>
-        <div class="doc-summary-item">
-          <span class="doc-count" style="color:var(--gray-400)" id="docs-opt-count">1</span>
-          <span class="doc-label" id="dl-opt">optional</span>
+        <div class="doc-summary-card">
+          <div class="doc-summary-icon opt-icon">○</div>
+          <div>
+            <div class="doc-sum-num opt-num" id="docs-opt-count">1</div>
+            <div class="doc-sum-label" id="dl-opt">optional</div>
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="doc-tree" id="doc-tree">
-          <!-- Populated by JS -->
-        </div>
-        <button class="action-btn" onclick="completeDocs()" id="docs-book-btn">Book Appointment with Verified Checklist →</button>
+      <div class="readiness-stepper">
+        <div class="rs-step rs-done"><span class="rs-dot">✓</span> Eligibility checked</div>
+        <div class="rs-connector"></div>
+        <div class="rs-step rs-active"><span class="rs-dot">2</span> Gather documents</div>
+        <div class="rs-connector"></div>
+        <div class="rs-step"><span class="rs-dot">3</span> Book appointment</div>
       </div>
+
+      <div class="doc-tree" id="doc-tree"></div>
+
+      <button class="btn-primary" onclick="completeDocs()" id="docs-book-btn" style="margin-top:1.375rem">
+        Book Appointment with Verified Checklist →
+      </button>
     </div>
 
-    <!-- CHAT PANEL -->
+    <!-- ── CHAT PANEL ── -->
     <div class="panel" id="panel-chat">
-      <div class="panel-header">
-        <div class="panel-title" id="chat-title">AI Assistant</div>
-        <div class="panel-subtitle" id="chat-sub">Ask anything about your application — in any language.</div>
+      <div class="section-header">
+        <h1 class="section-title" id="chat-title">AI Assistant</h1>
+        <p class="section-sub" id="chat-sub">Ask anything about your application — in any language.</p>
       </div>
-      <div class="chat-wrapper" id="chat-wrapper">
-        <div class="chat-header">
-          <div class="chat-avatar">🤖</div>
+
+      <div class="chat-wrapper">
+        <div class="chat-head">
+          <div class="chat-avatar">
+            <svg viewBox="0 0 48 48" fill="white" width="26" height="26" aria-hidden="true">
+              <ellipse cx="17" cy="34" rx="11" ry="9"/>
+              <circle cx="29" cy="22" r="9"/>
+              <ellipse cx="24" cy="10" rx="3.2" ry="8" transform="rotate(-28 24 18)"/>
+              <ellipse cx="28" cy="9" rx="3.2" ry="8" transform="rotate(0 28 17)"/>
+              <ellipse cx="32" cy="10" rx="3.2" ry="8" transform="rotate(25 32 18)"/>
+              <path d="M36,19 L47,22 L36,25 Z"/>
+            </svg>
+          </div>
           <div>
             <div class="chat-name">Miri — MishradAI Assistant</div>
             <div class="chat-status"><span class="online-dot"></span><span id="cs-online">Online · Replies instantly</span></div>
           </div>
         </div>
+
+        <div class="faq-chips">
+          <button class="quick-reply" onclick="sendQuick('What documents do I need for Teudat Zehut?')">Documents for Teudat Zehut</button>
+          <button class="quick-reply" onclick="sendQuick('How long does the ID renewal process take?')">Processing time</button>
+          <button class="quick-reply" onclick="sendQuick('Which branch handles visas in Tel Aviv?')">Tel Aviv branch</button>
+          <button class="quick-reply" onclick="sendQuick('What is the Law of Return?')">Law of Return</button>
+          <button class="quick-reply" onclick="sendQuick('Can I renew my passport online?')">Online renewal?</button>
+        </div>
+
         <div class="chat-messages" id="chat-messages">
           <div class="message bot">
-            <div class="message-bubble" id="cm-greeting">
-              שלום! I'm Miri, your personal guide for Ministry of Interior services. I can help you in Hebrew, English, Russian, or Arabic. What would you like to know?
-            </div>
-            <div class="quick-replies">
-              <div class="quick-reply" onclick="sendQuick('What documents do I need for Teudat Zehut?')">📋 Documents for Teudat Zehut</div>
-              <div class="quick-reply" onclick="sendQuick('How long does the process take?')">⏱️ Processing time</div>
-              <div class="quick-reply" onclick="sendQuick('Which branch handles visas in Tel Aviv?')">📍 Tel Aviv branch</div>
-            </div>
+            <div class="message-bubble" id="cm-greeting">שלום! I'm Miri, your personal guide for Ministry of Interior services. I can help you in Hebrew, English, Russian, or Arabic. What would you like to know?</div>
+            <div class="message-time">Now</div>
           </div>
         </div>
+
         <div class="chat-input-area">
           <textarea class="chat-input" id="chat-input" placeholder="Type your question in any language..." rows="1" onkeydown="handleKey(event)"></textarea>
-          <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+          <button class="send-btn" id="send-btn" onclick="sendMessage()" aria-label="Send">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- STATUS PANEL -->
+    <!-- ── STATUS PANEL ── -->
     <div class="panel" id="panel-status">
-      <div class="panel-header">
-        <div class="panel-title" id="status-title">Application Status</div>
-        <div class="panel-subtitle" id="status-sub">Real-time updates pushed to you — no need to call.</div>
+      <div class="section-header">
+        <h1 class="section-title" id="status-title">Application Status</h1>
+        <p class="section-sub" id="status-sub">Real-time updates pushed to you — no need to call.</p>
       </div>
 
-      <div class="whatsapp-mock">
-        <div class="whatsapp-icon">📱</div>
-        <div class="whatsapp-text">
+      <div class="status-notification">
+        <div class="wa-icon">📱</div>
+        <div class="wa-body">
           <p id="wa-title">WhatsApp / SMS Notifications Active</p>
           <p id="wa-sub">Updates sent to +972-50-XXX-XXXX · Hebrew · Last: 2 hours ago</p>
         </div>
       </div>
 
-      <div class="card" style="margin-top:1rem">
-        <div class="notif-timeline" id="notif-timeline">
-          <!-- Populated by JS -->
-        </div>
-      </div>
+      <div class="timeline" id="notif-timeline"></div>
 
-      <div class="card">
-        <div style="font-weight:600; font-size:14px; margin-bottom:8px" id="ref-title">Reference Number</div>
-        <div style="font-size:24px; font-weight:700; color:var(--blue); letter-spacing:0.1em">MHP-2026-084712</div>
-        <div style="font-size:12px; color:var(--gray-400); margin-top:4px" id="ref-hint">Keep this number to track or follow up on your application</div>
+      <div class="ref-card">
+        <div class="ref-label" id="ref-title">Reference Number</div>
+        <div class="ref-number">MHP-2026-084712</div>
+        <div class="ref-hint" id="ref-hint">Keep this number to track or follow up on your application</div>
       </div>
     </div>
 
   </main>
-</div>
+</div><!-- /.layout -->
 
 <script>
 /* ── STATE ── */
@@ -1221,287 +776,292 @@ let selectedService = null;
 let selectedSubOption = null;
 let stepsComplete = 0;
 
+const PANEL_ORDER = ['welcome','kyc','docs','chat','status'];
+
 /* ── TRANSLATIONS ── */
 const T = {
   en: {
-    slSteps: 'Your Journey',
-    nlWelcome: 'Welcome', nlKyc: 'Eligibility Check', nlDocs: 'Document Checklist',
-    nlChat: 'AI Assistant', nlStatus: 'Status Updates',
-    whTitle: 'Welcome to MishradAI',
-    whSub: 'Your AI-powered guide for Ministry of Interior services. No more wasted trips. No more missing documents. We speak your language.',
-    whBtn: 'Get Started →',
-    fc1Title: 'Eligibility Pre-Check', fc1Desc: 'Know if you qualify before you travel. Our AI screens your situation in minutes, not weeks.',
-    fc2Title: 'Smart Document Tree', fc2Desc: 'See exactly what to bring. Documents already on file are automatically removed from your list.',
-    fc3Title: 'Multilingual Support', fc3Desc: 'Hebrew, Arabic, Russian, and English — full access regardless of language background.',
-    kycTitle: 'Eligibility Pre-Screening', kycSub: 'Tell us your situation — we\'ll verify your pathway before you book an appointment.',
-    kycQ1: 'What service do you need?', kycQ1Hint: 'Select the service that applies to your situation',
-    svcAliyaT: 'Aliya (Law of Return)', svcAliyaD: 'Immigration via Jewish heritage',
-    svcReunT: 'Family Reunification', svcReunD: 'Spouse or family of Israeli citizen',
-    svcIdT: 'ID / Passport Renewal', svcIdD: 'Renew your Teudat Zehut or passport',
-    svcVisaT: 'Visa Extension', svcVisaD: 'Work, student, or tourist visa',
-    svcBirthT: 'Birth Registration', svcBirthD: 'Register a newborn with the registry',
-    svcMarrT: 'Marriage Certificate', svcMarrD: 'Register or obtain marriage records',
-    docsTitle: 'Your Document Checklist', docsSub: 'Based on your service and existing file — only what you actually need to bring.',
-    dlNew: 'documents to bring', dlCached: 'already on file (saved)', dlOpt: 'optional',
-    chatTitle: 'AI Assistant', chatSub: 'Ask anything about your application — in any language.',
-    csOnline: 'Online · Replies instantly',
-    statusTitle: 'Application Status', statusSub: 'Real-time updates pushed to you — no need to call.',
-    waTitle: 'WhatsApp / SMS Notifications Active', waSub: 'Updates sent to +972-50-XXX-XXXX · Hebrew · Last: 2 hours ago',
-    refTitle: 'Reference Number', refHint: 'Keep this number to track or follow up on your application',
-    chatGreeting: 'שלום! I\'m Miri, your personal guide for Ministry of Interior services. I can help you in Hebrew, English, Russian, or Arabic. What would you like to know?',
-    progressLabel: (n) => `${n} of 4 steps complete`,
-    kycProceed: 'Confirm & Build Document Checklist →',
-    docsBook: 'Book Appointment with Verified Checklist →',
+    slSteps:'Your Journey',
+    nlWelcome:'Welcome',nlKyc:'Eligibility Check',nlDocs:'Document Checklist',
+    nlChat:'AI Assistant',nlStatus:'Status Updates',
+    whTitle:'Welcome to MishradAI',
+    whSub:'Your AI-powered guide for Ministry of Interior services. No more wasted trips. No more missing documents. We speak your language.',
+    whBtn:'Get Started →',
+    fc1Title:'Eligibility Pre-Check',fc1Desc:'Know if you qualify before you travel. Our AI screens your situation in minutes, not weeks.',
+    fc2Title:'Smart Document Tree',fc2Desc:'See exactly what to bring. Documents already on file are automatically removed from your list.',
+    fc3Title:'Multilingual Support',fc3Desc:'Hebrew, Arabic, Russian, and English — full access regardless of language background.',
+    kycTitle:'Eligibility Pre-Screening',kycSub:'Tell us your situation — we\'ll verify your pathway before you book an appointment.',
+    kycQ1:'What service do you need?',kycQ1Hint:'Select the service that applies to your situation',
+    svcAliyaT:'Aliya (Law of Return)',svcAliyaD:'Immigration via Jewish heritage',
+    svcReunT:'Family Reunification',svcReunD:'Spouse or family of Israeli citizen',
+    svcIdT:'ID / Passport Renewal',svcIdD:'Renew your Teudat Zehut or passport',
+    svcVisaT:'Visa Extension',svcVisaD:'Work, student, or tourist visa',
+    svcBirthT:'Birth Registration',svcBirthD:'Register a newborn with the registry',
+    svcMarrT:'Marriage Certificate',svcMarrD:'Register or obtain marriage records',
+    docsTitle:'Your Document Checklist',docsSub:'Based on your service and existing file — only what you actually need to bring.',
+    dlNew:'documents to bring',dlCached:'already on file (saved)',dlOpt:'optional',
+    chatTitle:'AI Assistant',chatSub:'Ask anything about your application — in any language.',
+    csOnline:'Online · Replies instantly',
+    statusTitle:'Application Status',statusSub:'Real-time updates pushed to you — no need to call.',
+    waTitle:'WhatsApp / SMS Notifications Active',waSub:'Updates sent to +972-50-XXX-XXXX · Hebrew · Last: 2 hours ago',
+    refTitle:'Reference Number',refHint:'Keep this number to track or follow up on your application',
+    chatGreeting:'שלום! I\'m Miri, your personal guide for Ministry of Interior services. I can help you in Hebrew, English, Russian, or Arabic. What would you like to know?',
+    progressLabel:(n)=>`${n} of 4 steps complete`,
+    kycProceed:'Confirm & Build Document Checklist →',
+    docsBook:'Book Appointment with Verified Checklist →',
   },
   he: {
-    slSteps: 'המסע שלך',
-    nlWelcome: 'ברוכים הבאים', nlKyc: 'בדיקת זכאות', nlDocs: 'רשימת מסמכים',
-    nlChat: 'עוזר AI', nlStatus: 'עדכוני סטטוס',
-    whTitle: 'ברוכים הבאים למשרדAI',
-    whSub: 'המדריך החכם שלך לשירותי משרד הפנים. ללא נסיעות מיותרות. ללא מסמכים חסרים.',
-    whBtn: 'התחל →',
-    fc1Title: 'בדיקת זכאות מקדימה', fc1Desc: 'דע אם אתה זכאי לפני שנוסעים.',
-    fc2Title: 'עץ מסמכים חכם', fc2Desc: 'ראה בדיוק מה להביא. מסמכים שכבר קיימים יוסרו אוטומטית.',
-    fc3Title: 'תמיכה רב-לשונית', fc3Desc: 'עברית, ערבית, רוסית ואנגלית — גישה מלאה לכולם.',
-    kycTitle: 'סינון זכאות מקדים', kycSub: 'ספר לנו את המצב שלך — נאמת את הנתיב לפני שתזמין תור.',
-    kycQ1: 'איזה שירות אתה צריך?', kycQ1Hint: 'בחר את השירות המתאים למצבך',
-    svcAliyaT: 'עלייה (חוק השבות)', svcAliyaD: 'הגירה על בסיס מורשת יהודית',
-    svcReunT: 'איחוד משפחות', svcReunD: 'בן/בת זוג או משפחה של אזרח ישראלי',
-    svcIdT: 'חידוש ת.ז. / דרכון', svcIdD: 'חדש את תעודת הזהות או הדרכון שלך',
-    svcVisaT: 'הארכת ויזה', svcVisaD: 'ויזת עבודה, לימודים או תיירות',
-    svcBirthT: 'רישום לידה', svcBirthD: 'רשום יילוד ברשם האוכלוסין',
-    svcMarrT: 'תעודת נישואין', svcMarrD: 'רשום או קבל תעודת נישואין',
-    docsTitle: 'רשימת המסמכים שלך', docsSub: 'על בסיס השירות ותיק הקיים שלך — רק מה שצריך להביא בפועל.',
-    dlNew: 'מסמכים להביא', dlCached: 'כבר בתיק (נחסך)', dlOpt: 'אופציונלי',
-    chatTitle: 'עוזר AI', chatSub: 'שאל כל שאלה על הבקשה שלך — בכל שפה.',
-    csOnline: 'מחובר · עונה מיידית',
-    statusTitle: 'סטטוס בקשה', statusSub: 'עדכונים בזמן אמת — ללא צורך בשיחה.',
-    waTitle: 'WhatsApp / SMS פעיל', waSub: 'עדכונים לטלפון +972-50-XXX-XXXX · עברית · לפני שעתיים',
-    refTitle: 'מספר אסמכתא', refHint: 'שמור מספר זה למעקב או פנייה',
-    chatGreeting: 'שלום! אני מירי, המדריך האישי שלך לשירותי משרד הפנים. אני יכולה לעזור בעברית, אנגלית, רוסית או ערבית. במה אוכל לעזור?',
-    progressLabel: (n) => `${n} מתוך 4 שלבים הושלמו`,
-    kycProceed: 'אשר ובנה רשימת מסמכים →',
-    docsBook: 'קבע תור עם רשימה מאומתת →',
+    slSteps:'המסע שלך',
+    nlWelcome:'ברוכים הבאים',nlKyc:'בדיקת זכאות',nlDocs:'רשימת מסמכים',
+    nlChat:'עוזר AI',nlStatus:'עדכוני סטטוס',
+    whTitle:'ברוכים הבאים למשרדAI',
+    whSub:'המדריך החכם שלך לשירותי משרד הפנים. ללא נסיעות מיותרות. ללא מסמכים חסרים.',
+    whBtn:'התחל →',
+    fc1Title:'בדיקת זכאות מקדימה',fc1Desc:'דע אם אתה זכאי לפני שנוסעים.',
+    fc2Title:'עץ מסמכים חכם',fc2Desc:'ראה בדיוק מה להביא. מסמכים שכבר קיימים יוסרו אוטומטית.',
+    fc3Title:'תמיכה רב-לשונית',fc3Desc:'עברית, ערבית, רוסית ואנגלית — גישה מלאה לכולם.',
+    kycTitle:'סינון זכאות מקדים',kycSub:'ספר לנו את המצב שלך — נאמת את הנתיב לפני שתזמין תור.',
+    kycQ1:'איזה שירות אתה צריך?',kycQ1Hint:'בחר את השירות המתאים למצבך',
+    svcAliyaT:'עלייה (חוק השבות)',svcAliyaD:'הגירה על בסיס מורשת יהודית',
+    svcReunT:'איחוד משפחות',svcReunD:'בן/בת זוג או משפחה של אזרח ישראלי',
+    svcIdT:'חידוש ת.ז. / דרכון',svcIdD:'חדש את תעודת הזהות או הדרכון שלך',
+    svcVisaT:'הארכת ויזה',svcVisaD:'ויזת עבודה, לימודים או תיירות',
+    svcBirthT:'רישום לידה',svcBirthD:'רשום יילוד ברשם האוכלוסין',
+    svcMarrT:'תעודת נישואין',svcMarrD:'רשום או קבל תעודת נישואין',
+    docsTitle:'רשימת המסמכים שלך',docsSub:'על בסיס השירות ותיק הקיים שלך — רק מה שצריך להביא בפועל.',
+    dlNew:'מסמכים להביא',dlCached:'כבר בתיק (נחסך)',dlOpt:'אופציונלי',
+    chatTitle:'עוזר AI',chatSub:'שאל כל שאלה על הבקשה שלך — בכל שפה.',
+    csOnline:'מחובר · עונה מיידית',
+    statusTitle:'סטטוס בקשה',statusSub:'עדכונים בזמן אמת — ללא צורך בשיחה.',
+    waTitle:'WhatsApp / SMS פעיל',waSub:'עדכונים לטלפון +972-50-XXX-XXXX · עברית · לפני שעתיים',
+    refTitle:'מספר אסמכתא',refHint:'שמור מספר זה למעקב או פנייה',
+    chatGreeting:'שלום! אני מירי, המדריך האישי שלך לשירותי משרד הפנים. אני יכולה לעזור בעברית, אנגלית, רוסית או ערבית. במה אוכל לעזור?',
+    progressLabel:(n)=>`${n} מתוך 4 שלבים הושלמו`,
+    kycProceed:'אשר ובנה רשימת מסמכים →',
+    docsBook:'קבע תור עם רשימה מאומתת →',
   },
   ru: {
-    slSteps: 'Ваш путь',
-    nlWelcome: 'Добро пожаловать', nlKyc: 'Проверка права', nlDocs: 'Список документов',
-    nlChat: 'Помощник AI', nlStatus: 'Статус заявки',
-    whTitle: 'Добро пожаловать в MishradAI',
-    whSub: 'Ваш ИИ-гид по услугам МВД Израиля. Никаких лишних поездок. Никаких забытых документов.',
-    whBtn: 'Начать →',
-    fc1Title: 'Предварительная проверка права', fc1Desc: 'Узнайте заранее, имеете ли вы право на услугу.',
-    fc2Title: 'Умный список документов', fc2Desc: 'Точный список того, что нужно принести. Документы, уже имеющиеся в деле, удаляются автоматически.',
-    fc3Title: 'Многоязычная поддержка', fc3Desc: 'Иврит, арабский, русский и английский — полный доступ для всех.',
-    kycTitle: 'Предварительная проверка права', kycSub: 'Расскажите о вашей ситуации — мы подтвердим путь до записи на приём.',
-    kycQ1: 'Какая услуга вам нужна?', kycQ1Hint: 'Выберите услугу, соответствующую вашей ситуации',
-    svcAliyaT: 'Алия (Закон о возвращении)', svcAliyaD: 'Иммиграция через еврейское происхождение',
-    svcReunT: 'Воссоединение семьи', svcReunD: 'Супруг(а) или родственник гражданина Израиля',
-    svcIdT: 'Обновление удостоверения / паспорта', svcIdD: 'Обновить теудат зеhут или загранпаспорт',
-    svcVisaT: 'Продление визы', svcVisaD: 'Рабочая, учебная или туристическая виза',
-    svcBirthT: 'Регистрация рождения', svcBirthD: 'Зарегистрировать новорождённого',
-    svcMarrT: 'Свидетельство о браке', svcMarrD: 'Зарегистрировать брак или получить документ',
-    docsTitle: 'Ваш список документов', docsSub: 'На основании вашей услуги и имеющегося дела — только то, что нужно принести.',
-    dlNew: 'документов принести', dlCached: 'уже в деле (сэкономлено)', dlOpt: 'необязательные',
-    chatTitle: 'Помощник AI', chatSub: 'Задайте любой вопрос — на любом языке.',
-    csOnline: 'Онлайн · Отвечает мгновенно',
-    statusTitle: 'Статус заявки', statusSub: 'Обновления в реальном времени — без необходимости звонить.',
-    waTitle: 'WhatsApp / SMS уведомления активны', waSub: 'Обновления на +972-50-XXX-XXXX · Русский · 2 часа назад',
-    refTitle: 'Номер обращения', refHint: 'Сохраните этот номер для отслеживания заявки',
-    chatGreeting: 'Шалом! Я Мири, ваш личный помощник по услугам МВД Израиля. Я могу помочь на иврите, английском, русском или арабском. Чем могу помочь?',
-    progressLabel: (n) => `${n} из 4 шагов завершено`,
-    kycProceed: 'Подтвердить и построить список →',
-    docsBook: 'Записаться на приём с проверенным списком →',
+    slSteps:'Ваш путь',
+    nlWelcome:'Добро пожаловать',nlKyc:'Проверка права',nlDocs:'Список документов',
+    nlChat:'Помощник AI',nlStatus:'Статус заявки',
+    whTitle:'Добро пожаловать в MishradAI',
+    whSub:'Ваш ИИ-гид по услугам МВД Израиля. Никаких лишних поездок. Никаких забытых документов.',
+    whBtn:'Начать →',
+    fc1Title:'Предварительная проверка права',fc1Desc:'Узнайте заранее, имеете ли вы право на услугу.',
+    fc2Title:'Умный список документов',fc2Desc:'Точный список того, что нужно принести. Документы, уже имеющиеся в деле, удаляются автоматически.',
+    fc3Title:'Многоязычная поддержка',fc3Desc:'Иврит, арабский, русский и английский — полный доступ для всех.',
+    kycTitle:'Предварительная проверка права',kycSub:'Расскажите о вашей ситуации — мы подтвердим путь до записи на приём.',
+    kycQ1:'Какая услуга вам нужна?',kycQ1Hint:'Выберите услугу, соответствующую вашей ситуации',
+    svcAliyaT:'Алия (Закон о возвращении)',svcAliyaD:'Иммиграция через еврейское происхождение',
+    svcReunT:'Воссоединение семьи',svcReunD:'Супруг(а) или родственник гражданина Израиля',
+    svcIdT:'Обновление удостоверения / паспорта',svcIdD:'Обновить теудат зеhут или загранпаспорт',
+    svcVisaT:'Продление визы',svcVisaD:'Рабочая, учебная или туристическая виза',
+    svcBirthT:'Регистрация рождения',svcBirthD:'Зарегистрировать новорождённого',
+    svcMarrT:'Свидетельство о браке',svcMarrD:'Зарегистрировать брак или получить документ',
+    docsTitle:'Ваш список документов',docsSub:'На основании вашей услуги и имеющегося дела — только то, что нужно принести.',
+    dlNew:'документов принести',dlCached:'уже в деле (сэкономлено)',dlOpt:'необязательные',
+    chatTitle:'Помощник AI',chatSub:'Задайте любой вопрос — на любом языке.',
+    csOnline:'Онлайн · Отвечает мгновенно',
+    statusTitle:'Статус заявки',statusSub:'Обновления в реальном времени — без необходимости звонить.',
+    waTitle:'WhatsApp / SMS уведомления активны',waSub:'Обновления на +972-50-XXX-XXXX · Русский · 2 часа назад',
+    refTitle:'Номер обращения',refHint:'Сохраните этот номер для отслеживания заявки',
+    chatGreeting:'Шалом! Я Мири, ваш личный помощник по услугам МВД Израиля. Я могу помочь на иврите, английском, русском или арабском. Чем могу помочь?',
+    progressLabel:(n)=>`${n} из 4 шагов завершено`,
+    kycProceed:'Подтвердить и построить список →',
+    docsBook:'Записаться на приём с проверенным списком →',
   },
   ar: {
-    slSteps: 'رحلتك',
-    nlWelcome: 'مرحباً', nlKyc: 'فحص الأهلية', nlDocs: 'قائمة المستندات',
-    nlChat: 'مساعد الذكاء الاصطناعي', nlStatus: 'تحديثات الحالة',
-    whTitle: 'مرحباً بك في MishradAI',
-    whSub: 'دليلك الذكي لخدمات وزارة الداخلية الإسرائيلية. لا مزيد من الرحلات المضيّعة. لا مزيد من المستندات الناقصة.',
-    whBtn: 'ابدأ الآن →',
-    fc1Title: 'الفحص المسبق للأهلية', fc1Desc: 'اعرف ما إذا كنت مؤهلاً قبل السفر. يفحص الذكاء الاصطناعي وضعك في دقائق لا أسابيع.',
-    fc2Title: 'قائمة المستندات الذكية', fc2Desc: 'شاهد بالضبط ما يجب إحضاره. المستندات الموجودة في الملف تُحذف تلقائياً من قائمتك.',
-    fc3Title: 'دعم متعدد اللغات', fc3Desc: 'العبرية والعربية والروسية والإنجليزية — وصول كامل بغض النظر عن لغتك.',
-    kycTitle: 'الفحص المسبق للأهلية', kycSub: 'أخبرنا بوضعك — سنتحقق من مسارك قبل حجز موعد.',
-    kycQ1: 'ما الخدمة التي تحتاجها؟', kycQ1Hint: 'اختر الخدمة المناسبة لوضعك',
-    svcAliyaT: 'العلية (قانون العودة)', svcAliyaD: 'الهجرة عبر الأصل اليهودي',
-    svcReunT: 'لمّ شمل الأسرة', svcReunD: 'زوج/زوجة أو أقارب مواطن إسرائيلي',
-    svcIdT: 'تجديد الهوية / جواز السفر', svcIdD: 'جدّد تيودات زيهوت أو جواز سفرك',
-    svcVisaT: 'تمديد التأشيرة', svcVisaD: 'تأشيرة عمل أو دراسة أو سياحة',
-    svcBirthT: 'تسجيل الولادة', svcBirthD: 'تسجيل مولود جديد في السجلات',
-    svcMarrT: 'شهادة الزواج', svcMarrD: 'تسجيل أو الحصول على وثيقة الزواج',
-    docsTitle: 'قائمة مستنداتك', docsSub: 'بناءً على خدمتك وملفك الحالي — فقط ما تحتاج إحضاره فعلاً.',
-    dlNew: 'مستندات للإحضار', dlCached: 'موجودة في الملف (تم الحفظ)', dlOpt: 'اختياري',
-    chatTitle: 'مساعد الذكاء الاصطناعي', chatSub: 'اسأل أي شيء عن طلبك — بأي لغة.',
-    csOnline: 'متصل · يرد فوراً',
-    statusTitle: 'حالة الطلب', statusSub: 'تحديثات فورية تُرسل إليك — دون الحاجة للاتصال.',
-    waTitle: 'إشعارات WhatsApp / SMS مفعّلة', waSub: 'تحديثات تُرسل إلى +972-50-XXX-XXXX · عربي · آخر تحديث: منذ ساعتين',
-    refTitle: 'رقم المرجع', refHint: 'احتفظ بهذا الرقم لمتابعة طلبك أو الاستفسار عنه',
-    chatGreeting: 'مرحباً! أنا ميري، دليلك الشخصي لخدمات وزارة الداخلية الإسرائيلية. أستطيع مساعدتك بالعبرية والإنجليزية والروسية والعربية. بماذا يمكنني مساعدتك؟',
-    progressLabel: (n) => `${n} من 4 خطوات مكتملة`,
-    kycProceed: 'تأكيد وإنشاء قائمة المستندات →',
-    docsBook: 'احجز موعداً مع القائمة المحققة →',
+    slSteps:'رحلتك',
+    nlWelcome:'مرحباً',nlKyc:'فحص الأهلية',nlDocs:'قائمة المستندات',
+    nlChat:'مساعد الذكاء الاصطناعي',nlStatus:'تحديثات الحالة',
+    whTitle:'مرحباً بك في MishradAI',
+    whSub:'دليلك الذكي لخدمات وزارة الداخلية الإسرائيلية. لا مزيد من الرحلات المضيّعة. لا مزيد من المستندات الناقصة.',
+    whBtn:'ابدأ الآن →',
+    fc1Title:'الفحص المسبق للأهلية',fc1Desc:'اعرف ما إذا كنت مؤهلاً قبل السفر. يفحص الذكاء الاصطناعي وضعك في دقائق لا أسابيع.',
+    fc2Title:'قائمة المستندات الذكية',fc2Desc:'شاهد بالضبط ما يجب إحضاره. المستندات الموجودة في الملف تُحذف تلقائياً من قائمتك.',
+    fc3Title:'دعم متعدد اللغات',fc3Desc:'العبرية والعربية والروسية والإنجليزية — وصول كامل بغض النظر عن لغتك.',
+    kycTitle:'الفحص المسبق للأهلية',kycSub:'أخبرنا بوضعك — سنتحقق من مسارك قبل حجز موعد.',
+    kycQ1:'ما الخدمة التي تحتاجها؟',kycQ1Hint:'اختر الخدمة المناسبة لوضعك',
+    svcAliyaT:'العلية (قانون العودة)',svcAliyaD:'الهجرة عبر الأصل اليهودي',
+    svcReunT:'لمّ شمل الأسرة',svcReunD:'زوج/زوجة أو أقارب مواطن إسرائيلي',
+    svcIdT:'تجديد الهوية / جواز السفر',svcIdD:'جدّد تيودات زيهوت أو جواز سفرك',
+    svcVisaT:'تمديد التأشيرة',svcVisaD:'تأشيرة عمل أو دراسة أو سياحة',
+    svcBirthT:'تسجيل الولادة',svcBirthD:'تسجيل مولود جديد في السجلات',
+    svcMarrT:'شهادة الزواج',svcMarrD:'تسجيل أو الحصول على وثيقة الزواج',
+    docsTitle:'قائمة مستنداتك',docsSub:'بناءً على خدمتك وملفك الحالي — فقط ما تحتاج إحضاره فعلاً.',
+    dlNew:'مستندات للإحضار',dlCached:'موجودة في الملف (تم الحفظ)',dlOpt:'اختياري',
+    chatTitle:'مساعد الذكاء الاصطناعي',chatSub:'اسأل أي شيء عن طلبك — بأي لغة.',
+    csOnline:'متصل · يرد فوراً',
+    statusTitle:'حالة الطلب',statusSub:'تحديثات فورية تُرسل إليك — دون الحاجة للاتصال.',
+    waTitle:'إشعارات WhatsApp / SMS مفعّلة',waSub:'تحديثات تُرسل إلى +972-50-XXX-XXXX · عربي · آخر تحديث: منذ ساعتين',
+    refTitle:'رقم المرجع',refHint:'احتفظ بهذا الرقم لمتابعة طلبك أو الاستفسار عنه',
+    chatGreeting:'مرحباً! أنا ميري، دليلك الشخصي لخدمات وزارة الداخلية الإسرائيلية. أستطيع مساعدتك بالعبرية والإنجليزية والروسية والعربية. بماذا يمكنني مساعدتك؟',
+    progressLabel:(n)=>`${n} من 4 خطوات مكتملة`,
+    kycProceed:'تأكيد وإنشاء قائمة المستندات →',
+    docsBook:'احجز موعداً مع القائمة المحققة →',
   }
 };
 
-/* ── DOC TREES per service ── */
+/* ── DOC TREES ── */
 const DOC_TREES = {
-  aliya: {
-    required: [
-      { name: 'Jewish heritage documentation', note: 'Birth cert, rabbinic letter, or family tree', tag: 'new' },
-      { name: 'Valid foreign passport', note: 'Must be valid for 6+ months', tag: 'new' },
-      { name: 'Criminal background check', note: 'From country of origin, apostilled', tag: 'new' },
+  aliya:{
+    required:[
+      {name:'Jewish heritage documentation',note:'Birth cert, rabbinic letter, or family tree',tag:'new'},
+      {name:'Valid foreign passport',note:'Must be valid for 6+ months',tag:'new'},
+      {name:'Criminal background check',note:'From country of origin, apostilled',tag:'new'},
     ],
-    cached: [
-      { name: 'Original birth certificate', note: 'On file from 2019 application — not needed again', tag: 'cached' },
+    cached:[
+      {name:'Original birth certificate',note:'On file from 2019 application — not needed again',tag:'cached'},
     ],
-    optional: [
-      { name: 'Letter from Jewish community', note: 'Strengthens your application — not required', tag: 'optional' },
+    optional:[
+      {name:'Letter from Jewish community',note:'Strengthens your application — not required',tag:'optional'},
     ]
   },
-  id: {
-    required: [
-      { name: 'Current Teudat Zehut (original)', note: 'Your existing ID card', tag: 'new' },
-      { name: 'Recent biometric photo', note: 'Taken within 6 months, 35×45mm', tag: 'new' },
+  id:{
+    required:[
+      {name:'Current Teudat Zehut (original)',note:'Your existing ID card',tag:'new'},
+      {name:'Recent biometric photo',note:'Taken within 6 months, 35×45mm',tag:'new'},
     ],
-    cached: [
-      { name: 'Birth certificate', note: 'Already on file from 2009 — saved!', tag: 'cached' },
-      { name: 'Parent identity documents', note: 'Verified during original registration — not needed', tag: 'cached' },
+    cached:[
+      {name:'Birth certificate',note:'Already on file from 2009 — saved!',tag:'cached'},
+      {name:'Parent identity documents',note:'Verified during original registration — not needed',tag:'cached'},
     ],
-    optional: []
+    optional:[]
   },
-  reunification: {
-    required: [
-      { name: 'Marriage certificate (apostilled)', note: 'Must be certified and translated to Hebrew', tag: 'new' },
-      { name: 'Israeli spouse\'s Teudat Zehut', note: 'Copy of both sides', tag: 'new' },
-      { name: 'Proof of shared residence', note: 'Utility bill or lease agreement', tag: 'new' },
+  reunification:{
+    required:[
+      {name:'Marriage certificate (apostilled)',note:'Must be certified and translated to Hebrew',tag:'new'},
+      {name:'Israeli spouse\'s Teudat Zehut',note:'Copy of both sides',tag:'new'},
+      {name:'Proof of shared residence',note:'Utility bill or lease agreement',tag:'new'},
     ],
-    cached: [
-      { name: 'Your passport copy', note: 'Submitted during visa application — on file', tag: 'cached' },
+    cached:[
+      {name:'Your passport copy',note:'Submitted during visa application — on file',tag:'cached'},
     ],
-    optional: [
-      { name: 'Photos showing relationship history', note: 'Helps establish genuine relationship', tag: 'optional' },
+    optional:[
+      {name:'Photos showing relationship history',note:'Helps establish genuine relationship',tag:'optional'},
     ]
   },
-  visa: {
-    required: [
-      { name: 'Signed employment contract', note: 'Or accepted offer letter with start date', tag: 'new' },
-      { name: 'Employer\'s company registration (Nihul Takan)', note: 'Current certificate from Companies Authority', tag: 'new' },
+  visa:{
+    required:[
+      {name:'Signed employment contract',note:'Or accepted offer letter with start date',tag:'new'},
+      {name:'Employer\'s company registration (Nihul Takan)',note:'Current certificate from Companies Authority',tag:'new'},
     ],
-    cached: [
-      { name: 'Passport bio page', note: 'Submitted with previous visa — on file', tag: 'cached' },
+    cached:[
+      {name:'Passport bio page',note:'Submitted with previous visa — on file',tag:'cached'},
     ],
-    optional: [
-      { name: 'Proof of accommodation', note: 'Lease or hotel booking for initial period', tag: 'optional' },
+    optional:[
+      {name:'Proof of accommodation',note:'Lease or hotel booking for initial period',tag:'optional'},
     ]
   },
-  birth: {
-    required: [
-      { name: 'Hospital birth certificate (tofes 17)', note: 'Original issued by the hospital', tag: 'new' },
-      { name: 'Both parents\' Teudat Zehut', note: 'Original + photocopy of each', tag: 'new' },
+  birth:{
+    required:[
+      {name:'Hospital birth certificate (tofes 17)',note:'Original issued by the hospital',tag:'new'},
+      {name:'Both parents\' Teudat Zehut',note:'Original + photocopy of each',tag:'new'},
     ],
-    cached: [
-      { name: 'Parents\' marriage certificate', note: 'Already registered — no need to resubmit', tag: 'cached' },
+    cached:[
+      {name:'Parents\' marriage certificate',note:'Already registered — no need to resubmit',tag:'cached'},
     ],
-    optional: []
+    optional:[]
   },
-  marriage: {
-    required: [
-      { name: 'Both parties\' Teudat Zehut', note: 'Original + photocopy', tag: 'new' },
-      { name: 'Proof of Jewish status (if applicable)', note: 'Rabbinic certificate or conversion certificate', tag: 'new' },
+  marriage:{
+    required:[
+      {name:'Both parties\' Teudat Zehut',note:'Original + photocopy',tag:'new'},
+      {name:'Proof of Jewish status (if applicable)',note:'Rabbinic certificate or conversion certificate',tag:'new'},
     ],
-    cached: [
-      { name: 'Your birth certificate', note: 'On file from immigration — not needed again', tag: 'cached' },
+    cached:[
+      {name:'Your birth certificate',note:'On file from immigration — not needed again',tag:'cached'},
     ],
-    optional: [
-      { name: 'Prenuptial agreement', note: 'Optional but can be registered at same time', tag: 'optional' },
+    optional:[
+      {name:'Prenuptial agreement',note:'Optional but can be registered at same time',tag:'optional'},
     ]
   }
 };
 
-/* ── ELIGIBILITY RESULTS ── */
+/* ── ELIGIBILITY ── */
 const ELIG_DATA = {
-  aliya: { eligible: true, title: 'You qualify via the Law of Return', desc: 'Based on your documentation, you are eligible for Aliya. Your pathway will be: document verification → Ministry interview → Aliya approval → ID registration.' },
-  'aliya-uncertain': { eligible: false, title: 'Further documentation may be needed', desc: 'We need to verify your Jewish heritage documents before confirming eligibility. Our AI will guide you through what to prepare, and a pre-screening call can be scheduled.' },
-  reunification: { eligible: true, title: 'Family reunification pathway confirmed', desc: 'You qualify for family reunification as a spouse of an Israeli citizen. Process time: approximately 3–6 months. We\'ll build your document list now.' },
-  id: { eligible: true, title: 'Renewal confirmed — you\'re eligible', desc: 'Your Teudat Zehut is eligible for renewal. Good news: 2 of 4 documents are already on file from your 2009 application — we saved you a trip to find them.' },
-  visa: { eligible: true, title: 'Work visa pathway confirmed', desc: 'With a verified job offer from a registered Israeli employer, you qualify for a B/1 work visa. Processing time: 2–4 weeks.' },
-  birth: { eligible: true, title: 'Birth registration confirmed', desc: 'You can register your newborn. Both parents must be present or one can attend with a notarized power of attorney from the other.' },
-  marriage: { eligible: true, title: 'Marriage registration confirmed', desc: 'You\'re eligible to register your marriage. Both parties must attend in person with the required documents.' },
+  aliya:{eligible:true,title:'You qualify via the Law of Return',desc:'Based on your documentation, you are eligible for Aliya. Your pathway will be: document verification → Ministry interview → Aliya approval → ID registration.'},
+  'aliya-uncertain':{eligible:false,title:'Further documentation may be needed',desc:'We need to verify your Jewish heritage documents before confirming eligibility. Our AI will guide you through what to prepare, and a pre-screening call can be scheduled.'},
+  reunification:{eligible:true,title:'Family reunification pathway confirmed',desc:'You qualify for family reunification as a spouse of an Israeli citizen. Process time: approximately 3–6 months. We\'ll build your document list now.'},
+  id:{eligible:true,title:'Renewal confirmed — you\'re eligible',desc:'Your Teudat Zehut is eligible for renewal. Good news: 2 of 4 documents are already on file from your 2009 application — we saved you a trip to find them.'},
+  visa:{eligible:true,title:'Work visa pathway confirmed',desc:'With a verified job offer from a registered Israeli employer, you qualify for a B/1 work visa. Processing time: 2–4 weeks.'},
+  birth:{eligible:true,title:'Birth registration confirmed',desc:'You can register your newborn. Both parents must be present or one can attend with a notarized power of attorney from the other.'},
+  marriage:{eligible:true,title:'Marriage registration confirmed',desc:'You\'re eligible to register your marriage. Both parties must attend in person with the required documents.'},
 };
 
 /* ── SUB OPTIONS ── */
 const SUB_OPTIONS = {
-  aliya: {
-    label: 'Do you have documented proof of Jewish heritage?',
-    options: ['Yes — birth cert, rabbinic letter, or family tree', 'Partially — some but not all', 'Not yet — need guidance'],
-    values: ['yes', 'partial', 'no']
+  aliya:{
+    label:'Do you have documented proof of Jewish heritage?',
+    options:['Yes — birth cert, rabbinic letter, or family tree','Partially — some but not all','Not yet — need guidance'],
+    values:['yes','partial','no']
   },
-  visa: {
-    label: 'Type of visa you need:',
-    options: ['Work visa (B/1)', 'Student visa', 'Tourist extension'],
-    values: ['work', 'student', 'tourist']
+  visa:{
+    label:'Type of visa you need:',
+    options:['Work visa (B/1)','Student visa','Tourist extension'],
+    values:['work','student','tourist']
   }
 };
 
-/* ── TIMELINE ── */
+/* ── TIMELINE EVENTS ── */
 const TIMELINE_EVENTS = [
-  { icon: '✅', status: 'done', title: 'Application submitted', desc: 'Your documents were received and logged in the system.', time: 'June 2, 2026 — 09:14' },
-  { icon: '✅', status: 'done', title: 'Initial document verification', desc: 'All 3 required documents passed automated review.', time: 'June 3, 2026 — 14:30' },
-  { icon: '🔵', status: 'active', title: 'Pending officer review', desc: 'Your file is in the queue for a caseworker. Estimated: 5–7 business days.', time: 'In progress' },
-  { icon: '⬜', status: 'pending', title: 'Decision notification', desc: 'You will receive a WhatsApp message the moment a decision is made.', time: 'Upcoming' },
-  { icon: '⬜', status: 'pending', title: 'Document collection / pickup', desc: 'If approved, your ID will be ready for pickup at your chosen branch.', time: 'Upcoming' },
+  {icon:'✅',status:'done',title:'Application submitted',desc:'Your documents were received and logged in the system.',time:'June 2, 2026 — 09:14'},
+  {icon:'✅',status:'done',title:'Initial document verification',desc:'All 3 required documents passed automated review.',time:'June 3, 2026 — 14:30'},
+  {icon:'🔵',status:'active',title:'Pending officer review',desc:'Your file is in the queue for a caseworker. Estimated: 5–7 business days.',time:'In progress'},
+  {icon:'⬜',status:'pending',title:'Decision notification',desc:'You will receive a WhatsApp message the moment a decision is made.',time:'Upcoming'},
+  {icon:'⬜',status:'pending',title:'Document collection / pickup',desc:'If approved, your ID will be ready for pickup at your chosen branch.',time:'Upcoming'},
 ];
 
 /* ── LANGUAGE ── */
 function setLang(lang) {
-  currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
+  document.body.classList.add('lang-fade');
+  setTimeout(() => {
+    currentLang = lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
 
-  const t = T[lang];
-  const isRtl = lang === 'he' || lang === 'ar';
+    const t = T[lang];
+    const isRtl = lang === 'he' || lang === 'ar';
+    document.body.dir = isRtl ? 'rtl' : 'ltr';
+    document.body.style.direction = isRtl ? 'rtl' : 'ltr';
+    const guide = document.getElementById('guide-character');
+    if (guide) guide.classList.toggle('rtl', isRtl);
 
-  document.body.style.direction = isRtl ? 'rtl' : 'ltr';
-  const guide = document.getElementById('guide-character');
-  if (guide) guide.classList.toggle('rtl', isRtl);
+    const ids = {
+      'sl-steps':t.slSteps,
+      'nl-welcome':t.nlWelcome,'nl-kyc':t.nlKyc,'nl-docs':t.nlDocs,
+      'nl-chat':t.nlChat,'nl-status':t.nlStatus,
+      'wh-title':t.whTitle,'wh-sub':t.whSub,'wh-btn':t.whBtn,
+      'fc1-title':t.fc1Title,'fc1-desc':t.fc1Desc,
+      'fc2-title':t.fc2Title,'fc2-desc':t.fc2Desc,
+      'fc3-title':t.fc3Title,'fc3-desc':t.fc3Desc,
+      'kyc-title':t.kycTitle,'kyc-sub':t.kycSub,
+      'kyc-q1':t.kycQ1,'kyc-q1-hint':t.kycQ1Hint,
+      'svc-aliya-t':t.svcAliyaT,'svc-aliya-d':t.svcAliyaD,
+      'svc-reun-t':t.svcReunT,'svc-reun-d':t.svcReunD,
+      'svc-id-t':t.svcIdT,'svc-id-d':t.svcIdD,
+      'svc-visa-t':t.svcVisaT,'svc-visa-d':t.svcVisaD,
+      'svc-birth-t':t.svcBirthT,'svc-birth-d':t.svcBirthD,
+      'svc-marr-t':t.svcMarrT,'svc-marr-d':t.svcMarrD,
+      'docs-title':t.docsTitle,'docs-sub':t.docsSub,
+      'dl-new':t.dlNew,'dl-cached':t.dlCached,'dl-opt':t.dlOpt,
+      'chat-title':t.chatTitle,'chat-sub':t.chatSub,
+      'cs-online':t.csOnline,
+      'status-title':t.statusTitle,'status-sub':t.statusSub,
+      'wa-title':t.waTitle,'wa-sub':t.waSub,
+      'ref-title':t.refTitle,'ref-hint':t.refHint,
+      'kyc-next-btn':t.kycProceed,'docs-book-btn':t.docsBook,
+    };
+    for (const [id,val] of Object.entries(ids)) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    }
+    const pl = document.getElementById('progress-label');
+    if (pl) pl.textContent = t.progressLabel(stepsComplete);
+    const cg = document.getElementById('cm-greeting');
+    if (cg) cg.textContent = t.chatGreeting;
 
-  const ids = {
-    'sl-steps': t.slSteps,
-    'nl-welcome': t.nlWelcome, 'nl-kyc': t.nlKyc, 'nl-docs': t.nlDocs,
-    'nl-chat': t.nlChat, 'nl-status': t.nlStatus,
-    'wh-title': t.whTitle, 'wh-sub': t.whSub, 'wh-btn': t.whBtn,
-    'fc1-title': t.fc1Title, 'fc1-desc': t.fc1Desc,
-    'fc2-title': t.fc2Title, 'fc2-desc': t.fc2Desc,
-    'fc3-title': t.fc3Title, 'fc3-desc': t.fc3Desc,
-    'kyc-title': t.kycTitle, 'kyc-sub': t.kycSub,
-    'kyc-q1': t.kycQ1, 'kyc-q1-hint': t.kycQ1Hint,
-    'svc-aliya-t': t.svcAliyaT, 'svc-aliya-d': t.svcAliyaD,
-    'svc-reun-t': t.svcReunT, 'svc-reun-d': t.svcReunD,
-    'svc-id-t': t.svcIdT, 'svc-id-d': t.svcIdD,
-    'svc-visa-t': t.svcVisaT, 'svc-visa-d': t.svcVisaD,
-    'svc-birth-t': t.svcBirthT, 'svc-birth-d': t.svcBirthD,
-    'svc-marr-t': t.svcMarrT, 'svc-marr-d': t.svcMarrD,
-    'docs-title': t.docsTitle, 'docs-sub': t.docsSub,
-    'dl-new': t.dlNew, 'dl-cached': t.dlCached, 'dl-opt': t.dlOpt,
-    'chat-title': t.chatTitle, 'chat-sub': t.chatSub,
-    'cs-online': t.csOnline,
-    'status-title': t.statusTitle, 'status-sub': t.statusSub,
-    'wa-title': t.waTitle, 'wa-sub': t.waSub,
-    'ref-title': t.refTitle, 'ref-hint': t.refHint,
-    'kyc-next-btn': t.kycProceed, 'docs-book-btn': t.docsBook,
-  };
-  for (const [id, val] of Object.entries(ids)) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = val;
-  }
-
-  const pl = document.getElementById('progress-label');
-  if (pl) pl.textContent = t.progressLabel(stepsComplete);
-
-  const cg = document.getElementById('cm-greeting');
-  if (cg) cg.textContent = t.chatGreeting;
+    document.body.classList.remove('lang-fade');
+  }, 150);
 }
 
 /* ── NAVIGATION ── */
@@ -1510,6 +1070,14 @@ function showPanel(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
+
+  const idx = PANEL_ORDER.indexOf(name);
+  document.querySelectorAll('.bc-step').forEach((s,i) => {
+    s.classList.remove('active','done');
+    if (i === idx) s.classList.add('active');
+    else if (i < idx) s.classList.add('done');
+  });
+
   updateGuide(name);
 }
 
@@ -1517,6 +1085,10 @@ function updateProgress() {
   const pct = (stepsComplete / 4) * 100;
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-label').textContent = T[currentLang].progressLabel(stepsComplete);
+  const circ = document.getElementById('circ-fill');
+  if (circ) circ.style.strokeDashoffset = (150.8 * (1 - pct / 100)).toFixed(1);
+  const pctEl = document.getElementById('circ-pct');
+  if (pctEl) pctEl.textContent = Math.round(pct) + '%';
 }
 
 /* ── KYC ── */
@@ -1533,8 +1105,8 @@ function selectService(svc) {
   if (SUB_OPTIONS[svc]) {
     subCard.style.display = 'block';
     const sub = SUB_OPTIONS[svc];
-    let html = `<label style="font-size:14px; font-weight:600; margin-bottom:10px; display:block">${sub.label}</label><div>`;
-    sub.options.forEach((opt, i) => {
+    let html = `<label style="font-size:14px;font-weight:600;margin-bottom:10px;display:block;color:var(--c-text)">${sub.label}</label><div>`;
+    sub.options.forEach((opt,i) => {
       html += `<span class="sub-option-btn" onclick="selectSub('${svc}','${sub.values[i]}',this)">${opt}</span>`;
     });
     html += '</div>';
@@ -1545,7 +1117,7 @@ function selectService(svc) {
   }
 }
 
-function selectSub(svc, val, el) {
+function selectSub(svc,val,el) {
   document.querySelectorAll('.sub-option-btn').forEach(b => b.classList.remove('selected'));
   el.classList.add('selected');
   selectedSubOption = val;
@@ -1558,25 +1130,22 @@ function showEligibility(key) {
   const el = document.getElementById('eligibility-result');
   el.classList.remove('warn');
   if (!data.eligible) el.classList.add('warn');
-
   document.getElementById('elig-badge').textContent = data.eligible ? '✅ Eligible' : '⚠️ Needs Review';
   document.getElementById('elig-badge').className = 'eligibility-badge ' + (data.eligible ? 'badge-green' : 'badge-amber');
   document.getElementById('elig-title').textContent = data.title;
   document.getElementById('elig-desc').textContent = data.desc;
   el.classList.add('show');
-
   const btn = document.getElementById('kyc-next-btn');
-  btn.style.display = 'block';
-  if (!data.eligible) btn.disabled = true;
-  else btn.disabled = false;
+  btn.style.display = 'inline-flex';
+  btn.disabled = !data.eligible;
 }
 
 function completeKYC() {
   buildDocTree();
-  if (stepsComplete < 1) { stepsComplete = 1; }
-  document.getElementById('badge-kyc').textContent = '✓';
-  document.getElementById('badge-kyc').className = 'step-badge done';
-  document.getElementById('badge-docs').className = 'step-badge active-badge';
+  if (stepsComplete < 1) stepsComplete = 1;
+  const n = document.getElementById('badge-kyc');
+  n.textContent = '✓'; n.className = 'nav-num done';
+  document.getElementById('nav-kyc').classList.add('done');
   updateProgress();
   showPanel('docs');
 }
@@ -1584,73 +1153,57 @@ function completeKYC() {
 /* ── DOCS ── */
 function buildDocTree() {
   const data = DOC_TREES[selectedService] || DOC_TREES['id'];
-  const tree = document.getElementById('doc-tree');
-
   document.getElementById('docs-new-count').textContent = data.required.length;
   document.getElementById('docs-cached-count').textContent = data.cached.length;
   document.getElementById('docs-opt-count').textContent = data.optional.length;
 
   let html = '';
-
   if (data.required.length) {
-    html += `<div class="doc-category">
-      <div class="doc-category-header">📋 Required documents <span style="color:var(--gray-400); font-weight:400; font-size:12px; margin-left:4px">(${data.required.length})</span></div>`;
-    data.required.forEach((doc, i) => {
-      html += docItemHTML(doc, 'req-' + i);
-    });
+    html += `<div class="doc-category"><div class="doc-category-header"><span class="doc-category-dot required"></span>Required Documents <span style="font-weight:400;color:var(--c-text-3)">(${data.required.length})</span></div>`;
+    data.required.forEach((doc,i) => { html += docItemHTML(doc,'req-'+i); });
     html += '</div>';
   }
-
   if (data.cached.length) {
-    html += `<div class="doc-category">
-      <div class="doc-category-header" style="color:var(--green)">✅ Already on file — no need to bring <span style="color:var(--gray-400); font-weight:400; font-size:12px; margin-left:4px">(${data.cached.length})</span></div>`;
-    data.cached.forEach((doc, i) => {
-      html += docItemHTML(doc, 'cache-' + i);
-    });
+    html += `<div class="doc-category"><div class="doc-category-header"><span class="doc-category-dot cached"></span>Already On File — No need to bring <span style="font-weight:400;color:var(--c-text-3)">(${data.cached.length})</span></div>`;
+    data.cached.forEach((doc,i) => { html += docItemHTML(doc,'cache-'+i); });
     html += '</div>';
   }
-
   if (data.optional.length) {
-    html += `<div class="doc-category">
-      <div class="doc-category-header" style="color:var(--gray-400)">💡 Optional <span style="color:var(--gray-400); font-weight:400; font-size:12px; margin-left:4px">(${data.optional.length})</span></div>`;
-    data.optional.forEach((doc, i) => {
-      html += docItemHTML(doc, 'opt-' + i);
-    });
+    html += `<div class="doc-category"><div class="doc-category-header"><span class="doc-category-dot optional"></span>Optional <span style="font-weight:400;color:var(--c-text-3)">(${data.optional.length})</span></div>`;
+    data.optional.forEach((doc,i) => { html += docItemHTML(doc,'opt-'+i); });
     html += '</div>';
   }
-
-  tree.innerHTML = html;
+  document.getElementById('doc-tree').innerHTML = html;
 }
 
-function docItemHTML(doc, id) {
-  const tagClass = { new: 'tag-new', cached: 'tag-cached', optional: 'tag-optional' }[doc.tag];
-  const tagLabel = { new: 'Bring', cached: 'On File', optional: 'Optional' }[doc.tag];
-  const isCached = doc.tag === 'cached';
-  return `<div class="doc-item${isCached ? ' is-cached' : ''}">
-    <div class="doc-checkbox ${isCached ? 'checked' : ''}" id="cb-${id}" onclick="toggleDoc('${id}', this)">${isCached ? '✓' : ''}</div>
+function docItemHTML(doc,id) {
+  const tagClass = {new:'tag-new',cached:'tag-cached',optional:'tag-optional'}[doc.tag];
+  const tagLabel = {new:'Bring',cached:'On File',optional:'Optional'}[doc.tag];
+  const itemClass = {new:'required-item',cached:'is-cached',optional:'optional-item'}[doc.tag];
+  const checked = doc.tag === 'cached';
+  return `<div class="doc-item ${itemClass}">
+    <div class="doc-checkbox ${checked?'checked':''}" id="cb-${id}" onclick="toggleDoc('${id}',this)">${checked?'✓':''}</div>
     <div class="doc-info">
-      <div class="doc-name">${doc.name}</div>
+      <span class="doc-name">${doc.name}</span>
       <div class="doc-note">${doc.note}</div>
     </div>
     <span class="doc-tag ${tagClass}">${tagLabel}</span>
   </div>`;
 }
 
-function toggleDoc(id, el) {
+function toggleDoc(id,el) {
   if (el.classList.contains('checked')) {
-    el.classList.remove('checked');
-    el.textContent = '';
+    el.classList.remove('checked'); el.textContent = '';
   } else {
-    el.classList.add('checked');
-    el.textContent = '✓';
+    el.classList.add('checked'); el.textContent = '✓';
   }
 }
 
 function completeDocs() {
-  if (stepsComplete < 2) { stepsComplete = 2; }
-  document.getElementById('badge-docs').textContent = '✓';
-  document.getElementById('badge-docs').className = 'step-badge done';
-  document.getElementById('badge-chat').className = 'step-badge active-badge';
+  if (stepsComplete < 2) stepsComplete = 2;
+  const n = document.getElementById('badge-docs');
+  n.textContent = '✓'; n.className = 'nav-num done';
+  document.getElementById('nav-docs').classList.add('done');
   updateProgress();
   showPanel('chat');
 }
@@ -1667,7 +1220,7 @@ Your knowledge includes:
 - Teudat Zehut (Israeli ID card) renewal process
 - Passport (darkon) renewal
 - Aliya process and Law of Return
-- Visa extensions (B/1 work, student, tourist)  
+- Visa extensions (B/1 work, student, tourist)
 - Birth and marriage registration
 - Branch locations and hours (Tel Aviv Metzuyan branch: Ibn Gabirol 68, Sun-Thu 8:00-16:00)
 - Common documents required for each service
@@ -1678,10 +1231,7 @@ Be concise, helpful, and empathetic. Users are often frustrated by bureaucracy. 
 Always be warm and remember: users often feel lost and anxious. A clear, calm answer makes a real difference.`;
 
 function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
 async function sendMessage() {
@@ -1691,7 +1241,7 @@ async function sendMessage() {
 
   addMessage('user', text);
   input.value = '';
-  chatHistory.push({ role: 'user', content: text });
+  chatHistory.push({role:'user',content:text});
 
   showTyping();
   isTyping = true;
@@ -1699,33 +1249,35 @@ async function sendMessage() {
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT,
-        messages: chatHistory
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system:SYSTEM_PROMPT,
+        messages:chatHistory
       })
     });
     const data = await res.json();
     const reply = data.content?.find(c => c.type === 'text')?.text || 'Sorry, I had trouble answering. Please try again.';
-    chatHistory.push({ role: 'assistant', content: reply });
+    chatHistory.push({role:'assistant',content:reply});
     hideTyping();
     addMessage('bot', reply);
-  } catch (err) {
+  } catch(err) {
     hideTyping();
-    addMessage('bot', 'Connection issue — please try again. You can also call 3450* for immediate help.');
+    addMessage('bot','Connection issue — please try again. You can also call 3450* for immediate help.');
   }
 
   isTyping = false;
   document.getElementById('send-btn').disabled = false;
 
-  if (stepsComplete < 3) { stepsComplete = 3; }
-  document.getElementById('badge-chat').textContent = '✓';
-  document.getElementById('badge-chat').className = 'step-badge done';
-  document.getElementById('badge-status').className = 'step-badge active-badge';
-  updateProgress();
+  if (stepsComplete < 3) {
+    stepsComplete = 3;
+    const n = document.getElementById('badge-chat');
+    n.textContent = '✓'; n.className = 'nav-num done';
+    document.getElementById('nav-chat').classList.add('done');
+    updateProgress();
+  }
 }
 
 function sendQuick(text) {
@@ -1733,12 +1285,12 @@ function sendQuick(text) {
   sendMessage();
 }
 
-function addMessage(role, text) {
+function addMessage(role,text) {
   const msgs = document.getElementById('chat-messages');
-  const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   const div = document.createElement('div');
   div.className = 'message ' + role;
-  div.innerHTML = `<div class="message-bubble">${text.replace(/\n/g, '<br>')}</div><div class="message-time">${now}</div>`;
+  div.innerHTML = `<div class="message-bubble">${text.replace(/\n/g,'<br>')}</div><div class="message-time">${now}</div>`;
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
 }
@@ -1763,71 +1315,68 @@ function buildTimeline() {
   const container = document.getElementById('notif-timeline');
   const last = TIMELINE_EVENTS.length - 1;
   let html = '';
-  TIMELINE_EVENTS.forEach((ev, i) => {
+  TIMELINE_EVENTS.forEach((ev,i) => {
     const dotDelay  = (i * 0.22).toFixed(2);
     const lineDelay = (i * 0.22 + 0.18).toFixed(2);
-    const lineClass = ev.status === 'done' ? 'done' : ev.status === 'active' ? 'active' : '';
     const dotLabel  = ev.status === 'done' ? '✓' : ev.status === 'active' ? '●' : '';
-    const line      = i < last
-      ? `<div class="notif-line ${lineClass}" style="animation-delay:${lineDelay}s"></div>`
+    const lineClass = ev.status === 'done' ? 'done' : ev.status === 'active' ? 'active' : '';
+    const bodyClass = ev.status + '-body';
+    const line = i < last
+      ? `<div class="tl-line ${lineClass}" style="animation-delay:${lineDelay}s"></div>`
       : '';
     html += `
-    <div class="notif-item ${ev.status}">
-      <div class="notif-spine">
-        <div class="notif-dot ${ev.status}" style="animation-delay:${dotDelay}s">${dotLabel}</div>
+    <div class="timeline-card">
+      <div class="tl-spine">
+        <div class="tl-dot ${ev.status}" style="animation-delay:${dotDelay}s">${dotLabel}</div>
         ${line}
       </div>
-      <div class="notif-content">
-        <div class="notif-title">${ev.title}</div>
-        <div class="notif-desc">${ev.desc}</div>
-        <div class="notif-time">${ev.time}</div>
+      <div class="tl-body ${bodyClass}">
+        <div class="tl-title">${ev.title}</div>
+        <div class="tl-desc">${ev.desc}</div>
+        <div class="tl-time">${ev.time}</div>
       </div>
     </div>`;
   });
   container.innerHTML = html;
 }
 
-/* ── NAV ITEM click for status ── */
+/* ── NAV STATUS click ── */
 document.getElementById('nav-status').addEventListener('click', () => {
-  if (stepsComplete < 4) { stepsComplete = 4; }
-  document.getElementById('badge-status').textContent = '✓';
-  document.getElementById('badge-status').className = 'step-badge done';
-  updateProgress();
+  if (stepsComplete < 4) {
+    stepsComplete = 4;
+    const n = document.getElementById('badge-status');
+    n.textContent = '✓'; n.className = 'nav-num done';
+    document.getElementById('nav-status').classList.add('done');
+    updateProgress();
+  }
 });
 
 /* ── AI GUIDE ── */
 const GUIDE_MESSAGES = {
-  welcome: "שלום! I'll guide you through each step. Start with your eligibility check →",
-  kyc:     "Select the service that matches your situation. I'll verify your eligibility instantly.",
-  docs:    "Check off each document as you gather it. You need 100% to book your appointment.",
-  chat:    "Ask me anything — I answer in Hebrew, Arabic, Russian, or English.",
-  status:  "Your application is in progress. I'll notify you the moment anything changes."
+  welcome:"שלום! I'll guide you through each step. Start with your eligibility check →",
+  kyc:"Select the service that matches your situation. I'll verify your eligibility instantly.",
+  docs:"Check off each document as you gather it. You need 100% to book your appointment.",
+  chat:"Ask me anything — I answer in Hebrew, Arabic, Russian, or English.",
+  status:"Your application is in progress. I'll notify you the moment anything changes."
 };
 
 let guideVisible = true;
 
 function initGuide() {
-  /* Ensure the guide bubble starts on the welcome panel message */
   const el = document.getElementById('guide-msg');
   if (el) el.textContent = GUIDE_MESSAGES.welcome;
 }
 
 function updateGuide(panel) {
   const msg = GUIDE_MESSAGES[panel];
-  if (!msg) return;
-
+  if (!msg || !guideVisible) return;
   const bubble = document.getElementById('guide-bubble');
-  const el     = document.getElementById('guide-msg');
+  const el = document.getElementById('guide-msg');
   if (!bubble || !el) return;
-  if (!guideVisible) return;
-
   el.textContent = msg;
-
-  /* Restart fade-in animation */
   bubble.style.animation = 'none';
-  void bubble.offsetWidth;               /* force reflow */
-  bubble.style.animation = 'guideMsgIn 0.38s cubic-bezier(0.34,1.56,0.64,1) both';
-
+  void bubble.offsetWidth;
+  bubble.style.animation = 'guideMsgIn .38s cubic-bezier(.34,1.56,.64,1) both';
   wiggleGuide();
 }
 
@@ -1837,9 +1386,7 @@ function wiggleGuide() {
   avatar.classList.remove('wiggle');
   void avatar.offsetWidth;
   avatar.classList.add('wiggle');
-  avatar.addEventListener('animationend', () => {
-    avatar.classList.remove('wiggle');
-  }, { once: true });
+  avatar.addEventListener('animationend', () => { avatar.classList.remove('wiggle'); }, {once:true});
 }
 
 function toggleGuide() {
@@ -1850,7 +1397,7 @@ function toggleGuide() {
     bubble.classList.remove('guide-hidden');
     bubble.style.animation = 'none';
     void bubble.offsetWidth;
-    bubble.style.animation = 'guideMsgIn 0.38s cubic-bezier(0.34,1.56,0.64,1) both';
+    bubble.style.animation = 'guideMsgIn .38s cubic-bezier(.34,1.56,.64,1) both';
     wiggleGuide();
   } else {
     bubble.classList.add('guide-hidden');
@@ -1873,29 +1420,17 @@ initGuide();
       <div class="guide-ring2"></div>
       <button class="guide-avatar" id="guide-avatar" onclick="toggleGuide()" aria-label="Toggle guide">
         <svg viewBox="0 0 48 48" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <!--
-            Hoopoe (דוכיפת) — Israel's national bird.
-            Facing right: fan crest on head, long tapered beak.
-          -->
-          <!-- Body -->
           <ellipse cx="17" cy="34" rx="11" ry="9"/>
-          <!-- Head (overlaps body upper-right, creating neck join) -->
           <circle cx="29" cy="22" r="9"/>
-          <!-- Crest feather 1 — sweeps back-left -->
-          <ellipse cx="24" cy="10" rx="3.2" ry="8"
-                   transform="rotate(-28 24 18)"/>
-          <!-- Crest feather 2 — straight up -->
-          <ellipse cx="28" cy="9"  rx="3.2" ry="8"
-                   transform="rotate(0 28 17)"/>
-          <!-- Crest feather 3 — sweeps forward-right -->
-          <ellipse cx="32" cy="10" rx="3.2" ry="8"
-                   transform="rotate(25 32 18)"/>
-          <!-- Beak — long tapered triangle pointing right -->
+          <ellipse cx="24" cy="10" rx="3.2" ry="8" transform="rotate(-28 24 18)"/>
+          <ellipse cx="28" cy="9"  rx="3.2" ry="8" transform="rotate(0 28 17)"/>
+          <ellipse cx="32" cy="10" rx="3.2" ry="8" transform="rotate(25 32 18)"/>
           <path d="M36,19 L47,22 L36,25 Z"/>
         </svg>
       </button>
     </div>
   </div>
 </div>
+
 </body>
 </html>
