@@ -28,8 +28,11 @@
     --white: #ffffff;
     --radius: 12px;
     --radius-sm: 8px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.04);
     --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+    --shadow-lg: 0 8px 28px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   body {
@@ -51,6 +54,7 @@
     position: sticky;
     top: 0;
     z-index: 100;
+    box-shadow: 0 1px 0 var(--gray-200), 0 2px 12px rgba(0,0,0,0.05);
   }
   .logo {
     display: flex;
@@ -72,20 +76,32 @@
     display: flex; gap: 6px;
   }
   .lang-btn {
-    padding: 4px 12px;
+    padding: 5px 11px;
     border-radius: 20px;
     border: 1px solid var(--gray-200);
     background: var(--white);
     font-size: 13px;
     cursor: pointer;
     color: var(--gray-600);
-    transition: all 0.15s;
+    font-weight: 500;
+    transition: all 0.18s var(--ease);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    line-height: 1;
+  }
+  .lang-btn:hover {
+    border-color: var(--gray-400);
+    background: var(--gray-50);
+    color: var(--gray-800);
   }
   .lang-btn.active {
     background: var(--blue);
     color: white;
     border-color: var(--blue);
+    box-shadow: 0 2px 8px rgba(91,33,182,0.28);
   }
+  .lang-btn:active { transform: scale(0.95); }
 
   /* ── LAYOUT ── */
   .layout {
@@ -122,10 +138,15 @@
     transition: all 0.15s;
     margin-bottom: 2px;
   }
-  .nav-item:hover { background: var(--gray-50); }
+  .nav-item:hover {
+    background: var(--gray-50);
+    color: var(--gray-800);
+    transform: translateX(2px);
+  }
   .nav-item.active {
     background: var(--blue-light);
     color: var(--blue);
+    font-weight: 600;
   }
   .nav-icon {
     width: 20px; height: 20px;
@@ -160,9 +181,10 @@
   }
   .progress-fill {
     height: 100%;
-    background: var(--blue);
+    background: linear-gradient(90deg, var(--blue) 0%, var(--blue-mid) 100%);
     border-radius: 2px;
-    transition: width 0.4s ease;
+    transition: width 0.5s var(--ease);
+    box-shadow: 0 0 6px rgba(91,33,182,0.4);
   }
   .progress-label {
     font-size: 12px;
@@ -207,38 +229,93 @@
   .card + .card { margin-top: 1rem; }
 
   /* ── WELCOME ── */
+  @keyframes heroShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes stripeGlow {
+    0%, 100% { opacity: 0.45; transform: scaleX(0.85); }
+    50%       { opacity: 1;    transform: scaleX(1); }
+  }
+  @keyframes orbDrift {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    40%       { transform: translate(-18px, 12px) scale(1.12); }
+    70%       { transform: translate(10px, -10px) scale(0.93); }
+  }
+
   .welcome-hero {
-    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%);
+    background: linear-gradient(-45deg, #3b0f8c, #0038b8, #5b21b6, #1d4ed8, #7c3aed, #0038b8);
+    background-size: 400% 400%;
+    animation: heroShift 14s ease infinite;
     border-radius: var(--radius);
-    padding: 2.5rem;
+    padding: 2.5rem 2.5rem 2.25rem;
     color: white;
     margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Israeli flag blue accent stripes — top */
+  .welcome-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.55) 25%, rgba(255,255,255,0.95) 50%, rgba(147,197,253,0.55) 75%, transparent 100%);
+    animation: stripeGlow 4s ease-in-out infinite;
+  }
+  /* Israeli flag blue accent stripes — bottom */
+  .welcome-hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.55) 25%, rgba(255,255,255,0.95) 50%, rgba(147,197,253,0.55) 75%, transparent 100%);
+    animation: stripeGlow 4s ease-in-out infinite;
+    animation-delay: 2s;
+  }
+  .hero-orb {
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,56,184,0.38) 0%, transparent 70%);
+    top: -90px; right: -70px;
+    animation: orbDrift 9s ease-in-out infinite;
+    pointer-events: none;
   }
   .welcome-hero h2 {
     font-family: 'DM Sans', sans-serif;
-    font-size: 28px;
-    font-weight: 600;
-    margin-bottom: 8px;
+    font-size: 30px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    position: relative;
+    letter-spacing: -0.3px;
   }
   .welcome-hero p {
     font-size: 15px;
     opacity: 0.88;
     max-width: 480px;
-    line-height: 1.6;
+    line-height: 1.65;
+    position: relative;
   }
   .start-btn {
     margin-top: 1.5rem;
-    padding: 12px 24px;
+    padding: 12px 26px;
     background: white;
-    color: var(--blue);
+    color: #0038b8;
     border: none;
     border-radius: var(--radius-sm);
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
-    transition: transform 0.1s;
+    position: relative;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.22);
   }
-  .start-btn:hover { transform: translateY(-1px); }
+  .start-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(0,56,184,0.38);
+  }
 
   .feature-grid {
     display: grid;
@@ -249,8 +326,14 @@
   .feature-card {
     background: var(--white);
     border: 1px solid var(--gray-200);
+    border-top: 3px solid rgba(0,56,184,0.65);
     border-radius: var(--radius);
     padding: 1.25rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .feature-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,56,184,0.1);
   }
   .feature-emoji { font-size: 28px; margin-bottom: 8px; }
   .feature-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
@@ -268,11 +351,22 @@
     border-radius: var(--radius);
     padding: 1rem 1.25rem;
     cursor: pointer;
-    transition: all 0.15s;
+    transition: all 0.18s var(--ease);
     background: var(--white);
+    box-shadow: var(--shadow-sm);
   }
-  .service-option:hover { border-color: var(--blue-mid); background: var(--blue-light); }
-  .service-option.selected { border-color: var(--blue); background: var(--blue-light); }
+  .service-option:hover {
+    border-color: var(--blue-mid);
+    background: var(--blue-light);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(91,33,182,0.12);
+  }
+  .service-option.selected {
+    border-color: var(--blue);
+    background: var(--blue-light);
+    box-shadow: 0 0 0 3px rgba(91,33,182,0.12), 0 4px 12px rgba(91,33,182,0.1);
+  }
+  .service-option:active { transform: scale(0.98); }
   .service-option-icon { font-size: 24px; margin-bottom: 6px; }
   .service-option-title { font-weight: 600; font-size: 14px; }
   .service-option-desc { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
@@ -346,36 +440,45 @@
 
   .action-btn {
     margin-top: 1.25rem;
-    padding: 10px 20px;
-    background: var(--blue);
+    padding: 11px 22px;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
     color: white;
     border: none;
     border-radius: var(--radius-sm);
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all 0.18s var(--ease);
+    box-shadow: 0 2px 8px rgba(91,33,182,0.32);
   }
-  .action-btn:hover { background: #4c1d95; }
-  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(91,33,182,0.42);
+    filter: brightness(1.08);
+  }
+  .action-btn:active { transform: scale(0.97); box-shadow: 0 1px 4px rgba(91,33,182,0.2); }
+  .action-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
 
   /* ── DOCUMENT TREE ── */
-  .doc-tree {
-    margin-top: 1rem;
+  @keyframes strikeIn {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
   }
-  .doc-category {
-    margin-bottom: 1.25rem;
-  }
+
+  .doc-tree { margin-top: 1rem; }
+  .doc-category { margin-bottom: 1.5rem; }
   .doc-category-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--gray-800);
-    padding: 8px 0;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gray-400);
+    padding: 6px 0 8px;
     border-bottom: 1px solid var(--gray-100);
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .doc-item {
     display: flex;
@@ -383,51 +486,77 @@
     gap: 12px;
     padding: 10px 12px;
     border-radius: var(--radius-sm);
-    margin-bottom: 4px;
-    transition: background 0.1s;
+    margin-bottom: 2px;
+    transition: background 0.15s var(--ease);
   }
   .doc-item:hover { background: var(--gray-50); }
+  .doc-item.is-cached { opacity: 0.75; }
+  .doc-item.is-cached:hover { opacity: 0.9; }
+
   .doc-checkbox {
     width: 18px; height: 18px;
     border-radius: 4px;
     border: 2px solid var(--gray-200);
     flex-shrink: 0;
-    margin-top: 1px;
+    margin-top: 2px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s;
+    transition: all 0.18s var(--ease);
   }
+  .doc-checkbox:hover { border-color: var(--green); }
   .doc-checkbox.checked {
     background: var(--green);
     border-color: var(--green);
     color: white;
     font-size: 11px;
+    box-shadow: 0 1px 4px rgba(15,157,88,0.35);
   }
-  .doc-info { flex: 1; }
-  .doc-name { font-size: 14px; font-weight: 500; }
-  .doc-note { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+  .doc-info { flex: 1; min-width: 0; }
+  .doc-name {
+    font-size: 14px;
+    font-weight: 500;
+    position: relative;
+    display: block;
+  }
+  .doc-item.is-cached .doc-name {
+    color: var(--gray-400);
+  }
+  .doc-item.is-cached .doc-name::after {
+    content: '';
+    position: absolute;
+    left: 0; top: 52%;
+    width: 100%; height: 1.5px;
+    background: var(--gray-400);
+    transform-origin: left;
+    animation: strikeIn 0.45s var(--ease) 0.1s both;
+  }
+  .doc-note { font-size: 12px; color: var(--gray-400); margin-top: 2px; line-height: 1.4; }
   .doc-tag {
-    padding: 2px 8px;
+    padding: 3px 9px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
-  .tag-new { background: #fee2e2; color: #991b1b; }
-  .tag-cached { background: #d1fae5; color: #065f46; }
+  .tag-new      { background: #fee2e2; color: #991b1b; }
+  .tag-cached   { background: #d1fae5; color: #065f46; }
   .tag-optional { background: var(--gray-100); color: var(--gray-600); }
 
   .doc-summary-bar {
-    background: var(--blue-light);
-    border-radius: var(--radius-sm);
-    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--blue-light) 0%, #f0f4ff 100%);
+    border: 1px solid rgba(91,33,182,0.1);
+    border-radius: var(--radius);
+    padding: 14px 20px;
     display: flex;
-    gap: 1.5rem;
-    margin-bottom: 1rem;
+    gap: 2rem;
+    margin-bottom: 1.25rem;
     font-size: 13px;
+    box-shadow: var(--shadow-sm);
   }
-  .doc-summary-item { display: flex; align-items: center; gap: 6px; }
-  .doc-count { font-weight: 700; font-size: 18px; color: var(--blue); }
-  .doc-label { color: var(--gray-600); }
+  .doc-summary-item { display: flex; align-items: center; gap: 8px; }
+  .doc-count { font-weight: 800; font-size: 20px; color: var(--blue); line-height: 1; }
+  .doc-label { color: var(--gray-600); font-size: 12px; }
 
   /* ── CHATBOT ── */
   .chat-wrapper {
@@ -447,11 +576,13 @@
     gap: 10px;
   }
   .chat-avatar {
-    width: 36px; height: 36px;
+    width: 40px; height: 40px;
     border-radius: 50%;
-    background: var(--blue);
+    background: linear-gradient(135deg, #5b21b6 0%, #0038b8 100%);
     display: flex; align-items: center; justify-content: center;
-    color: white; font-size: 16px;
+    color: white; font-size: 18px;
+    box-shadow: 0 2px 10px rgba(0,56,184,0.35);
+    flex-shrink: 0;
   }
   .chat-name { font-weight: 600; font-size: 14px; }
   .chat-status { font-size: 12px; color: var(--green); }
@@ -471,29 +602,36 @@
     flex-direction: column;
     gap: 12px;
   }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
   .message {
     max-width: 80%;
     display: flex;
     flex-direction: column;
     gap: 4px;
+    animation: msgIn 0.22s var(--ease) both;
   }
   .message.bot { align-self: flex-start; }
   .message.user { align-self: flex-end; }
   .message-bubble {
-    padding: 10px 14px;
-    border-radius: 12px;
+    padding: 11px 15px;
+    border-radius: 16px;
     font-size: 14px;
     line-height: 1.6;
   }
   .message.bot .message-bubble {
-    background: var(--gray-100);
+    background: #f0f0f5;
     color: var(--gray-800);
     border-bottom-left-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 2px 6px rgba(0,0,0,0.04);
   }
   .message.user .message-bubble {
-    background: var(--blue);
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
     color: white;
     border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 10px rgba(91,33,182,0.3), 0 1px 3px rgba(91,33,182,0.2);
   }
   .message-time {
     font-size: 11px;
@@ -509,16 +647,25 @@
     margin-top: 4px;
   }
   .quick-reply {
-    padding: 6px 12px;
+    padding: 7px 13px;
     border-radius: 20px;
-    border: 1px solid var(--blue);
+    border: 1.5px solid rgba(91,33,182,0.3);
     color: var(--blue);
     font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
     background: white;
-    transition: all 0.15s;
+    transition: all 0.18s var(--ease);
+    box-shadow: 0 1px 3px rgba(91,33,182,0.08);
   }
-  .quick-reply:hover { background: var(--blue); color: white; }
+  .quick-reply:hover {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(91,33,182,0.25);
+  }
+  .quick-reply:active { transform: scale(0.96); }
 
   .chat-input-area {
     padding: 1rem 1.25rem;
@@ -541,19 +688,25 @@
   }
   .chat-input:focus { border-color: var(--blue-mid); }
   .send-btn {
-    width: 38px; height: 38px;
+    width: 40px; height: 40px;
     border-radius: 50%;
-    background: var(--blue);
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
     border: none;
     color: white;
     font-size: 16px;
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s;
+    transition: all 0.18s var(--ease);
     flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(91,33,182,0.35);
   }
-  .send-btn:hover { background: #4c1d95; }
-  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .send-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(91,33,182,0.45);
+    filter: brightness(1.1);
+  }
+  .send-btn:active { transform: scale(0.94); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; transform: none; }
 
   .typing-indicator {
     display: flex;
@@ -579,38 +732,88 @@
   }
 
   /* ── NOTIFICATION PANEL ── */
+  @keyframes lineDraw {
+    from { transform: scaleY(0); }
+    to   { transform: scaleY(1); }
+  }
+  @keyframes dotPop {
+    from { transform: scale(0.4); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+  @keyframes activePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.45), 0 0 12px 2px rgba(37,99,235,0.18); }
+    50%       { box-shadow: 0 0 0 9px rgba(37,99,235,0.08), 0 0 22px 6px rgba(37,99,235,0.28); }
+  }
+  @keyframes activeRing {
+    0%   { transform: scale(1); opacity: 0.7; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
   .notif-timeline { margin-top: 1rem; }
   .notif-item {
     display: flex;
     gap: 14px;
-    padding-bottom: 1.25rem;
-    position: relative;
   }
-  .notif-item::before {
-    content: '';
-    position: absolute;
-    left: 16px;
-    top: 32px;
-    bottom: 0;
+  .notif-spine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .notif-line {
     width: 2px;
+    flex: 1;
+    min-height: 28px;
     background: var(--gray-200);
+    transform-origin: top;
+    animation: lineDraw 0.45s ease-out both;
   }
-  .notif-item:last-child::before { display: none; }
+  .notif-line.done    { background: #22c55e; }
+  .notif-line.active  { background: linear-gradient(to bottom, #22c55e 40%, var(--gray-200) 40%); }
+
   .notif-dot {
-    width: 32px; height: 32px;
+    width: 34px; height: 34px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
+    font-size: 15px; font-weight: 700;
     flex-shrink: 0;
-    z-index: 1;
+    position: relative;
+    animation: dotPop 0.3s ease-out both;
   }
-  .notif-dot.done { background: var(--green-light); }
-  .notif-dot.active { background: var(--blue-light); }
-  .notif-dot.pending { background: var(--gray-100); }
-  .notif-content { flex: 1; padding-top: 4px; }
+  .notif-dot.done {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+  .notif-dot.active {
+    background: var(--blue);
+    color: white;
+    font-size: 12px;
+    animation: dotPop 0.3s ease-out both, activePulse 2.2s ease-in-out 0.4s infinite;
+  }
+  .notif-dot.active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(37,99,235,0.55);
+    animation: activeRing 2s ease-out 0.4s infinite;
+  }
+  .notif-dot.pending {
+    background: var(--gray-100);
+    border: 2px dashed var(--gray-300);
+  }
+
+  .notif-content {
+    flex: 1;
+    padding-top: 5px;
+    padding-bottom: 1.4rem;
+  }
   .notif-title { font-weight: 600; font-size: 14px; }
-  .notif-desc { font-size: 13px; color: var(--gray-600); margin-top: 2px; }
-  .notif-time { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+  .notif-item.active .notif-title { color: var(--blue); }
+  .notif-item.pending .notif-title  { color: var(--gray-400); }
+  .notif-item.pending .notif-desc   { color: var(--gray-300); }
+  .notif-desc { font-size: 13px; color: var(--gray-600); margin-top: 2px; line-height: 1.45; }
+  .notif-time { font-size: 11px; color: var(--gray-400); margin-top: 5px; font-variant-numeric: tabular-nums; }
 
   .whatsapp-mock {
     background: #075e54;
@@ -648,9 +851,10 @@
     MishradAI
   </div>
   <div class="lang-switcher">
-    <button class="lang-btn active" onclick="setLang('en')">EN</button>
-    <button class="lang-btn" onclick="setLang('he')">עב</button>
-    <button class="lang-btn" onclick="setLang('ru')">РУ</button>
+    <button class="lang-btn active" onclick="setLang('en')">🇺🇸 EN</button>
+    <button class="lang-btn" onclick="setLang('he')">🇮🇱 עב</button>
+    <button class="lang-btn" onclick="setLang('ru')">🇷🇺 РУ</button>
+    <button class="lang-btn" onclick="setLang('ar')">🇸🇦 عر</button>
   </div>
 </header>
 
@@ -695,6 +899,7 @@
     <!-- WELCOME PANEL -->
     <div class="panel active" id="panel-welcome">
       <div class="welcome-hero">
+        <div class="hero-orb"></div>
         <h2 id="wh-title">Welcome to MishradAI</h2>
         <p id="wh-sub">Your AI-powered guide for Ministry of Interior services. No more wasted trips. No more missing documents. We speak your language.</p>
         <button class="start-btn" onclick="showPanel('kyc')" id="wh-btn">Get Started →</button>
@@ -966,6 +1171,36 @@ const T = {
     progressLabel: (n) => `${n} из 4 шагов завершено`,
     kycProceed: 'Подтвердить и построить список →',
     docsBook: 'Записаться на приём с проверенным списком →',
+  },
+  ar: {
+    slSteps: 'رحلتك',
+    nlWelcome: 'مرحباً', nlKyc: 'فحص الأهلية', nlDocs: 'قائمة المستندات',
+    nlChat: 'مساعد الذكاء الاصطناعي', nlStatus: 'تحديثات الحالة',
+    whTitle: 'مرحباً بك في MishradAI',
+    whSub: 'دليلك الذكي لخدمات وزارة الداخلية الإسرائيلية. لا مزيد من الرحلات المضيّعة. لا مزيد من المستندات الناقصة.',
+    whBtn: 'ابدأ الآن →',
+    fc1Title: 'الفحص المسبق للأهلية', fc1Desc: 'اعرف ما إذا كنت مؤهلاً قبل السفر. يفحص الذكاء الاصطناعي وضعك في دقائق لا أسابيع.',
+    fc2Title: 'قائمة المستندات الذكية', fc2Desc: 'شاهد بالضبط ما يجب إحضاره. المستندات الموجودة في الملف تُحذف تلقائياً من قائمتك.',
+    fc3Title: 'دعم متعدد اللغات', fc3Desc: 'العبرية والعربية والروسية والإنجليزية — وصول كامل بغض النظر عن لغتك.',
+    kycTitle: 'الفحص المسبق للأهلية', kycSub: 'أخبرنا بوضعك — سنتحقق من مسارك قبل حجز موعد.',
+    kycQ1: 'ما الخدمة التي تحتاجها؟', kycQ1Hint: 'اختر الخدمة المناسبة لوضعك',
+    svcAliyaT: 'العلية (قانون العودة)', svcAliyaD: 'الهجرة عبر الأصل اليهودي',
+    svcReunT: 'لمّ شمل الأسرة', svcReunD: 'زوج/زوجة أو أقارب مواطن إسرائيلي',
+    svcIdT: 'تجديد الهوية / جواز السفر', svcIdD: 'جدّد تيودات زيهوت أو جواز سفرك',
+    svcVisaT: 'تمديد التأشيرة', svcVisaD: 'تأشيرة عمل أو دراسة أو سياحة',
+    svcBirthT: 'تسجيل الولادة', svcBirthD: 'تسجيل مولود جديد في السجلات',
+    svcMarrT: 'شهادة الزواج', svcMarrD: 'تسجيل أو الحصول على وثيقة الزواج',
+    docsTitle: 'قائمة مستنداتك', docsSub: 'بناءً على خدمتك وملفك الحالي — فقط ما تحتاج إحضاره فعلاً.',
+    dlNew: 'مستندات للإحضار', dlCached: 'موجودة في الملف (تم الحفظ)', dlOpt: 'اختياري',
+    chatTitle: 'مساعد الذكاء الاصطناعي', chatSub: 'اسأل أي شيء عن طلبك — بأي لغة.',
+    csOnline: 'متصل · يرد فوراً',
+    statusTitle: 'حالة الطلب', statusSub: 'تحديثات فورية تُرسل إليك — دون الحاجة للاتصال.',
+    waTitle: 'إشعارات WhatsApp / SMS مفعّلة', waSub: 'تحديثات تُرسل إلى +972-50-XXX-XXXX · عربي · آخر تحديث: منذ ساعتين',
+    refTitle: 'رقم المرجع', refHint: 'احتفظ بهذا الرقم لمتابعة طلبك أو الاستفسار عنه',
+    chatGreeting: 'مرحباً! أنا ميري، دليلك الشخصي لخدمات وزارة الداخلية الإسرائيلية. أستطيع مساعدتك بالعبرية والإنجليزية والروسية والعربية. بماذا يمكنني مساعدتك؟',
+    progressLabel: (n) => `${n} من 4 خطوات مكتملة`,
+    kycProceed: 'تأكيد وإنشاء قائمة المستندات →',
+    docsBook: 'احجز موعداً مع القائمة المحققة →',
   }
 };
 
@@ -1085,9 +1320,9 @@ function setLang(lang) {
   document.querySelector(`.lang-btn[onclick="setLang('${lang}')"]`).classList.add('active');
 
   const t = T[lang];
-  const isHe = lang === 'he';
+  const isRtl = lang === 'he' || lang === 'ar';
 
-  document.body.style.direction = isHe ? 'rtl' : 'ltr';
+  document.body.style.direction = isRtl ? 'rtl' : 'ltr';
 
   const ids = {
     'sl-steps': t.slSteps,
@@ -1247,10 +1482,10 @@ function docItemHTML(doc, id) {
   const tagClass = { new: 'tag-new', cached: 'tag-cached', optional: 'tag-optional' }[doc.tag];
   const tagLabel = { new: 'Bring', cached: 'On File', optional: 'Optional' }[doc.tag];
   const isCached = doc.tag === 'cached';
-  return `<div class="doc-item">
+  return `<div class="doc-item${isCached ? ' is-cached' : ''}">
     <div class="doc-checkbox ${isCached ? 'checked' : ''}" id="cb-${id}" onclick="toggleDoc('${id}', this)">${isCached ? '✓' : ''}</div>
     <div class="doc-info">
-      <div class="doc-name" style="${isCached ? 'text-decoration:line-through;color:var(--gray-400)' : ''}">${doc.name}</div>
+      <div class="doc-name">${doc.name}</div>
       <div class="doc-note">${doc.note}</div>
     </div>
     <span class="doc-tag ${tagClass}">${tagLabel}</span>
@@ -1382,10 +1617,22 @@ function hideTyping() {
 /* ── STATUS TIMELINE ── */
 function buildTimeline() {
   const container = document.getElementById('notif-timeline');
+  const last = TIMELINE_EVENTS.length - 1;
   let html = '';
-  TIMELINE_EVENTS.forEach(ev => {
-    html += `<div class="notif-item">
-      <div class="notif-dot ${ev.status}">${ev.icon}</div>
+  TIMELINE_EVENTS.forEach((ev, i) => {
+    const dotDelay  = (i * 0.22).toFixed(2);
+    const lineDelay = (i * 0.22 + 0.18).toFixed(2);
+    const lineClass = ev.status === 'done' ? 'done' : ev.status === 'active' ? 'active' : '';
+    const dotLabel  = ev.status === 'done' ? '✓' : ev.status === 'active' ? '●' : '';
+    const line      = i < last
+      ? `<div class="notif-line ${lineClass}" style="animation-delay:${lineDelay}s"></div>`
+      : '';
+    html += `
+    <div class="notif-item ${ev.status}">
+      <div class="notif-spine">
+        <div class="notif-dot ${ev.status}" style="animation-delay:${dotDelay}s">${dotLabel}</div>
+        ${line}
+      </div>
       <div class="notif-content">
         <div class="notif-title">${ev.title}</div>
         <div class="notif-desc">${ev.desc}</div>
