@@ -325,17 +325,31 @@ body.lang-fade .main{opacity:0}
 
 /* ── DUDU — LIVING HOOPOE GUIDE ── */
 
-/* Container — JS sets left/top */
 #dudu-container{
   position:fixed;z-index:9999;
   pointer-events:none;
   display:flex;flex-direction:column;align-items:center;
-  /* GPU layer for smooth flight */
   will-change:transform;
 }
 #dudu-container.rtl{align-items:flex-start}
 
-/* Bubble — organic border radii for handwritten feel */
+/* Glow aura behind bird */
+#dudu-container::after{
+  content:'';
+  position:absolute;
+  bottom:14px;left:50%;
+  transform:translateX(-50%);
+  width:70px;height:70px;
+  background:radial-gradient(circle,rgba(37,99,235,.22) 0%,rgba(37,99,235,.06) 55%,transparent 75%);
+  border-radius:50%;
+  z-index:-1;
+  animation:glowPulse 3.5s ease-in-out infinite;
+  pointer-events:none;
+}
+#dudu-container.flying::after{opacity:0}
+@keyframes glowPulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.18)}}
+
+/* Speech bubble */
 .dudu-bubble{
   background:#fff;
   border:1.5px solid var(--c-blue);
@@ -343,165 +357,138 @@ body.lang-fade .main{opacity:0}
   border-radius:18px 14px 20px 15px / 15px 20px 16px 18px;
   padding:12px 16px 10px;
   max-width:262px;min-width:180px;
-  box-shadow:inset 0 2px 8px rgba(37,99,235,.05),0 4px 24px rgba(37,99,235,.15),0 2px 8px rgba(0,0,0,.08);
+  box-shadow:inset 0 2px 8px rgba(37,99,235,.05),0 4px 24px rgba(37,99,235,.16),0 2px 8px rgba(0,0,0,.07);
   position:relative;
   margin-bottom:10px;
   pointer-events:auto;
-  animation:bubblePop .4s var(--spring) both;
   transform-origin:bottom right;
 }
 .dudu-bubble.guide-hidden{display:none}
+.dudu-bubble.popping{animation:bubblePop .38s var(--spring) both}
 .dudu-bubble.tail-left{transform-origin:bottom left}
-/* Tail pointing to beak (bottom-right default) */
 .dudu-bubble::before{content:'';position:absolute;bottom:-10px;right:20px;border:9px solid transparent;border-top-color:var(--c-blue);border-bottom:none}
 .dudu-bubble::after {content:'';position:absolute;bottom:-7.5px;right:21.5px;border:7.5px solid transparent;border-top-color:#fff;border-bottom:none}
 .dudu-bubble.tail-left::before{right:auto;left:20px}
 .dudu-bubble.tail-left::after {right:auto;left:21.5px}
-.dudu-bubble p{font-size:13px;font-weight:500;color:var(--c-blue-deep);line-height:1.55;margin:0}
+.dudu-bubble p{font-size:13px;font-weight:500;color:var(--c-blue-deep);line-height:1.6;margin:0}
 .dudu-bubble strong{font-weight:700}
+/* Typewriter cursor */
+.dudu-cursor{display:inline-block;width:1.5px;height:1em;background:var(--c-blue);vertical-align:text-bottom;margin-left:1px;animation:cursorBlink .7s step-end infinite}
+@keyframes cursorBlink{0%,100%{opacity:1}50%{opacity:0}}
 
-/* Name tag below bird */
+/* Name tag */
 .dudu-name-tag{
   font-size:10px;font-family:var(--f-body);font-weight:700;
   color:var(--c-blue);letter-spacing:.07em;text-align:center;
-  margin-top:3px;
-  opacity:0;transition:opacity .25s;
-  user-select:none;
+  margin-top:3px;opacity:0;transition:opacity .25s;user-select:none;
 }
 .dudu-name-visible .dudu-name-tag{opacity:1}
 
-/* Bird wrap — handles idle bob */
+/* Bird wrap — idle bob: 3px, 3s, sine */
 .dudu-bird-wrap{
   position:relative;display:flex;flex-direction:column;align-items:center;
-  animation:dudoBob 4s ease-in-out infinite;
-  will-change:transform;
-  pointer-events:auto;
-  cursor:pointer;
+  animation:dudoBob 3s ease-in-out infinite;
+  will-change:transform;pointer-events:auto;cursor:pointer;
 }
 #dudu-container.flying .dudu-bird-wrap{animation:none}
+/* Hover: scale up slightly, crest flares in CSS */
+.dudu-bird-wrap:hover{transform:scale(1.04)}
+.dudu-bird-wrap:hover .dudu-bird-wrap{animation:none}
 
-/* Shadow ellipse */
+/* Shadow — blurred ellipse */
 .dudu-shadow{
-  width:58px;height:11px;
-  background:radial-gradient(ellipse,rgba(37,99,235,.2) 0%,transparent 72%);
+  width:56px;height:10px;
+  background:rgba(37,99,235,.18);
+  filter:blur(6px);
   border-radius:50%;
-  flex-shrink:0;margin-top:-2px;
+  flex-shrink:0;margin-top:-3px;
   transition:opacity .3s,transform .3s;
 }
-#dudu-container.flying .dudu-shadow{opacity:.3;transform:scaleX(.5)}
+#dudu-container.flying .dudu-shadow{opacity:.25;transform:scaleX(.45)}
 
-/* Bird SVG */
+/* SVG */
 #dudu-svg{
-  width:82px;height:82px;
-  display:block;
-  will-change:transform;
+  width:88px;height:88px;
+  display:block;will-change:transform;overflow:visible;
   transition:transform .3s var(--ease);
-  overflow:visible;
 }
 
-/* ── IDLE ANIMATIONS ── */
-@keyframes dudoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+/* ── IDLE ── */
+@keyframes dudoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 
-/* Crest breathing in idle */
-@keyframes crestBreath{0%,100%{transform:scaleY(1) rotate(0deg)}50%{transform:scaleY(1.08) rotate(2.5deg)}}
-#dudu-crest{
-  transform-origin:79px 38px;
-  animation:crestBreath 3.5s ease-in-out infinite;
-}
+/* Crest — barely perceptible breathing, scaleY around feather base */
+@keyframes crestBreath{0%,100%{transform:scaleY(1) rotate(0deg)}50%{transform:scaleY(1.06) rotate(1.5deg)}}
+#dudu-crest{transform-origin:83px 40px;animation:crestBreath 3s ease-in-out infinite}
+#dudu-container.flying #dudu-crest{transform:rotate(30deg) scaleY(.5)!important;animation:none!important}
 
-/* ── FLIGHT ── */
-@keyframes wingFlap{
-  0%  {transform:rotate(-22deg) scaleY(.65)}
-  35% {transform:rotate(4deg)   scaleY(1)}
-  68% {transform:rotate(24deg)  scaleY(1.14)}
-  100%{transform:rotate(-22deg) scaleY(.65)}
-}
-#dudu-wing{transform-origin:50px 66px}
-#dudu-container.flying #dudu-wing{animation:wingFlap .21s linear infinite}
-#dudu-container.flying #dudu-crest{
-  transform:rotate(36deg) scaleY(.45)!important;
+/* Hover: crest fans open */
+.dudu-bird-wrap:hover #dudu-crest{
+  transform:scaleY(1.42) rotate(15deg)!important;
   animation:none!important;
+  transition:transform .3s ease;
 }
+
+/* ── WING ── */
+@keyframes wingFlap{
+  0%  {transform:rotate(-28deg) scaleY(.55)}
+  33% {transform:rotate(0deg)   scaleY(1)}
+  66% {transform:rotate(26deg)  scaleY(1.18)}
+  100%{transform:rotate(-28deg) scaleY(.55)}
+}
+#dudu-wing{transform-origin:44px 70px}
+#dudu-container.flying #dudu-wing{animation:wingFlap .125s steps(3,end) infinite}
 
 /* ── BLINK ── */
-#dudu-eyelid{
-  transform-origin:87px 42px;
-  transform:scaleY(0);
-}
-@keyframes eyeBlink{0%{transform:scaleY(0)}38%{transform:scaleY(1)}100%{transform:scaleY(0)}}
-#dudu-eyelid.blink{animation:eyeBlink .32s ease-in-out}
+#dudu-eyelid{transform-origin:91px 44px;transform:scaleY(0)}
+@keyframes eyeBlink{0%{transform:scaleY(0)}40%{transform:scaleY(1)}100%{transform:scaleY(0)}}
+#dudu-eyelid.blink{animation:eyeBlink .2s ease-in-out}
 
-/* ── HEAD GROUP ── */
-#dudu-head-group{transform-origin:72px 58px}
-
-/* Look around when idle >30s */
-@keyframes lookAround{
-  0%{transform:rotate(0)}20%{transform:rotate(-15deg)}
-  45%{transform:rotate(0)}70%{transform:rotate(12deg)}
-  90%{transform:rotate(2deg)}100%{transform:rotate(0)}
-}
-#dudu-head-group.looking{animation:lookAround 2.5s ease-in-out}
-
-/* Nod on document check */
-@keyframes headNod{0%{transform:rotate(0)}30%{transform:rotate(14deg)}65%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
-#dudu-head-group.nodding{animation:headNod .46s ease-in-out}
-
-/* ── HOVER: crest fans ── */
-.dudu-bird-wrap:hover #dudu-crest{
-  transform:scaleY(1.35) rotate(12deg)!important;
-  animation:none!important;
-  transition:transform .28s ease;
-}
+/* ── HEAD ── */
+#dudu-head-group{transform-origin:72px 60px}
+@keyframes headNod{0%{transform:rotate(0)}35%{transform:rotate(10deg)}70%{transform:rotate(-3deg)}100%{transform:rotate(0)}}
+@keyframes headTurn{0%{transform:rotate(0)}18%{transform:rotate(-15deg)}45%{transform:rotate(-15deg)}62%{transform:rotate(0)}78%{transform:rotate(12deg)}92%{transform:rotate(12deg)}100%{transform:rotate(0)}}
+@keyframes langTiltAnim{0%,100%{transform:rotate(0)}25%{transform:rotate(20deg)}55%{transform:rotate(20deg)}}
+#dudu-head-group.nodding{animation:headNod .25s ease-in-out}
+#dudu-head-group.looking{animation:headTurn 4s ease-in-out}
 
 /* ── LANGUAGE TILT ── */
-@keyframes langTilt{0%,100%{transform:rotate(0)}30%{transform:rotate(18deg)}}
-#dudu-svg.lang-tilting{animation:langTilt .55s ease-in-out}
+#dudu-svg.lang-tilting{animation:langTiltAnim .7s ease-in-out}
 
-/* ── EXCITED HOP (service selected) ── */
-@keyframes excHop{
-  0%{transform:translateY(0)}22%{transform:translateY(-18px) rotate(-9deg)}
-  50%{transform:translateY(0) rotate(0)}70%{transform:translateY(-10px) rotate(6deg)}
-  100%{transform:translateY(0)}
-}
-#dudu-container.hopping .dudu-bird-wrap{animation:excHop .58s ease-in-out}
+/* ── LIFT-OFF ── */
+@keyframes liftOff{0%{transform:translateY(0)}100%{transform:translateY(-20px)}}
+#dudu-container.lifting .dudu-bird-wrap{animation:liftOff .2s ease-in both}
 
-/* ── CELEBRATION (100% docs) ── */
-@keyframes wingCelebrate{0%{transform:rotate(0) scaleY(1)}30%{transform:rotate(-52deg) scaleY(1.6)}65%{transform:rotate(-44deg) scaleY(1.5)}100%{transform:rotate(0) scaleY(1)}}
-#dudu-svg.celebrating #dudu-wing{animation:wingCelebrate 1.2s ease-in-out}
-#dudu-svg.celebrating #dudu-crest{transform:scaleY(1.6) rotate(15deg)!important;animation:none!important}
+/* ── LANDING OVERSHOOT ── */
+@keyframes landSettle{0%{transform:translateY(0)}35%{transform:translateY(3px)}100%{transform:translateY(0)}}
+#dudu-container.settling .dudu-bird-wrap{animation:landSettle .28s ease-out}
+
+/* ── EXCITED HOP ── */
+@keyframes excHop{0%{transform:translateY(0)}30%{transform:translateY(-10px) rotate(-5deg)}60%{transform:translateY(0) rotate(0)}80%{transform:translateY(-5px)}100%{transform:translateY(0)}}
+#dudu-container.hopping .dudu-bird-wrap{animation:excHop .3s ease-in-out}
+
+/* ── CELEBRATION ── */
+@keyframes wingSpread{0%{transform:rotate(0) scaleY(1)}20%,80%{transform:rotate(-55deg) scaleY(1.65)}100%{transform:rotate(0) scaleY(1)}}
+#dudu-svg.celebrating #dudu-wing{animation:wingSpread 1.5s ease-in-out}
+#dudu-svg.celebrating #dudu-crest{transform:scaleY(1.65) rotate(16deg)!important;animation:none!important;transition:transform .2s}
 
 /* ── BUBBLE POP ── */
-@keyframes bubblePop{from{opacity:0;transform:scale(.88) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes bubblePop{from{opacity:0;transform:scale(.86) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
-/* ── TRAIL DOTS ── */
-.dudu-trail{position:fixed;width:5px;height:5px;border-radius:50%;background:rgba(37,99,235,.55);pointer-events:none;z-index:9996;animation:trailFade .65s ease-out forwards}
-@keyframes trailFade{from{opacity:.8;transform:scale(1)}to{opacity:0;transform:scale(.2)}}
+/* ── TRAIL ── */
+.dudu-trail{position:fixed;width:4px;height:4px;border-radius:50%;background:rgba(37,99,235,.5);pointer-events:none;z-index:9996;animation:trailFade .55s ease-out forwards}
+@keyframes trailFade{from{opacity:.8;transform:scale(1)}to{opacity:0;transform:scale(.15)}}
 
-/* ── LANDING RIPPLE ── */
-.dudu-ripple{
-  position:fixed;width:60px;height:60px;border-radius:50%;
-  border:2px solid rgba(37,99,235,.45);
-  pointer-events:none;z-index:9995;
-  transform:translate(-50%,-50%) scale(0);
-  animation:rippleOut .9s ease-out forwards;
-}
-@keyframes rippleOut{from{transform:translate(-50%,-50%) scale(0);opacity:.75}to{transform:translate(-50%,-50%) scale(2.8);opacity:0}}
+/* ── RIPPLE ── */
+.dudu-ripple{position:fixed;width:56px;height:56px;border-radius:50%;border:1.5px solid rgba(37,99,235,.4);pointer-events:none;z-index:9995;transform:translate(-50%,-50%) scale(0);animation:rippleOut .85s ease-out forwards}
+@keyframes rippleOut{from{transform:translate(-50%,-50%) scale(0);opacity:.7}to{transform:translate(-50%,-50%) scale(3);opacity:0}}
 
-/* ── STARBURST (doc verified) ── */
-.dudu-star{
-  position:fixed;width:5px;height:5px;border-radius:50%;
-  background:var(--c-blue);pointer-events:none;z-index:9998;
-  animation:starOut .7s ease-out forwards;
-}
-@keyframes starOut{from{transform:rotate(var(--sa)) translateX(0) scale(1);opacity:1}to{transform:rotate(var(--sa)) translateX(40px) scale(0);opacity:0}}
+/* ── STARBURST ── */
+.dudu-star{position:fixed;width:5px;height:5px;border-radius:50%;background:var(--c-blue);pointer-events:none;z-index:9998;animation:starOut .65s ease-out forwards}
+@keyframes starOut{from{transform:rotate(var(--sa)) translateX(0) scale(1);opacity:1}to{transform:rotate(var(--sa)) translateX(44px) scale(0);opacity:0}}
 
 /* ── CONFETTI ── */
-.dudu-confetti{
-  position:fixed;border-radius:2px;
-  pointer-events:none;z-index:9998;
-  animation:confFall 2.1s ease-in forwards;
-}
-@keyframes confFall{from{transform:translateY(0) translateX(0) rotate(0);opacity:1}to{transform:translateY(240px) translateX(var(--cx)) rotate(var(--cr));opacity:0}}
+.dudu-confetti{position:fixed;border-radius:2px;pointer-events:none;z-index:9998;animation:confFall 2.1s ease-in forwards}
+@keyframes confFall{from{transform:translateY(0) translateX(0) rotate(0);opacity:1}to{transform:translateY(260px) translateX(var(--cx)) rotate(var(--cr));opacity:0}}
 
 /* ── RTL ── */
 body[dir=rtl] .message.user{align-self:flex-start}
@@ -870,11 +857,13 @@ body[dir=rtl] .welcome-hero::before{animation-direction:reverse}
         </div>
 
         <div class="faq-chips">
-          <button class="quick-reply" onclick="sendQuick('What documents do I need for Teudat Zehut?')">Documents for Teudat Zehut</button>
-          <button class="quick-reply" onclick="sendQuick('How long does the ID renewal process take?')">Processing time</button>
-          <button class="quick-reply" onclick="sendQuick('Which branch handles visas in Tel Aviv?')">Tel Aviv branch</button>
-          <button class="quick-reply" onclick="sendQuick('What is the Law of Return?')">Law of Return</button>
-          <button class="quick-reply" onclick="sendQuick('Can I renew my passport online?')">Online renewal?</button>
+          <button class="quick-reply" onclick="sendQuick('What documents do I need for Teudat Zehut renewal?')">ID renewal docs</button>
+          <button class="quick-reply" onclick="sendQuick('How long does ID renewal take?')">Processing time</button>
+          <button class="quick-reply" onclick="sendQuick('Where is the Tel Aviv Misrad HaPnim branch?')">Tel Aviv branch</button>
+          <button class="quick-reply" onclick="sendQuick('What are the opening hours?')">Opening hours</button>
+          <button class="quick-reply" onclick="sendQuick('How do I book an appointment?')">Book appointment</button>
+          <button class="quick-reply" onclick="sendQuick('What documents do I need for Aliya?')">Aliya docs</button>
+          <button class="quick-reply" onclick="sendQuick('What is the national hotline number?')">Hotline number</button>
         </div>
 
         <div class="chat-messages" id="chat-messages">
@@ -1239,12 +1228,12 @@ function showPanel(name) {
 
   currentPanel = name;
 
-  /* Dudu flies to the new panel */
+  /* Dudu flies to the new panel — duration scales 600–1200ms with distance */
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       const target = getDuduTarget(name);
-      const steps = Math.abs(newIdx - oldIdx);
-      const dur = 700 + steps * 90;
+      const dist = Math.hypot(target.x - duduX, target.y - duduY);
+      const dur  = Math.min(1200, Math.max(600, 400 + dist * 0.6));
       duduFly(target.x, target.y, direction === 'forward', dur, () => {
         updateGuide(name);
       });
@@ -1389,68 +1378,388 @@ function completeDocs() {
   showPanel('chat');
 }
 
-/* ── CHAT (real Claude API) ── */
-const chatHistory = [];
+/* ── OFFLINE CHATBOT — Miri ── */
 let isTyping = false;
 
-const SYSTEM_PROMPT = `You are Miri, an AI assistant for Misrad HaPnim (Israel's Ministry of Interior). You help users navigate bureaucratic processes in Israel.
+function detectLang(text) {
+  if (/[֐-׿]/.test(text)) return 'he';
+  if (/[؀-ۿ]/.test(text)) return 'ar';
+  if (/[Ѐ-ӿ]/.test(text)) return 'ru';
+  return 'en';
+}
 
-You speak Hebrew, English, Russian, and Arabic — always respond in the same language the user writes to you.
+const GREETINGS = {
+  en: /^(hi|hello|hey|good morning|good afternoon|greetings)\b/i,
+  he: /^(שלום|היי|בוקר טוב|ערב טוב|מה שלומך)/,
+  ru: /^(привет|здравствуйте|добрый|шалом)/i,
+  ar: /^(مرحبا|السلام|أهلا|هلا|صباح|مساء)/
+};
 
-Your knowledge includes:
-- Teudat Zehut (Israeli ID card) renewal process
-- Passport (darkon) renewal
-- Aliya process and Law of Return
-- Visa extensions (B/1 work, student, tourist)
-- Birth and marriage registration
-- Branch locations and hours (Tel Aviv Metzuyan branch: Ibn Gabirol 68, Sun-Thu 8:00-16:00)
-- Common documents required for each service
-- Approximate wait times and processing durations
+const GREETING_REPLY = {
+  en: "Hello! I'm Miri. I'm here to help you navigate Ministry of Interior services — from ID renewal to Aliya, appointments to document questions. What can I help you with today?",
+  he: "שלום! אני מירי. אני כאן לעזור לך בכל שירותי משרד הפנים — מחידוש תעודת זהות ועד עלייה, קביעת תורים ושאלות על מסמכים. במה אוכל לעזור?",
+  ru: "Шалом! Я Мири. Я здесь, чтобы помочь вам с услугами МВД — от обновления удостоверения до репатриации, записи на приём и вопросов по документам. Чем могу помочь?",
+  ar: "مرحباً! أنا ميري. أنا هنا لمساعدتك في خدمات وزارة الداخلية — من تجديد الهوية إلى العلية، المواعيد وأسئلة الوثائق. بماذا يمكنني مساعدتك؟"
+};
 
-Be concise, helpful, and empathetic. Users are often frustrated by bureaucracy. If you mention specific wait times, note they are approximate. Never fabricate specific policy details — if unsure, say so and suggest calling 3450* (the national Ministry hotline).
+const FALLBACK = {
+  en: "I don't have a specific answer for that, but you can call <strong>3450*</strong> for immediate help, or visit <strong>gov.il</strong> for official information. Is there anything else I can help with?",
+  he: "אין לי תשובה ספציפית לשאלה זו, אבל תוכל להתקשר ל-<strong>3450*</strong> לסיוע מיידי, או לבקר ב-<strong>gov.il</strong> למידע רשמי. האם יש עוד משהו שאוכל לעזור?",
+  ru: "У меня нет точного ответа на этот вопрос, но вы можете позвонить по номеру <strong>3450*</strong> для немедленной помощи или посетить <strong>gov.il</strong> для официальной информации. Могу ли я помочь с чем-то ещё?",
+  ar: "ليس لدي إجابة محددة لذلك، لكن يمكنك الاتصال بـ <strong>3450*</strong> للحصول على مساعدة فورية، أو زيارة <strong>gov.il</strong> للحصول على معلومات رسمية. هل هناك أي شيء آخر يمكنني مساعدتك به؟"
+};
 
-Always be warm and remember: users often feel lost and anxious. A clear, calm answer makes a real difference.`;
+const MIRI_KB = [
+  {
+    id:'tz-docs',
+    kw:{ en:['teudat','id card','id renewal','renew id','identity','documents need','what do i need','tz','teudat zehut'],
+         he:['תעודת זהות','מסמכים','חידוש תז','מה צריך'],
+         ru:['удостоверение','теудат','нужны документы','обновить уд'],
+         ar:['تيودات زيهوت','وثائق هوية','تجديد الهوية','ما الوثائق'] },
+    ans:{ en:"To renew your Teudat Zehut you'll need: your current ID card (original), a biometric photo taken within the last 6 months (35×45mm), and proof of address if you've moved. The good news is that your birth certificate and original registration documents are almost always already on file — so you likely won't need to dig them out. Bring everything to any Misrad HaPnim branch and they'll confirm on the spot.",
+          he:"לחידוש תעודת זהות תזדקק ל: תעודת הזהות הנוכחית שלך (מקורית), תמונת ביומטרית שצולמה בששת החודשים האחרונים (35×45 מ\"מ), ואישור מגורים אם עברת דירה. הבשורה הטובה היא שתעודת הלידה ומסמכי הרישום המקוריים שלך כמעט תמיד כבר קיימים בתיק — כך שסביר שלא תצטרך לחפש אותם. הגע לכל סניף משרד הפנים והם יאשרו במקום.",
+          ru:"Для обновления теудат зеhут вам понадобятся: действующее удостоверение (оригинал), биометрическое фото, сделанное в течение последних 6 месяцев (35×45 мм), и подтверждение адреса, если вы переехали. Хорошая новость: свидетельство о рождении и документы первичной регистрации почти всегда уже хранятся в базе — вероятно, их искать не придётся. Принесите всё в любое отделение МВД, и там всё подтвердят на месте.",
+          ar:"لتجديد تيودات زيهوت ستحتاج إلى: هويتك الحالية (أصل)، صورة بيومترية التُقطت خلال الأشهر الستة الماضية (35×45 ملم)، وإثبات عنوان إذا انتقلت. البشرى السارة أن شهادة الميلاد ووثائق التسجيل الأصلية موجودة في الملف عادةً — فلن تحتاج للبحث عنها. أحضر كل شيء لأي فرع من مكتب الداخلية وسيؤكدون لك في المكان." },
+    fu:['tz-time','hours','appointment']
+  },
+  {
+    id:'tz-time',
+    kw:{ en:['how long','processing time','id renewal take','how many days','wait','duration','weeks'],
+         he:['כמה זמן','כמה ימים','זמן המתנה','עיבוד','בכמה זמן'],
+         ru:['сколько времени','как долго','срок','обработка','дней'],
+         ar:['كم من الوقت','كم يستغرق','مدة','وقت التجديد','أيام'] },
+    ans:{ en:"ID renewal at the counter typically takes about 20 minutes for the appointment itself. The new card is usually issued on the spot if the branch has a biometric station — you walk out with it the same day. If there's a backlog, they'll mail it within 3–5 business days. Either way, you leave the branch with a temporary receipt that's legally valid while you wait.",
+          he:"חידוש תעודת הזהות בדלפק לוקח בדרך כלל כ-20 דקות. הכרטיס החדש מונפק בדרך כלל באותו מקום אם לסניף יש תחנה ביומטרית — יוצאים איתו באותו יום. אם יש עומס, הם ישלחו אותו בדואר תוך 3-5 ימי עסקים. בכל מקרה, יוצאים מהסניף עם קבלה זמנית שתקפה מבחינה משפטית בזמן ההמתנה.",
+          ru:"Само обновление теудат зеhут на стойке занимает около 20 минут. Новая карточка, как правило, выдаётся сразу на месте, если в отделении есть биометрическая станция — уходите с ней в тот же день. При загруженности её отправят почтой в течение 3–5 рабочих дней. В любом случае вы покидаете отделение с временной квитанцией, юридически действительной на период ожидания.",
+          ar:"تجديد الهوية في النافذة يستغرق عادةً حوالي 20 دقيقة. تُصدر البطاقة الجديدة في العادة في المكان ذاته إذا كان الفرع يمتلك محطة بيومترية — ستخرج بها في نفس اليوم. في حال وجود ضغط، ستُرسل بالبريد خلال 3-5 أيام عمل. على أي حال، ستغادر الفرع بإيصال مؤقت صالح قانونياً ريثما تنتظر." },
+    fu:['branch','hours','appointment']
+  },
+  {
+    id:'branch',
+    kw:{ en:['tel aviv branch','where is','location','address','ibm','ibn gabirol','office location','which branch'],
+         he:['סניף תל אביב','כתובת','איפה','מיקום','בן גבירול','משרד'],
+         ru:['отделение тель авив','адрес','где находится','ибн гавирол'],
+         ar:['فرع تل أبيب','عنوان','أين','موقع','ابن جبيرول'] },
+    ans:{ en:"The main Tel Aviv branch (Misrad HaPnim Metzuyan) is at <strong>Ibn Gabirol 68, Tel Aviv</strong>. It's the busiest branch in the city and handles the full range of services. There are also branches in Ramat Gan, Petah Tikva, and Rishon LeZion if you prefer a shorter queue. All branches are accessible by public transport.",
+          he:"הסניף הראשי בתל אביב (משרד הפנים מצויין) נמצא ב-<strong>בן גבירול 68, תל אביב</strong>. זהו הסניף העמוס ביותר בעיר ומטפל במגוון שלם של שירותים. יש גם סניפים ברמת גן, פתח תקווה ורישון לציון אם מעדיפים תור קצר יותר. כל הסניפים נגישים בתחבורה ציבורית.",
+          ru:"Главное отделение МВД в Тель-Авиве (Мецуян) расположено по адресу <strong>Ибн Гавирол 68, Тель-Авив</strong>. Это самое загруженное отделение в городе — оно предоставляет полный спектр услуг. Есть также отделения в Рамат-Гане, Петах-Тикве и Ришон-ле-Ционе, если вы предпочитаете меньшую очередь. Все отделения доступны на общественном транспорте.",
+          ar:"الفرع الرئيسي في تل أبيب (مكتب الداخلية مصيان) يقع في <strong>ابن جبيرول 68، تل أبيب</strong>. إنه أكثر الفروع ازدحاماً في المدينة ويقدم مجموعة كاملة من الخدمات. هناك أيضاً فروع في رمات جان وبتاح تكفا وريشون لتسيون إذا كنت تفضل قابلة أقصر. جميع الفروع يمكن الوصول إليها بالنقل العام." },
+    fu:['hours','appointment','tz-docs']
+  },
+  {
+    id:'hours',
+    kw:{ en:['hours','open','opening','closing','when open','schedule','working hours','sunday','thursday'],
+         he:['שעות','פתוח','סגור','מתי פתוח','לוח זמנים','שעות פעילות'],
+         ru:['часы работы','когда открыто','режим работы','расписание','воскресенье'],
+         ar:['ساعات العمل','متى يفتح','مواعيد','جدول','الأحد','الخميس'] },
+    ans:{ en:"Misrad HaPnim branches in Tel Aviv are open <strong>Sunday through Thursday, 8:00 AM to 3:30 PM</strong>. Some branches offer extended hours on Tuesdays until 6:00 PM — call <strong>3450*</strong> to confirm for your specific branch. Branches are closed on Fridays, Saturdays, and all Jewish holidays. Arriving by 8:15 AM is the easiest way to beat the rush.",
+          he:"סניפי משרד הפנים בתל אביב פתוחים <strong>ראשון עד חמישי, 8:00 עד 15:30</strong>. חלק מהסניפים מציעים שעות מורחבות בימי שלישי עד 18:00 — התקשרו ל-<strong>3450*</strong> לאישור עבור הסניף הספציפי שלכם. הסניפים סגורים בימי שישי, שבת וכל חגי ישראל. הגעה עד 8:15 היא הדרך הטובה ביותר להימנע מהעומס.",
+          ru:"Отделения МВД в Тель-Авиве работают <strong>с воскресенья по четверг, с 8:00 до 15:30</strong>. Некоторые отделения работают допоздна по вторникам — до 18:00. Позвоните <strong>3450*</strong>, чтобы уточнить для конкретного отделения. По пятницам, субботам и еврейским праздникам отделения закрыты. Прийти к 8:15 — самый простой способ избежать очередей.",
+          ar:"فروع مكتب الداخلية في تل أبيب مفتوحة <strong>من الأحد إلى الخميس، من 8:00 إلى 15:30</strong>. بعض الفروع تقدم ساعات عمل ممتدة أيام الثلاثاء حتى 18:00 — اتصل بـ <strong>3450*</strong> للتأكيد لفرعك المحدد. الفروع مغلقة أيام الجمعة والسبت وجميع الأعياد اليهودية. الوصول بحلول 8:15 هو أفضل طريقة لتجنب الازدحام." },
+    fu:['appointment','branch','hotline']
+  },
+  {
+    id:'appointment',
+    kw:{ en:['appointment','book','schedule','tor','how to book','reserve','slot','visit'],
+         he:['תור','לקבוע','הזמנה','איך לקבוע','לתזמן','זמין'],
+         ru:['запись','записаться','как записаться','тор','забронировать'],
+         ar:['موعد','حجز','كيف أحجز','تحديد موعد','جدولة'] },
+    ans:{ en:"You can book an appointment at <strong>gov.il/misrad-hapanim</strong> under the 'Schedule a Visit' section — it takes about 2 minutes. You'll need your ID number and phone number. If the online system shows no available slots, calling <strong>3450*</strong> sometimes surfaces cancellation spots not shown online. Same-day walk-in is also possible at most branches, but expect a longer wait.",
+          he:"ניתן לקבוע תור ב-<strong>gov.il/misrad-hapanim</strong> תחת 'קביעת תור' — לוקח כ-2 דקות. תצטרך את מספר הזהות ומספר הטלפון שלך. אם המערכת המקוונת לא מראה מקומות פנויים, התקשרות ל-<strong>3450*</strong> מוצאת לפעמים מקומות ביטול שלא מופיעים אונליין. ביקור ספונטני ביום עצמו אפשרי ברוב הסניפים, אבל יש לצפות להמתנה ארוכה יותר.",
+          ru:"Записаться на приём можно на <strong>gov.il/misrad-hapanim</strong> в разделе 'Запись на приём' — это займёт около 2 минут. Вам понадобятся ваш ID-номер и телефон. Если онлайн-система не показывает свободных слотов, звонок на <strong>3450*</strong> иногда помогает найти места от отказов, не отображаемые онлайн. Визит без записи в тот же день возможен в большинстве отделений, но ожидание будет дольше.",
+          ar:"يمكنك حجز موعد على <strong>gov.il/misrad-hapanim</strong> في قسم 'جدولة زيارة' — يستغرق حوالي دقيقتين. ستحتاج إلى رقم هويتك ورقم هاتفك. إذا لم يُظهر النظام الإلكتروني أي مواعيد متاحة، فإن الاتصال بـ <strong>3450*</strong> قد يكشف أحياناً عن مواعيد ملغاة غير ظاهرة أونلاين. الزيارة بدون موعد في نفس اليوم ممكنة في معظم الفروع، لكن توقع انتظاراً أطول." },
+    fu:['hours','branch','missed-appt']
+  },
+  {
+    id:'online',
+    kw:{ en:['online','without coming','renew online','digital','internet','website','virtual','remote'],
+         he:['אונליין','ללא הגעה','חידוש מרחוק','דיגיטלי','אינטרנט'],
+         ru:['онлайн','без посещения','через интернет','дистанционно','удалённо'],
+         ar:['أونلاين','بدون حضور','تجديد عن بُعد','رقمي','إنترنت'] },
+    ans:{ en:"For most services — including ID renewal — you still need to appear in person at least once, because Israel requires biometric fingerprinting. That said, the initial document review, eligibility check, and appointment booking can all be done online. Once your new ID is processed, it can be mailed to your address so you don't need a second visit.",
+          he:"ברוב השירותים — כולל חידוש תעודת זהות — עדיין צריך להופיע פיזית לפחות פעם אחת, כי ישראל דורשת טביעות אצבע ביומטריות. עם זאת, בדיקת המסמכים הראשונית, בדיקת הזכאות וקביעת התור ניתנות לביצוע אונליין. לאחר עיבוד תעודת הזהות החדשה, ניתן לשלוח אותה בדואר לכתובתך כדי שלא תצטרך ביקור שני.",
+          ru:"Для большинства услуг — включая обновление теудат зеhут — нужно явиться лично хотя бы раз, поскольку Израиль требует биометрического снятия отпечатков пальцев. Тем не менее, предварительная проверка документов, проверка права и запись на приём — всё это можно сделать онлайн. После обработки новое удостоверение можно получить по почте — второй визит не нужен.",
+          ar:"بالنسبة لمعظم الخدمات — بما في ذلك تجديد الهوية — لا تزال بحاجة إلى الحضور الشخصي مرة واحدة على الأقل، لأن إسرائيل تتطلب بصمات أصابع بيومترية. مع ذلك، يمكن إجراء مراجعة الوثائق الأولية وفحص الأهلية وحجز الموعد عبر الإنترنت. بعد معالجة هويتك الجديدة، يمكن إرسالها بالبريد إلى عنوانك حتى لا تحتاج زيارة ثانية." },
+    fu:['appointment','tz-docs','hotline']
+  },
+  {
+    id:'hotline',
+    kw:{ en:['phone number','call','hotline','telephone','contact','3450','help line'],
+         he:['טלפון','מספר טלפון','הוט ליין','להתקשר','קו עזרה','3450'],
+         ru:['телефон','звонок','горячая линия','номер телефона','3450'],
+         ar:['هاتف','رقم الهاتف','خط مساعدة','اتصال','3450'] },
+    ans:{ en:"The national Ministry of Interior hotline is <strong>3450*</strong> — dial it from any Israeli phone (add +972-75-3450000 from abroad). They're available Sunday–Thursday <strong>8:00 AM to 5:00 PM</strong>. The system is in Hebrew first, but after the automated menu you can ask for an English-speaking representative. For complex cases or urgent matters, this line is the fastest route to a real person.",
+          he:"קו הסיוע הארצי של משרד הפנים הוא <strong>3450*</strong> — חייגו מכל טלפון ישראלי (הוסיפו +972-75-3450000 מחו\"ל). זמינים ראשון–חמישי <strong>8:00 עד 17:00</strong>. המערכת בעברית תחילה, אך לאחר התפריט האוטומטי ניתן לבקש נציג דובר אנגלית. לעניינים מורכבים או דחופים, קו זה הוא הדרך המהירה ביותר לאדם אמיתי.",
+          ru:"Национальная горячая линия МВД — <strong>3450*</strong> (из-за рубежа: +972-75-3450000). Работает с воскресенья по четверг <strong>с 8:00 до 17:00</strong>. Система сначала на иврите, но после автоответчика можно попросить русскоговорящего сотрудника. Для сложных или срочных вопросов эта линия — самый быстрый путь к живому человеку.",
+          ar:"خط المساعدة الوطني لوزارة الداخلية هو <strong>3450*</strong> — اتصل من أي هاتف إسرائيلي (أضف +972-75-3450000 من الخارج). متاح من الأحد إلى الخميس <strong>من 8:00 إلى 17:00</strong>. النظام بالعبرية أولاً، لكن بعد القائمة الآلية يمكنك طلب ممثل يتحدث العربية. للحالات المعقدة أو العاجلة، هذا الخط هو أسرع طريق للوصول إلى شخص حقيقي." },
+    fu:['appointment','branch','hours']
+  },
+  {
+    id:'track-status',
+    kw:{ en:['track','status','check status','application status','follow up','where is my','progress'],
+         he:['מעקב','סטטוס','לעקוב','בקשה','איפה הבקשה','התקדמות'],
+         ru:['отслеживание','статус','статус заявки','следить','где моя заявка'],
+         ar:['تتبع','حالة','متابعة','أين طلبي','تقدم الطلب'] },
+    ans:{ en:"You can track your application at <strong>gov.il/misrad-hapanim</strong> using your ID number and the reference number you received at submission. If you opted in for WhatsApp notifications (which we recommend), you'll get a message the moment your status changes — no need to check manually. For applications older than 30 days with no update, call <strong>3450*</strong> to request a manual status check.",
+          he:"ניתן לעקוב אחרי הבקשה ב-<strong>gov.il/misrad-hapanim</strong> עם מספר הזהות ומספר האסמכתא שקיבלת בהגשה. אם נרשמת לעדכוני WhatsApp (מומלץ), תקבל הודעה ברגע שהסטטוס משתנה — ללא צורך לבדוק ידנית. לבקשות מעל 30 ימים ללא עדכון, התקשר ל-<strong>3450*</strong> לבקשת בדיקת סטטוס ידנית.",
+          ru:"Вы можете отслеживать заявку на <strong>gov.il/misrad-hapanim</strong> с помощью своего ID-номера и номера ссылки, полученного при подаче. Если вы подписались на уведомления в WhatsApp (рекомендуем), вы получите сообщение, как только изменится статус — проверять вручную не нужно. Для заявок старше 30 дней без обновлений позвоните на <strong>3450*</strong> для ручной проверки статуса.",
+          ar:"يمكنك تتبع طلبك على <strong>gov.il/misrad-hapanim</strong> باستخدام رقم هويتك ورقم المرجع الذي حصلت عليه عند التقديم. إذا اشتركت في إشعارات الواتساب (ننصح بذلك)، ستتلقى رسالة فور تغيير الحالة — لا حاجة للفحص اليدوي. للطلبات التي مضى عليها أكثر من 30 يوماً بدون تحديث، اتصل بـ <strong>3450*</strong> لطلب فحص يدوي للحالة." },
+    fu:['hotline','appointment','branch']
+  },
+  {
+    id:'aliya-docs',
+    kw:{ en:['aliya','law of return','aliyah documents','immigrate','immigration','make aliya'],
+         he:['עלייה','חוק השבות','מסמכי עלייה','להגר','עולה'],
+         ru:['алия','закон возвращения','документы на алию','репатриация','репатриант'],
+         ar:['علية','قانون العودة','وثائق العلية','هجرة','مهاجر'] },
+    ans:{ en:"For Aliya (Law of Return), the core documents are: proof of Jewish heritage (birth certificate showing Jewish parent or grandparent, a rabbinic letter, or documented family tree), a valid passport with at least 6 months remaining, and a criminal background check from your country of origin — it must be apostilled and translated into Hebrew. The Jewish Agency processes the initial application before it goes to Misrad HaPnim. If you have any doubts about your documentation, the Jewish Agency's offices can advise you before you formally apply.",
+          he:"לעלייה (חוק השבות), המסמכים המרכזיים הם: הוכחת מורשת יהודית (תעודת לידה שמראה הורה או סבא/סבתא יהודי, מכתב רבני, או עץ משפחתי מתועד), דרכון תקף עם לפחות 6 חודשים נותרים, ותעודת יושר ממדינת המוצא — חייבת להיות מאושרת באפוסטיל ומתורגמת לעברית. הסוכנות היהודית מעבדת את הבקשה הראשונית לפני שהיא מגיעה למשרד הפנים. אם יש ספקות לגבי המסמכים, משרדי הסוכנות יכולים לייעץ לפני הגשה רשמית.",
+          ru:"Для алии (Закон о возвращении) основные документы: подтверждение еврейского происхождения (свидетельство о рождении с еврейским родителем или дедом/бабкой, раввинское письмо или документированное генеалогическое древо), действующий загранпаспорт со сроком действия не менее 6 месяцев, и справка о несудимости из страны происхождения — обязательно апостилированная и переведённая на иврит. Еврейское агентство обрабатывает начальное заявление до его передачи в МВД. Если есть сомнения в документах, офисы Агентства проконсультируют вас ещё до формальной подачи.",
+          ar:"للعلية (قانون العودة)، الوثائق الأساسية هي: إثبات الأصل اليهودي (شهادة ميلاد تُظهر أحد الوالدين أو الأجداد اليهود، أو خطاب حاخامي، أو شجرة عائلة موثقة)، جواز سفر ساري المفعول مع بقاء 6 أشهر على الأقل، وشهادة حسن سلوك من بلد المنشأ — يجب أن تكون مؤشرة بالأبوستيل ومترجمة إلى العبرية. الوكالة اليهودية تعالج الطلب الأولي قبل إرساله لوزارة الداخلية. إذا كانت لديك شكوك حول وثائقك، يمكن لمكاتب الوكالة تقديم المشورة قبل التقديم الرسمي." },
+    fu:['aliya-time','apostille','hotline']
+  },
+  {
+    id:'aliya-time',
+    kw:{ en:['how long aliya','aliya process time','aliya duration','aliya timeline','when approved','aliya wait'],
+         he:['כמה זמן עלייה','זמן עלייה','כמה זמן לאשר','ציר זמן עלייה'],
+         ru:['сколько времени алия','срок алии','процесс алии','когда одобрят'],
+         ar:['كم يستغرق العلية','مدة العلية','وقت معالجة العلية','متى يُعتمد'] },
+    ans:{ en:"The Aliya process typically takes 3 to 12 months from first inquiry to arriving as an oleh. The Jewish Agency stage — verifying your eligibility and preparing your file — usually takes 2 to 4 months. The Ministry of Interior then processes the Aliya visa and registration, which can take another 1 to 3 months. Cases with complete, straightforward documentation are on the faster end. Applying from certain countries (particularly those with complex bureaucracies) can add time.",
+          he:"תהליך העלייה לוקח בדרך כלל 3 עד 12 חודשים מהפנייה הראשונה ועד ההגעה כעולה. שלב הסוכנות היהודית — אימות הזכאות והכנת התיק — לוקח בדרך כלל 2 עד 4 חודשים. משרד הפנים מעבד לאחר מכן את אשרת העלייה והרישום, מה שיכול לקחת עוד 1 עד 3 חודשים. מקרים עם תיעוד שלם וברור נמצאים בקצה המהיר יותר. פנייה ממדינות מסוימות (במיוחד אלה עם ביורוקרטיה מורכבת) עשויה להוסיף זמן.",
+          ru:"Процесс алии обычно занимает от 3 до 12 месяцев — от первого обращения до прибытия в качестве репатрианта. Этап Еврейского агентства — проверка права и подготовка дела — обычно занимает 2–4 месяца. МВД затем обрабатывает визу на алию и регистрацию, что может занять ещё 1–3 месяца. Дела с полным и ясным комплектом документов рассматриваются быстрее. Подача из некоторых стран (особенно с бюрократически сложными системами) может добавить время.",
+          ar:"عملية العلية تستغرق عادةً من 3 إلى 12 شهراً من أول استفسار حتى الوصول كمهاجر. مرحلة الوكالة اليهودية — التحقق من الأهلية وإعداد الملف — تستغرق عادةً من 2 إلى 4 أشهر. ثم تعالج وزارة الداخلية تأشيرة العلية والتسجيل، مما قد يستغرق 1 إلى 3 أشهر إضافية. الحالات ذات الوثائق الكاملة والواضحة تكون في الطرف الأسرع. التقديم من دول معينة (خاصةً تلك ذات البيروقراطية المعقدة) قد يضيف وقتاً." },
+    fu:['aliya-docs','apostille','hotline']
+  },
+  {
+    id:'birth-reg',
+    kw:{ en:['register newborn','birth registration','tofes 17','register baby','new baby','birth cert'],
+         he:['רישום לידה','יילוד','תינוק','טופס 17','תעודת לידה'],
+         ru:['регистрация рождения','новорождённый','тофес 17','свидетельство о рождении'],
+         ar:['تسجيل الولادة','مولود جديد','طفل','توفيس 17','شهادة الميلاد'] },
+    ans:{ en:"To register a newborn, you need: the hospital birth certificate (<strong>tofes 17</strong> — the blue form issued at the hospital), the Teudat Zehut of both parents (originals plus photocopies), and your marriage certificate if you haven't already registered it. Both parents should attend if possible, but one parent can appear with a notarized power of attorney from the other. Registration should happen within <strong>10 days</strong> of birth.",
+          he:"לרישום יילוד נדרשים: אישור לידה מהבית חולים (<strong>טופס 17</strong> — הטופס הכחול שמונפק בבית החולים), תעודת הזהות של שני ההורים (מקורות + צילומים), ותעודת נישואין אם לא נרשמה עדיין. מומלץ שיגיעו שני ההורים אם אפשר, אך הורה אחד יכול להגיע עם ייפוי כוח נוטריוני מהאחר. הרישום צריך להתבצע תוך <strong>10 ימים</strong> מהלידה.",
+          ru:"Для регистрации новорождённого нужны: больничная справка о рождении (<strong>тофес 17</strong> — синий бланк из роддома), теудат зеhут обоих родителей (оригиналы + копии), и свидетельство о браке, если оно ещё не зарегистрировано. Оба родителя должны явиться по возможности, но один может прийти с нотариально заверенной доверенностью от другого. Регистрация должна быть произведена в течение <strong>10 дней</strong> после рождения.",
+          ar:"لتسجيل مولود جديد تحتاج إلى: شهادة الولادة من المستشفى (<strong>توفيس 17</strong> — النموذج الأزرق الصادر من المستشفى)، تيودات زيهوت كلا الوالدين (الأصل + صور)، وشهادة الزواج إذا لم تسجَّل بعد. يُفضل حضور كلا الوالدين إن أمكن، لكن يمكن لأحدهم الحضور مع وكالة رسمية موثقة من الآخر. يجب أن يتم التسجيل خلال <strong>10 أيام</strong> من الولادة." },
+    fu:['tofes17','hours','appointment']
+  },
+  {
+    id:'marriage-cert',
+    kw:{ en:['marriage certificate','get married','register marriage','nikah','marriage doc','wedding certificate'],
+         he:['תעודת נישואין','נישואין','להינשא','רישום נישואין'],
+         ru:['свидетельство о браке','жениться','регистрация брака','брачный документ'],
+         ar:['شهادة الزواج','الزواج','تسجيل الزواج','وثيقة الزواج'] },
+    ans:{ en:"To register a marriage or obtain a marriage certificate, both parties need to appear together with their Teudat Zehut (originals plus copies). If one partner is not an Israeli citizen, bring their valid passport. If either party has been married before, bring divorce or death certificates as applicable. Note that Israel handles civil marriage differently depending on religion — for civil marriage records, check with the Ministry of Religious Affairs as well.",
+          he:"לרישום נישואין או קבלת תעודת נישואין, שני הצדדים חייבים להופיע יחד עם תעודות הזהות שלהם (מקורות + צילומים). אם אחד השותפים אינו אזרח ישראלי, הביא את הדרכון התקף שלו. אם מי מהצדדים היה נשוי בעבר, הבא תעודות גירושין או פטירה לפי העניין. שים לב שישראל מטפלת בנישואין אזרחיים באופן שונה בהתאם לדת — לרישומי נישואין אזרחיים, בדוק גם עם משרד הדתות.",
+          ru:"Для регистрации брака или получения свидетельства о браке оба партнёра должны явиться вместе с теудат зеhут (оригиналы + копии). Если один из супругов не является гражданином Израиля, принесите его действующий загранпаспорт. Если кто-либо из сторон был ранее женат, принесите документы о разводе или смерти. Обратите внимание: гражданский брак в Израиле оформляется по-разному в зависимости от вероисповедания — для гражданских браков также проконсультируйтесь с Министерством по религиозным делам.",
+          ar:"لتسجيل الزواج أو الحصول على شهادة الزواج، يجب حضور الطرفين معاً مع تيودات زيهوت (الأصل + صور). إذا كان أحد الشركاء غير إسرائيلي الجنسية، أحضر جواز سفره الساري. إذا سبق لأي من الطرفين الزواج، أحضر وثائق الطلاق أو الوفاة حسب الاقتضاء. لاحظ أن إسرائيل تتعامل مع الزواج المدني بشكل مختلف حسب الدين — لسجلات الزواج المدني، تحقق أيضاً مع وزارة الشؤون الدينية." },
+    fu:['hours','appointment','hotline']
+  },
+  {
+    id:'visa-extend',
+    kw:{ en:['extend visa','tourist visa','b1','work visa','student visa','visa extension','visa expire','overstay'],
+         he:['הארכת ויזה','ויזת תיירות','ויזת עבודה','B1','ויזה פגה'],
+         ru:['продление визы','туристическая виза','рабочая виза','B1','виза истекает'],
+         ar:['تمديد التأشيرة','تأشيرة سياحية','تأشيرة عمل','B1','انتهاء التأشيرة'] },
+    ans:{ en:"For a tourist visa extension, you need to apply before your current visa expires — overstaying even a few days creates complications. Bring your passport, a completed B/3 form (available at the branch or gov.il), and proof of financial means (bank statement). Work visa extensions (B/1) additionally require a letter from your employer confirming continued employment. Apply at least <strong>30 days before expiry</strong> — processing takes 2–4 weeks.",
+          he:"להארכת ויזת תיירות, יש להגיש בקשה לפני תפוגת הויזה הנוכחית — שהייה גם של כמה ימים מעבר לתאריך יוצרת סיבוכים. הבא דרכון, טופס B/3 מלא (זמין בסניף או ב-gov.il), והוכחת אמצעים כספיים (דפי חשבון). הארכות ויזת עבודה (B/1) דורשות גם מכתב מהמעסיק שמאשר המשך העסקה. הגש לפחות <strong>30 יום לפני הפקיעה</strong> — הטיפול לוקח 2-4 שבועות.",
+          ru:"Для продления туристической визы нужно подать заявку до истечения текущей визы — даже несколько дней сверхурочного пребывания создают проблемы. Принесите загранпаспорт, заполненную форму B/3 (доступна в отделении или на gov.il), и подтверждение финансовых средств (банковская выписка). Продление рабочей визы (B/1) дополнительно требует письма от работодателя с подтверждением продолжения найма. Подавайте не менее чем за <strong>30 дней до истечения</strong> — обработка занимает 2–4 недели.",
+          ar:"لتمديد تأشيرة السياحة، يجب التقديم قبل انتهاء تأشيرتك الحالية — حتى بضعة أيام إضافية تُسبب مشكلات. أحضر جواز سفرك، نموذج B/3 مكتمل (متاح في الفرع أو gov.il)، وإثبات الملاءة المالية (كشف حساب بنكي). تمديد تأشيرة العمل (B/1) يتطلب أيضاً خطاباً من صاحب العمل يؤكد استمرار التوظيف. قدّم قبل <strong>30 يوماً من انتهاء الصلاحية</strong> على الأقل — المعالجة تستغرق 2-4 أسابيع." },
+    fu:['hotline','appointment','apostille']
+  },
+  {
+    id:'tofes17',
+    kw:{ en:['tofes 17','tofes','form 17','what is tofes','hospital form','blue form'],
+         he:['טופס 17','מה זה טופס 17','טופס כחול'],
+         ru:['тофес 17','что такое тофес','бланк 17','больничный бланк'],
+         ar:['توفيس 17','ما هو توفيس','النموذج 17','نموذج المستشفى'] },
+    ans:{ en:"Tofes 17 is the blue birth notification form issued by Israeli hospitals immediately after delivery. It's the official record of birth before a formal birth certificate is processed. You must bring this form — the original, not a photocopy — to Misrad HaPnim within 10 days to register your newborn. If you've lost it, contact the hospital's records department to request a replacement; they can usually issue one within a day or two.",
+          he:"טופס 17 הוא הטופס הכחול להודעת לידה שמונפק על ידי בתי חולים ישראליים מיד לאחר הלידה. זהו הרישום הרשמי של הלידה לפני עיבוד תעודת לידה פורמלית. יש להביא טופס זה — המקורי, לא צילום — למשרד הפנים תוך 10 ימים לרישום היילוד. אם אבד, פנה למחלקת הרישומים של בית החולים לבקשת העתק; בדרך כלל יכולים להנפיק אחד תוך יום-יומיים.",
+          ru:"Тофес 17 — синий бланк уведомления о рождении, выдаваемый израильскими больницами сразу после родов. Это официальная запись о рождении до оформления свидетельства о рождении. Нужно принести этот бланк — оригинал, не копию — в МВД в течение 10 дней для регистрации новорождённого. Если он утерян, обратитесь в архив больницы за дубликатом; обычно его выдают в течение одного-двух дней.",
+          ar:"توفيس 17 هو نموذج إخطار الولادة الأزرق الذي تصدره المستشفيات الإسرائيلية مباشرة بعد الولادة. إنه السجل الرسمي للولادة قبل معالجة شهادة الميلاد الرسمية. يجب إحضار هذا النموذج — الأصلي، وليس نسخة — إلى مكتب الداخلية خلال 10 أيام لتسجيل المولود. إذا فقدته، تواصل مع قسم السجلات في المستشفى لطلب نسخة بديلة؛ عادةً يمكنهم إصدار واحدة في غضون يوم أو يومين." },
+    fu:['birth-reg','appointment','hours']
+  },
+  {
+    id:'rejected',
+    kw:{ en:['rejected','denial','documents rejected','application denied','refused','what to do rejected'],
+         he:['נדחה','דחייה','מסמכים נדחו','בקשה נדחתה','מה לעשות'],
+         ru:['отказ','отклонено','документы отклонены','заявление отклонено','что делать'],
+         ar:['مرفوض','رفض','وثائق مرفوضة','الطلب مرفوض','ماذا أفعل'] },
+    ans:{ en:"A rejection isn't the end — it's a step. First, read the rejection notice carefully: it will state the specific reason (missing document, expired document, incorrect translation, etc.). Most rejections are administrative, not substantive, meaning you can reapply once you fix the issue. Gather the missing or corrected items and resubmit — you generally don't need to restart from zero. If you believe the rejection was an error, you have the right to appeal within <strong>45 days</strong>. Call <strong>3450*</strong> or consult with an immigration lawyer for complex cases.",
+          he:"דחייה היא לא סוף — זהו שלב. ראשית, קרא את הודעת הדחייה בקפידה: היא תציין את הסיבה הספציפית (מסמך חסר, מסמך שפג תוקפו, תרגום שגוי, וכו'). רוב הדחיות הן אדמיניסטרטיביות, לא מהותיות, כלומר ניתן להגיש מחדש לאחר תיקון הבעיה. אסוף את הפריטים החסרים או המתוקנים והגש מחדש — בדרך כלל לא צריך להתחיל מאפס. אם מאמין שהדחייה הייתה שגיאה, יש לך זכות להגיש ערעור תוך <strong>45 יום</strong>. התקשר ל-<strong>3450*</strong> או התייעץ עם עורך דין להגירה לעניינים מורכבים.",
+          ru:"Отказ — не конец, это один из шагов. Прежде всего внимательно прочитайте уведомление об отказе: в нём будет указана конкретная причина (отсутствующий документ, просроченный документ, неверный перевод и т.д.). Большинство отказов носят административный, а не принципиальный характер — значит, можно подать повторно после исправления проблемы. Соберите недостающие или исправленные материалы и подайте снова — обычно начинать с нуля не нужно. Если вы считаете, что отказ был ошибочным, у вас есть право обжаловать в течение <strong>45 дней</strong>. Позвоните на <strong>3450*</strong> или проконсультируйтесь с иммиграционным адвокатом по сложным делам.",
+          ar:"الرفض ليس نهاية — بل هو خطوة. أولاً، اقرأ إشعار الرفض بعناية: سيذكر السبب المحدد (وثيقة ناقصة، وثيقة منتهية الصلاحية، ترجمة غير صحيحة، إلخ). معظم الرفضات إدارية وليست جوهرية، مما يعني أنك تستطيع إعادة التقديم بعد تصحيح المشكلة. اجمع العناصر الناقصة أو المصححة وأعد التقديم — عادةً لا تحتاج للبدء من الصفر. إذا كنت تعتقد أن الرفض كان خطأ، لديك حق الاستئناف خلال <strong>45 يوماً</strong>. اتصل بـ <strong>3450*</strong> أو استشر محامياً للهجرة في الحالات المعقدة." },
+    fu:['hotline','apostille','appointment']
+  },
+  {
+    id:'apostille',
+    kw:{ en:['apostille','foreign documents','foreign certificate','notarize','translate','certified translation'],
+         he:['אפוסטיל','מסמכים זרים','תרגום מאושר','נוטריוני','אימות מסמך'],
+         ru:['апостиль','иностранные документы','заверенный перевод','нотариус'],
+         ar:['أبوستيل','وثائق أجنبية','ترجمة معتمدة','وثيقة أجنبية','توثيق'] },
+    ans:{ en:"If your documents were issued outside Israel, they generally need an apostille — a formal certification that authenticates the document's origin. You get this from the relevant authority in the country where the document was issued (usually the Foreign Ministry or State Department). After apostilling, you'll need a certified Hebrew translation by an Israeli-certified translator. Both steps are required for marriage certificates, criminal background checks, and most foreign legal documents.",
+          he:"אם מסמכיך הונפקו מחוץ לישראל, הם בדרך כלל זקוקים לאפוסטיל — אישור רשמי שמאמת את מקור המסמך. מקבלים זאת מהרשות המוסמכת במדינה שבה הונפק המסמך (בדרך כלל משרד החוץ). לאחר האפוסטיל, תזדקק לתרגום עברי מאושר על ידי מתרגם מוסמך ישראלי. שני השלבים נדרשים עבור תעודות נישואין, תעודות יושר ורוב המסמכים המשפטיים הזרים.",
+          ru:"Если ваши документы выданы за пределами Израиля, им, как правило, нужен апостиль — официальное заверение подлинности документа. Его получают в соответствующем органе страны, где выдан документ (обычно МИД или аналогичная структура). После апостиля необходим заверенный перевод на иврит, выполненный израильским сертифицированным переводчиком. Оба этапа обязательны для свидетельств о браке, справок о несудимости и большинства иностранных юридических документов.",
+          ar:"إذا صدرت وثائقك خارج إسرائيل، فإنها تحتاج عموماً إلى أبوستيل — شهادة رسمية تصادق على أصل الوثيقة. تحصل عليه من الجهة المختصة في البلد الذي صدرت منه الوثيقة (عادةً وزارة الخارجية). بعد الأبوستيل، ستحتاج إلى ترجمة عبرية معتمدة من مترجم إسرائيلي معتمد. كلا الخطوتين مطلوبتان لشهادات الزواج وشهادات حسن السلوك ومعظم الوثائق القانونية الأجنبية." },
+    fu:['aliya-docs','rejected','hotline']
+  },
+  {
+    id:'proxy',
+    kw:{ en:['someone else','on my behalf','proxy','power of attorney','representative','agent','behalf'],
+         he:['בשם שלי','ייפוי כוח','שלוח','נציג','בשבילי','במקומי'],
+         ru:['вместо меня','доверенность','представитель','от моего имени','по доверенности'],
+         ar:['بالنيابة','توكيل','ممثل','شخص آخر','بدلاً مني'] },
+    ans:{ en:"For most Ministry of Interior services, you must appear in person — especially for anything involving biometrics. However, there are exceptions. For document collection (picking up a completed ID), someone else can come with a notarized power of attorney in your name. For newborn registration, one parent can attend with a notarized authorization from the other. If you're unable to attend due to illness or disability, call <strong>3450*</strong> to ask about home visit options.",
+          he:"עבור רוב שירותי משרד הפנים, עליך להופיע בעצמך — במיוחד לכל דבר הכולל ביומטריקה. עם זאת, יש חריגים. לאיסוף מסמכים (קבלת תעודת זהות מוכנה), מישהו אחר יכול להגיע עם ייפוי כוח נוטריוני על שמך. לרישום לידה, הורה אחד יכול להגיע עם הרשאה נוטריונית מהאחר. אם אינך יכול להגיע בשל מחלה או נכות, התקשר ל-<strong>3450*</strong> לשאול על אפשרויות ביקור בית.",
+          ru:"Для большинства услуг МВД необходимо явиться лично — особенно для всего, что связано с биометрией. Тем не менее есть исключения. Для получения документов (готового удостоверения) может прийти другой человек с нотариально заверенной доверенностью на ваше имя. При регистрации новорождённого один из родителей может прийти с нотариально заверенным разрешением от другого. Если вы не можете явиться из-за болезни или инвалидности, позвоните на <strong>3450*</strong>, чтобы узнать о возможностях выездного обслуживания.",
+          ar:"بالنسبة لمعظم خدمات وزارة الداخلية، يجب حضورك شخصياً — خاصةً لأي شيء يتعلق بالبيومتريا. ومع ذلك، هناك استثناءات. لاستلام الوثائق (استلام هوية جاهزة)، يمكن لشخص آخر الحضور مع توكيل رسمي موثق باسمك. لتسجيل المولود، يمكن لأحد الوالدين الحضور مع تصريح موثق من الآخر. إذا لم تتمكن من الحضور بسبب مرض أو إعاقة، اتصل بـ <strong>3450*</strong> للسؤال عن خيارات الزيارة المنزلية." },
+    fu:['appointment','hotline','hours']
+  },
+  {
+    id:'missed-appt',
+    kw:{ en:['missed appointment','missed','rebook','reschedule','cancel appointment','didnt come','no show'],
+         he:['פספסתי תור','לא הגעתי','לקבוע מחדש','לבטל תור','דחיית תור'],
+         ru:['пропустил запись','не пришёл','перезаписаться','перенести','отменить запись'],
+         ar:['فاتني الموعد','لم أحضر','إعادة الحجز','تغيير الموعد','إلغاء موعد'] },
+    ans:{ en:"If you missed your appointment, don't worry — it happens and it's easy to fix. Your slot is simply released back into the system. Go back to <strong>gov.il/misrad-hapanim</strong> and book a new appointment. There's no penalty or waiting period. If the online system shows nothing available for weeks, try calling <strong>3450*</strong> early in the morning — they sometimes have same-day or next-day spots from cancellations that aren't reflected online.",
+          he:"אם פספסת את התור שלך, אל תדאג — זה קורה וקל לתקן. התור שלך פשוט משוחרר בחזרה למערכת. חזור ל-<strong>gov.il/misrad-hapanim</strong> וקבע תור חדש. אין קנס או תקופת המתנה. אם המערכת המקוונת לא מראה כלום לשבועות, נסה להתקשר ל-<strong>3450*</strong> בבוקר מוקדם — לפעמים יש מקומות ביום הזה או בלמחרת מביטולים שלא משתקפים אונליין.",
+          ru:"Если вы пропустили запись — не беспокойтесь, это случается и легко исправляется. Ваш слот просто возвращается в систему. Перейдите на <strong>gov.il/misrad-hapanim</strong> и запишитесь заново. Штрафов или периодов ожидания нет. Если онлайн-система показывает, что мест нет на несколько недель, попробуйте позвонить на <strong>3450*</strong> ранним утром — иногда есть места на сегодня или завтра от отказов, не отражённых онлайн.",
+          ar:"إذا فاتك موعدك، لا تقلق — هذا يحدث وسهل الإصلاح. موعدك ببساطة يعود للنظام. عد إلى <strong>gov.il/misrad-hapanim</strong> واحجز موعداً جديداً. لا توجد غرامة أو فترة انتظار. إذا لم يُظهر النظام الإلكتروني أي شيء لأسابيع، حاول الاتصال بـ <strong>3450*</strong> في الصباح الباكر — أحياناً تتوفر مواعيد في نفس اليوم أو اليوم التالي من الإلغاءات غير المنعكسة أونلاين." },
+    fu:['appointment','hours','hotline']
+  },
+  {
+    id:'what-is-mishradai',
+    kw:{ en:['what is this app','what does mishradai do','how does this work','what is mishradai','what can you do','help me understand','explain'],
+         he:['מה זה האפליקציה','מה עושה משרדai','איך זה עובד','מה אתם עושים'],
+         ru:['что это за приложение','что делает mishradai','как это работает','что вы делаете'],
+         ar:['ما هذا التطبيق','ما الذي يفعله mishradai','كيف يعمل','ما الذي يمكنكم فعله'] },
+    ans:{ en:"MishradAI is your personal navigator through Israeli Ministry of Interior services — without the wasted trips, the phone queues, or the documents you didn't know you needed. It pre-screens your eligibility, builds your exact document checklist (removing what's already on file), and guides you step by step. I'm Miri, and I'm here to answer any question along the way — in whatever language is easiest for you.",
+          he:"MishradAI הוא הנווט האישי שלך דרך שירותי משרד הפנים הישראלי — ללא נסיעות מיותרות, תורים טלפוניים, או מסמכים שלא ידעת שאתה צריך. הוא בודק מראש את הזכאות שלך, בונה את רשימת המסמכים המדויקת שלך (מסיר את מה שכבר קיים בתיק), ומנחה אותך צעד אחר צעד. אני מירי, וכאן לענות על כל שאלה בדרך — בכל שפה שנוחה לך.",
+          ru:"MishradAI — ваш личный навигатор по услугам МВД Израиля: без лишних поездок, телефонных очередей и документов, о которых вы не знали. Он заранее проверяет ваше право, составляет точный список документов (удаляя то, что уже есть в деле) и ведёт вас шаг за шагом. Я Мири, и я здесь, чтобы ответить на любой вопрос — на том языке, который вам удобнее.",
+          ar:"MishradAI هو مرشدك الشخصي عبر خدمات وزارة الداخلية الإسرائيلية — بدون رحلات مضيّعة، أو طوابير هاتفية، أو وثائق لم تكن تعرف أنك تحتاجها. يفحص أهليتك مسبقاً، ويبني قائمة مستنداتك الدقيقة (مزيلاً ما هو موجود بالفعل في الملف)، ويرشدك خطوة بخطوة. أنا ميري، وأنا هنا للإجابة على أي سؤال في الطريق — بأي لغة تريحك." },
+    fu:['tz-docs','appointment','hotline']
+  }
+];
+
+function findAnswer(text, lang) {
+  const lower = text.toLowerCase();
+  let best = null, bestScore = 0;
+  for (const entry of MIRI_KB) {
+    const kws = entry.kw[lang] || entry.kw['en'];
+    let score = 0;
+    for (const kw of kws) {
+      if (lower.includes(kw.toLowerCase())) score += kw.length;
+    }
+    if (score > bestScore) { bestScore = score; best = entry; }
+  }
+  if (bestScore >= 3) return best;
+
+  /* Fallback: try English keywords regardless of detected lang */
+  for (const entry of MIRI_KB) {
+    let score = 0;
+    for (const kw of (entry.kw['en'] || [])) {
+      if (lower.includes(kw.toLowerCase())) score += kw.length;
+    }
+    if (score > bestScore) { bestScore = score; best = entry; }
+  }
+  return bestScore >= 3 ? best : null;
+}
+
+function miriRespond(text) {
+  const lang = detectLang(text);
+
+  /* Greeting */
+  const greetPat = GREETINGS[lang] || GREETINGS['en'];
+  if (greetPat.test(text.trim())) {
+    showMiriReply(GREETING_REPLY[lang] || GREETING_REPLY['en'], ['tz-docs','appointment','hotline'], lang);
+    return;
+  }
+
+  const entry = findAnswer(text, lang);
+  if (entry) {
+    const ans = entry.ans[lang] || entry.ans['en'];
+    showMiriReply(ans, entry.fu, lang);
+  } else {
+    showMiriReply(FALLBACK[lang] || FALLBACK['en'], ['hotline','appointment','tz-docs'], lang);
+  }
+}
+
+function showMiriReply(html, followupIds, lang) {
+  const delay = 600 + Math.random() * 300;
+  showTyping();
+  setTimeout(() => {
+    hideTyping();
+    addMessage('bot', html);
+    if (followupIds && followupIds.length) showFollowupChips(followupIds, lang);
+  }, delay);
+}
+
+function showFollowupChips(ids, lang) {
+  const existing = document.getElementById('followup-chips');
+  if (existing) existing.remove();
+
+  const CHIP_LABELS = {
+    'tz-docs':      { en:'Documents for ID renewal', he:'מסמכים לחידוש ת.ז.', ru:'Документы для обновления', ar:'وثائق تجديد الهوية' },
+    'tz-time':      { en:'How long does it take?',   he:'כמה זמן לוקח?',       ru:'Сколько времени?',         ar:'كم يستغرق؟' },
+    'branch':       { en:'Where is the branch?',     he:'איפה הסניף?',          ru:'Где отделение?',           ar:'أين الفرع؟' },
+    'hours':        { en:'Opening hours',             he:'שעות פעילות',          ru:'Часы работы',              ar:'ساعات العمل' },
+    'appointment':  { en:'How to book',               he:'איך לקבוע תור',        ru:'Как записаться',           ar:'كيف أحجز موعداً' },
+    'online':       { en:'Can I renew online?',       he:'אפשר לחדש אונליין?',  ru:'Можно онлайн?',            ar:'هل يمكن التجديد أونلاين؟' },
+    'hotline':      { en:'National hotline',          he:'קו הסיוע הארצי',      ru:'Горячая линия',            ar:'خط المساعدة الوطني' },
+    'track-status': { en:'Track my application',     he:'מעקב אחרי הבקשה',     ru:'Статус заявки',            ar:'تتبع طلبي' },
+    'aliya-docs':   { en:'Documents for Aliya',       he:'מסמכי עלייה',          ru:'Документы на алию',        ar:'وثائق العلية' },
+    'aliya-time':   { en:'How long is Aliya?',        he:'כמה זמן עלייה?',      ru:'Сколько времени алия?',    ar:'كم يستغرق العلية؟' },
+    'birth-reg':    { en:'Register a newborn',        he:'רישום לידה',           ru:'Регистрация рождения',     ar:'تسجيل مولود' },
+    'marriage-cert':{ en:'Marriage certificate',      he:'תעודת נישואין',        ru:'Свидетельство о браке',    ar:'شهادة الزواج' },
+    'visa-extend':  { en:'Extend my visa',            he:'הארכת ויזה',           ru:'Продление визы',           ar:'تمديد التأشيرة' },
+    'tofes17':      { en:'What is tofes 17?',         he:'מה זה טופס 17?',      ru:'Что такое тофес 17?',      ar:'ما هو توفيس 17؟' },
+    'rejected':     { en:'My documents were rejected',he:'מסמכים נדחו',         ru:'Документы отклонены',      ar:'وثائقي مرفوضة' },
+    'apostille':    { en:'Apostille explained',       he:'מה זה אפוסטיל?',      ru:'Что такое апостиль?',      ar:'ما هو الأبوستيل؟' },
+    'proxy':        { en:'Can someone go for me?',    he:'מישהו יכול ללכת?',    ru:'Может ли кто-то за меня?', ar:'هل يمكن لشخص آخر الذهاب؟' },
+    'missed-appt':  { en:'I missed my appointment',  he:'פספסתי תור',           ru:'Пропустил запись',         ar:'فاتني الموعد' },
+    'what-is-mishradai':{ en:'What is MishradAI?',   he:'מה זה MishradAI?',    ru:'Что такое MishradAI?',     ar:'ما هو MishradAI؟' },
+  };
+
+  const msgs = document.getElementById('chat-messages');
+  const row = document.createElement('div');
+  row.id = 'followup-chips';
+  row.style.cssText = 'display:flex;gap:7px;flex-wrap:wrap;padding:4px 0 8px;animation:msgIn .22s ease both';
+  ids.slice(0,3).forEach(id => {
+    if (!CHIP_LABELS[id]) return;
+    const label = (CHIP_LABELS[id][lang] || CHIP_LABELS[id]['en']);
+    const btn = document.createElement('button');
+    btn.className = 'quick-reply';
+    btn.textContent = label;
+    btn.onclick = () => { sendQuick(label); };
+    row.appendChild(btn);
+  });
+  msgs.appendChild(row);
+  msgs.scrollTop = msgs.scrollHeight;
+}
 
 function handleKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
-async function sendMessage() {
+function sendMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
   if (!text || isTyping) return;
 
+  /* Remove previous follow-up chips */
+  const prev = document.getElementById('followup-chips');
+  if (prev) prev.remove();
+
   addMessage('user', text);
   input.value = '';
-  chatHistory.push({role:'user',content:text});
-
-  showTyping();
   isTyping = true;
   document.getElementById('send-btn').disabled = true;
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        model:'claude-sonnet-4-6',
-        max_tokens:1000,
-        system:SYSTEM_PROMPT,
-        messages:chatHistory
-      })
-    });
-    const data = await res.json();
-    const reply = data.content?.find(c => c.type === 'text')?.text || 'Sorry, I had trouble answering. Please try again.';
-    chatHistory.push({role:'assistant',content:reply});
-    hideTyping();
-    addMessage('bot', reply);
-  } catch(err) {
-    hideTyping();
-    addMessage('bot','Connection issue — please try again. You can also call 3450* for immediate help.');
-  }
+  miriRespond(text);
 
-  isTyping = false;
-  document.getElementById('send-btn').disabled = false;
+  setTimeout(() => {
+    isTyping = false;
+    document.getElementById('send-btn').disabled = false;
+  }, 1000);
 
   if (stepsComplete < 3) {
     stepsComplete = 3;
@@ -1462,6 +1771,9 @@ async function sendMessage() {
 }
 
 function sendQuick(text) {
+  if (isTyping) return;
+  const prev = document.getElementById('followup-chips');
+  if (prev) prev.remove();
   document.getElementById('chat-input').value = text;
   sendMessage();
 }
@@ -1548,11 +1860,11 @@ let duduTwRef = null;
 let duduChecked = 0; /* required docs checked count */
 
 const DUDU_MSGS = {
-  welcome: "שלום, I'm <b>Dudu</b>. I'll guide you through every step.",
-  kyc:     "Select the service that fits your situation — I'll verify your eligibility instantly.",
-  docs:    "Check off each document as you gather it. When all required docs are ready, I'll unlock your appointment.",
-  chat:    "Ask me anything — I answer in Hebrew, Arabic, Russian, or English.",
-  status:  "Your application is moving. I'll perch here until the decision arrives."
+  welcome: "שלום. I'm <b>Dudu</b>. I know this process feels overwhelming — follow me and I'll take you through it step by step.",
+  kyc:     "First, let's make sure you're eligible before you invest any more time. Select what brings you here today.",
+  docs:    "I've already removed everything the Ministry has on file for you. These are the only documents you actually need to bring.",
+  chat:    "If anything is unclear, ask Miri directly. She's answered these questions thousands of times.",
+  status:  "Your application is moving. I'll be here the moment anything changes."
 };
 
 /* ── Position helpers ── */
@@ -1567,24 +1879,54 @@ function getDuduCorner() {
 
 function getDuduTarget(panel) {
   const isRtl = document.body.dir === 'rtl';
+  const sideW = window.innerWidth > 860 ? 260 : 0;
+  const margin = 22;
+
   if (panel === 'welcome') return getDuduCorner();
+
+  if (panel === 'kyc') {
+    /* Perch on right edge of service grid, vertically centered */
+    const grid = document.querySelector('.service-grid');
+    const sel  = document.querySelector('.service-option.selected') || grid;
+    if (sel) {
+      const r = sel.getBoundingClientRect();
+      const x = isRtl ? sideW + margin : r.right + 4;
+      return { x: clampDX(x), y: Math.max(90, r.top + r.height/2 - DUDU_H/2) };
+    }
+  }
+
+  if (panel === 'docs') {
+    /* Perch on top of readiness stepper bar */
+    const bar = document.querySelector('.readiness-stepper');
+    if (bar) {
+      const r = bar.getBoundingClientRect();
+      const x = isRtl ? sideW + margin : r.right - DUDU_W - 4;
+      return { x: clampDX(x), y: Math.max(80, r.top - DUDU_H - 4) };
+    }
+  }
+
+  if (panel === 'chat') {
+    /* Perch on top-right edge of chat header, next to Miri's name */
+    const head = document.querySelector('.chat-head');
+    if (head) {
+      const r = head.getBoundingClientRect();
+      const x = isRtl ? r.left - DUDU_W - 4 : r.right - DUDU_W + 8;
+      return { x: clampDX(x), y: Math.max(80, r.top - DUDU_H + 12) };
+    }
+  }
 
   if (panel === 'status') {
     const dot = document.querySelector('.tl-dot.active');
     if (dot) {
       const r = dot.getBoundingClientRect();
       const x = r.left + r.width / 2 - DUDU_W / 2;
-      const y = r.top - DUDU_H - 14;
-      return { x: clampDX(x), y: Math.max(80, y) };
+      return { x: clampDX(x), y: Math.max(80, r.top - DUDU_H - 8) };
     }
   }
 
-  const sideW = window.innerWidth > 860 ? 260 : 0;
-  const headerH = 68;
-  const margin = 22;
   return {
     x: clampDX(isRtl ? sideW + margin : window.innerWidth - margin - DUDU_W),
-    y: Math.max(140, headerH + margin)
+    y: Math.max(140, 90)
   };
 }
 
@@ -1618,13 +1960,24 @@ function duduFly(tx, ty, facingRight, duration, onLand) {
 
   const cont = document.getElementById('dudu-container');
   const bubble = document.getElementById('dudu-bubble');
-  cont.classList.add('flying');
-  if (bubble) bubble.classList.add('guide-hidden');
-  setDuduFacing(facingRight);
 
+  /* Hide bubble */
+  if (bubble) bubble.classList.add('guide-hidden');
+
+  /* Lift-off: rise 20px over 200ms then begin arc */
+  cont.classList.add('lifting');
+  setTimeout(() => {
+    cont.classList.remove('lifting');
+    cont.classList.add('flying');
+    setDuduFacing(facingRight);
+    _flyArc(tx, ty, facingRight, duration, onLand, cont, bubble);
+  }, 200);
+}
+
+function _flyArc(tx, ty, facingRight, duration, onLand, cont, bubble) {
   const sx = duduX, sy = duduY;
   const dist = Math.hypot(tx-sx, ty-sy);
-  const arcH = Math.min(210, Math.max(55, dist * 0.34));
+  const arcH = Math.min(220, Math.max(60, dist * 0.36));
   let t0 = null, lastTrail = 0;
 
   function frame(ts) {
@@ -1635,7 +1988,7 @@ function duduFly(tx, ty, facingRight, duration, onLand) {
     const y = sy + (ty-sy)*e - arcH * 4 * e * (1-e);
     setDuduPos(x, y);
 
-    if (ts - lastTrail > 58) {
+    if (ts - lastTrail > 52) {
       spawnTrailDot(x + DUDU_W/2, y + DUDU_H/2);
       lastTrail = ts;
     }
@@ -1645,25 +1998,27 @@ function duduFly(tx, ty, facingRight, duration, onLand) {
       setDuduPos(tx, ty);
       duduFlying = false;
       cont.classList.remove('flying');
-      /* Face inward toward content */
+
       const isRtl = document.body.dir === 'rtl';
       setDuduFacing(!isRtl);
-      /* Tail follows facing */
-      if (bubble) {
-        bubble.classList.toggle('tail-left', !!isRtl);
-      }
+      if (bubble) bubble.classList.toggle('tail-left', !!isRtl);
+
+      /* Landing ripple + overshoot settle */
       landingRipple(tx + DUDU_W/2, ty + DUDU_H);
+      cont.classList.add('settling');
+      cont.addEventListener('animationend', () => cont.classList.remove('settling'), {once:true});
+
       setTimeout(() => {
         if (guideVisible && bubble) {
           bubble.classList.remove('guide-hidden');
-          bubble.style.animation = 'none';
+          bubble.classList.remove('popping');
           void bubble.offsetWidth;
-          bubble.style.animation = 'bubblePop .4s var(--spring) both';
+          bubble.classList.add('popping');
           cont.classList.add('dudu-name-visible');
         }
         if (onLand) onLand();
         resetIdleTimer();
-      }, 180);
+      }, 200);
     }
   }
   requestAnimationFrame(frame);
@@ -1721,23 +2076,31 @@ function typewriterText(rawHtml, el, speed) {
   const tmp = document.createElement('div');
   tmp.innerHTML = rawHtml;
   const plain = tmp.textContent;
+  const bMatch = rawHtml.includes('<b>') ? rawHtml.match(/<b>(.*?)<\/b>/) : null;
+  const bWord = bMatch ? bMatch[1] : null;
   let i = 0;
-  el.textContent = '';
+  el.innerHTML = '';
+
+  const cursor = document.createElement('span');
+  cursor.className = 'dudu-cursor';
+  el.appendChild(cursor);
+
   duduTwRef = setInterval(() => {
-    if (i >= plain.length) { clearInterval(duduTwRef); return; }
+    if (i >= plain.length) {
+      clearInterval(duduTwRef);
+      /* Remove cursor after brief hold */
+      setTimeout(() => { if (cursor.parentNode) cursor.remove(); }, 800);
+      return;
+    }
     i++;
     const slice = plain.slice(0, i);
-    /* Restore bold for "Dudu" in welcome message */
-    if (rawHtml.includes('<b>')) {
-      const bMatch = rawHtml.match(/<b>(.*?)<\/b>/);
-      const bWord = bMatch ? bMatch[1] : null;
-      if (bWord && slice.includes(bWord)) {
-        const parts = slice.split(bWord);
-        el.innerHTML = parts[0] + '<strong>' + bWord + '</strong>' + (parts[1] || '');
-        return;
-      }
+    if (bWord && slice.includes(bWord)) {
+      const parts = slice.split(bWord);
+      el.innerHTML = parts[0] + '<strong>' + bWord + '</strong>' + (parts[1] || '');
+    } else {
+      el.textContent = slice;
     }
-    el.textContent = slice;
+    el.appendChild(cursor);
   }, speed || 28);
 }
 
@@ -1761,10 +2124,13 @@ function duduHeadNod() {
 }
 
 function duduLangTilt() {
-  const s = document.getElementById('dudu-svg');
-  if (!s) return;
-  s.classList.add('lang-tilting');
-  s.addEventListener('animationend', () => s.classList.remove('lang-tilting'), {once:true});
+  const h = document.getElementById('dudu-head-group');
+  if (!h || duduFlying) return;
+  /* Use the head group for tilt so facing direction is preserved */
+  h.style.animation = 'none';
+  void h.offsetWidth;
+  h.style.animation = 'langTiltAnim .7s ease-in-out';
+  h.addEventListener('animationend', () => { h.style.animation = ''; }, {once:true});
 }
 
 function duduCelebrate() {
@@ -1772,10 +2138,10 @@ function duduCelebrate() {
   if (!s) return;
   s.classList.add('celebrating');
   confettiEffect();
-  setTimeout(() => s.classList.remove('celebrating'), 1300);
+  setTimeout(() => s.classList.remove('celebrating'), 1600);
 }
 
-/* ── Blink ── */
+/* ── Blink: every 5–9s ── */
 function scheduleBlink() {
   duduBlinkTimer = setTimeout(() => {
     if (!duduFlying) {
@@ -1786,19 +2152,23 @@ function scheduleBlink() {
       }
     }
     scheduleBlink();
-  }, 4000 + Math.random() * 4500);
+  }, 5000 + Math.random() * 4000);
 }
 
-/* ── Idle look-around ── */
+/* ── Idle look-around: 15–25s ── */
 function resetIdleTimer() {
   clearTimeout(duduIdleTimer);
+  const delay = 15000 + Math.random() * 10000;
   duduIdleTimer = setTimeout(() => {
     if (duduFlying) return;
     const h = document.getElementById('dudu-head-group');
     if (!h) return;
     h.classList.add('looking');
-    h.addEventListener('animationend', () => h.classList.remove('looking'), {once:true});
-  }, 30000);
+    h.addEventListener('animationend', () => {
+      h.classList.remove('looking');
+      resetIdleTimer();
+    }, {once:true});
+  }, delay);
 }
 
 /* ── Public interface ── */
@@ -1875,79 +2245,78 @@ initGuide();
   <!-- Bird + shadow + label -->
   <div class="dudu-bird-wrap">
     <!-- Proper side-facing hoopoe SVG, facing right by default -->
-    <svg id="dudu-svg" viewBox="0 0 110 92" xmlns="http://www.w3.org/2000/svg"
+    <svg id="dudu-svg" viewBox="0 0 114 96" xmlns="http://www.w3.org/2000/svg"
          aria-hidden="true" style="overflow:visible">
 
-      <!-- Wing (back layer — animated for flapping) -->
+      <!-- Wing — #2563eb base with white highlight bars -->
       <g id="dudu-wing">
-        <!-- Main wing shape with hoopoe bar pattern -->
-        <path d="M24,50 C11,61 9,80 24,83 C37,79 60,78 64,80 C53,65 24,50 24,50Z" fill="rgba(255,255,255,.88)"/>
-        <!-- Distinctive black/white bar stripes -->
-        <line x1="27" y1="54" x2="22" y2="79" stroke="rgba(30,58,138,.5)"  stroke-width="4"   stroke-linecap="round"/>
-        <line x1="34" y1="52" x2="32" y2="77" stroke="rgba(255,255,255,.35)" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="42" y1="51" x2="43" y2="76" stroke="rgba(30,58,138,.38)" stroke-width="3"   stroke-linecap="round"/>
-        <line x1="50" y1="52" x2="54" y2="76" stroke="rgba(255,255,255,.32)" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M22,52 C8,64 6,84 22,87 C36,82 62,80 66,83 C54,67 22,52 22,52Z"
+              fill="#2563eb" opacity=".92"/>
+        <!-- White highlight bars (hoopoe's distinctive black-and-white stripes, rendered in blue palette as blue+white) -->
+        <line x1="25" y1="57" x2="20" y2="83" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" opacity=".85"/>
+        <line x1="35" y1="54" x2="32" y2="80" stroke="#1e3a8a" stroke-width="3"   stroke-linecap="round" opacity=".7"/>
+        <line x1="45" y1="53" x2="45" y2="79" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity=".75"/>
+        <line x1="54" y1="54" x2="57" y2="79" stroke="#1e3a8a" stroke-width="2"   stroke-linecap="round" opacity=".6"/>
       </g>
 
-      <!-- Body -->
-      <ellipse cx="48" cy="67" rx="29" ry="18" fill="white"/>
+      <!-- Body — main blue ellipse -->
+      <ellipse cx="50" cy="69" rx="30" ry="18" fill="#2563eb"/>
+
+      <!-- Breast — lighter blue highlight for form -->
+      <ellipse cx="64" cy="62" rx="13" ry="8.5" fill="#3b82f6" opacity=".5"/>
 
       <!-- Tail -->
-      <path d="M17,66 C4,66 3,81 18,83 C11,73 23,71 23,71Z" fill="rgba(255,255,255,.88)"/>
+      <path d="M16,68 C2,68 1,85 17,87 C10,76 22,74 22,74Z" fill="#1e3a8a" opacity=".85"/>
 
-      <!-- Head group (for nod/tilt animations) -->
+      <!-- Head group -->
       <g id="dudu-head-group">
 
-        <!-- Neck connection (small bridge from body to head) -->
-        <ellipse cx="70" cy="57" rx="10" ry="13" fill="white"/>
+        <!-- Neck -->
+        <ellipse cx="72" cy="58" rx="11" ry="14" fill="#2563eb"/>
 
         <!-- Head -->
-        <circle cx="79" cy="44" r="19" fill="white"/>
+        <circle cx="82" cy="46" r="20" fill="#2563eb"/>
 
-        <!-- Crest (5 feathers with dark tips) -->
+        <!-- Crest — 5 feathers in blue, dark-tipped -->
         <g id="dudu-crest">
-          <!-- Feather shafts -->
-          <ellipse cx="71" cy="24" rx="3.2" ry="12"   transform="rotate(-38 71 38)" fill="white"/>
-          <ellipse cx="76" cy="20" rx="3.2" ry="13"   transform="rotate(-19 76 38)" fill="white"/>
-          <ellipse cx="80" cy="18" rx="3.2" ry="13.5" transform="rotate(-1  80 38)" fill="white"/>
-          <ellipse cx="85" cy="21" rx="2.8" ry="12"   transform="rotate( 17 85 38)" fill="white"/>
-          <ellipse cx="88" cy="27" rx="2.4" ry="10.5" transform="rotate( 31 88 38)" fill="white"/>
-          <!-- Dark tips (hoopoe's signature black-tipped crest) -->
-          <ellipse cx="71" cy="15" rx="2"   ry="3.8"  transform="rotate(-38 71 38)" fill="rgba(30,58,138,.72)"/>
-          <ellipse cx="76" cy="11" rx="2"   ry="4.2"  transform="rotate(-19 76 38)" fill="rgba(30,58,138,.72)"/>
-          <ellipse cx="80" cy="10" rx="2"   ry="4.5"  transform="rotate(-1  80 38)" fill="rgba(30,58,138,.72)"/>
-          <ellipse cx="85" cy="13" rx="1.8" ry="4"    transform="rotate( 17 85 38)" fill="rgba(30,58,138,.72)"/>
-          <ellipse cx="88" cy="20" rx="1.6" ry="3.4"  transform="rotate( 31 88 38)" fill="rgba(30,58,138,.72)"/>
+          <!-- Shafts (lighter blue) -->
+          <ellipse cx="73" cy="24" rx="3.5" ry="12.5" transform="rotate(-38 73 40)" fill="#3b82f6"/>
+          <ellipse cx="78" cy="19" rx="3.5" ry="13.5" transform="rotate(-19 78 40)" fill="#3b82f6"/>
+          <ellipse cx="83" cy="17" rx="3.5" ry="14"   transform="rotate(-1  83 40)" fill="#3b82f6"/>
+          <ellipse cx="88" cy="20" rx="3"   ry="12.5" transform="rotate( 17 88 40)" fill="#3b82f6"/>
+          <ellipse cx="92" cy="27" rx="2.6" ry="11"   transform="rotate( 31 92 40)" fill="#3b82f6"/>
+          <!-- Dark tips — deep navy, hoopoe's signature -->
+          <ellipse cx="73" cy="13" rx="2.2" ry="4"    transform="rotate(-38 73 40)" fill="#1e3a8a"/>
+          <ellipse cx="78" cy="8"  rx="2.2" ry="4.5"  transform="rotate(-19 78 40)" fill="#1e3a8a"/>
+          <ellipse cx="83" cy="7"  rx="2.2" ry="5"    transform="rotate(-1  83 40)" fill="#1e3a8a"/>
+          <ellipse cx="88" cy="10" rx="2"   ry="4.2"  transform="rotate( 17 88 40)" fill="#1e3a8a"/>
+          <ellipse cx="92" cy="18" rx="1.8" ry="3.6"  transform="rotate( 31 92 40)" fill="#1e3a8a"/>
         </g>
 
-        <!-- Eye ring (orange eye of real hoopoe → subtle blue tint) -->
-        <circle cx="88" cy="42" r="6.5" fill="rgba(30,58,138,.13)"/>
-        <!-- Pupil -->
-        <circle cx="89" cy="42" r="4.2" fill="#1e3a8a"/>
-        <!-- Specular highlight -->
-        <circle cx="91" cy="40" r="1.6" fill="rgba(255,255,255,.92)"/>
+        <!-- Eye — white sclera ring, dark pupil, white specular -->
+        <circle cx="91" cy="44" r="6"   fill="rgba(255,255,255,.2)"/>
+        <circle cx="92" cy="44" r="4"   fill="#fff"/>
+        <circle cx="92" cy="44" r="2.8" fill="#1e3a8a"/>
+        <circle cx="94" cy="42" r="1.2" fill="rgba(255,255,255,.95)"/>
 
-        <!-- Eyelid (animates down for blink) -->
-        <path id="dudu-eyelid"
-              d="M 82,42 Q 88,34.5 94,42"
-              fill="white"/>
+        <!-- Eyelid — white arc sweeps down on blink -->
+        <path id="dudu-eyelid" d="M 85,44 Q 91,36.5 97,44" fill="#2563eb"/>
 
-        <!-- Beak — long, thin, slightly down-curved -->
-        <path d="M 96,44.5 Q 107,46 110,49 Q 108,51.5 96,50Z" fill="white"/>
+        <!-- Beak — white, long, slightly curved down -->
+        <path d="M 100,46 Q 111,47.5 114,51 Q 112,53.5 100,52Z" fill="#fff" opacity=".9"/>
+        <!-- Beak ridge line for definition -->
+        <line x1="100" y1="49" x2="111" y2="49.5" stroke="#bfdbfe" stroke-width="0.8" opacity=".6"/>
 
-      </g><!-- /head group -->
+      </g>
 
-      <!-- Breast accent (subtle warmth) -->
-      <ellipse cx="63" cy="57" rx="14" ry="9" fill="rgba(255,255,255,.11)"/>
-
-      <!-- Legs -->
-      <line x1="43" y1="84" x2="38" y2="92" stroke="rgba(255,255,255,.85)" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="52" y1="84" x2="57" y2="92" stroke="rgba(255,255,255,.85)" stroke-width="2.5" stroke-linecap="round"/>
-      <!-- Feet (3 toes each) -->
-      <path d="M33,92 Q38,92 41,91" stroke="rgba(255,255,255,.82)" stroke-width="2" stroke-linecap="round" fill="none"/>
-      <path d="M38,92 Q42,93 46,92" stroke="rgba(255,255,255,.82)" stroke-width="2" stroke-linecap="round" fill="none"/>
-      <path d="M52,92 Q57,92 60,91" stroke="rgba(255,255,255,.82)" stroke-width="2" stroke-linecap="round" fill="none"/>
-      <path d="M57,92 Q61,93 64,92" stroke="rgba(255,255,255,.82)" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <!-- Legs — white/light -->
+      <line x1="44" y1="86" x2="39" y2="95" stroke="#bfdbfe" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="54" y1="86" x2="59" y2="95" stroke="#bfdbfe" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Toes -->
+      <path d="M33,95 Q39,94 42,95" stroke="#bfdbfe" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M39,95 Q44,96 48,95" stroke="#bfdbfe" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M54,95 Q59,94 62,95" stroke="#bfdbfe" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M59,95 Q63,96 67,95" stroke="#bfdbfe" stroke-width="2" stroke-linecap="round" fill="none"/>
     </svg>
 
     <!-- Ground shadow -->
