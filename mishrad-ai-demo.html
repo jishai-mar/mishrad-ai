@@ -841,6 +841,147 @@
     .feature-grid { grid-template-columns: 1fr; }
     .service-grid { grid-template-columns: 1fr; }
   }
+
+  /* ── AI GUIDE CHARACTER ── */
+  @keyframes guideBob {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-9px); }
+  }
+  @keyframes guideWiggle {
+    0%   { transform: rotate(0deg)   scale(1);    }
+    18%  { transform: rotate(-11deg) scale(1.06); }
+    42%  { transform: rotate(9deg)   scale(1.06); }
+    62%  { transform: rotate(-6deg)  scale(1.02); }
+    80%  { transform: rotate(4deg)   scale(1.01); }
+    100% { transform: rotate(0deg)   scale(1);    }
+  }
+  @keyframes guideRingPulse {
+    0%   { transform: scale(1);    opacity: 0.65; }
+    100% { transform: scale(1.6);  opacity: 0;    }
+  }
+  @keyframes guideMsgIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.94); }
+    to   { opacity: 1; transform: translateY(0)    scale(1);    }
+  }
+
+  #guide-character {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    left: auto;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    pointer-events: none;
+  }
+  #guide-character.rtl {
+    right: auto;
+    left: 28px;
+    align-items: flex-start;
+  }
+  .guide-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: inherit;
+    gap: 10px;
+    animation: guideBob 4.2s ease-in-out infinite;
+    pointer-events: auto;
+  }
+
+  /* Speech bubble */
+  .guide-bubble {
+    background: #ffffff;
+    border: 1.5px solid #2563eb;
+    border-radius: 16px;
+    padding: 12px 16px;
+    max-width: 256px;
+    min-width: 175px;
+    box-shadow: 0 4px 24px rgba(37,99,235,0.14), 0 2px 8px rgba(0,0,0,0.08);
+    position: relative;
+    animation: guideMsgIn 0.38s cubic-bezier(0.34,1.56,0.64,1) both;
+    transform-origin: bottom center;
+    cursor: default;
+  }
+  .guide-bubble.guide-hidden { display: none; }
+  .guide-bubble p {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #1e3a8a;
+    line-height: 1.58;
+    margin: 0;
+  }
+  /* Tail — blue outline triangle */
+  .guide-bubble::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    right: 21px;
+    border: 9px solid transparent;
+    border-top-color: #2563eb;
+    border-bottom: none;
+  }
+  /* Tail — white fill triangle (sits inside ::before) */
+  .guide-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 22.5px;
+    border: 7.5px solid transparent;
+    border-top-color: #ffffff;
+    border-bottom: none;
+  }
+  #guide-character.rtl .guide-bubble::before { right: auto; left: 21px; }
+  #guide-character.rtl .guide-bubble::after  { right: auto; left: 22.5px; }
+
+  /* Avatar float + ring */
+  .guide-float {
+    position: relative;
+    width: 62px; height: 62px;
+    display: flex; align-items: center; justify-content: center;
+    align-self: flex-end;
+  }
+  #guide-character.rtl .guide-float { align-self: flex-start; }
+
+  .guide-ring {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2.5px solid rgba(37,99,235,0.5);
+    animation: guideRingPulse 3s ease-out infinite;
+    pointer-events: none;
+  }
+  /* Second, slower ring for depth */
+  .guide-ring2 {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid rgba(37,99,235,0.25);
+    animation: guideRingPulse 3s ease-out 1.5s infinite;
+    pointer-events: none;
+  }
+
+  .guide-avatar {
+    width: 62px; height: 62px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%);
+    cursor: pointer;
+    border: none;
+    padding: 7px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 22px rgba(37,99,235,0.52), 0 2px 8px rgba(0,0,0,0.16);
+    transition: transform 0.2s var(--ease, ease), box-shadow 0.2s var(--ease, ease);
+    position: relative;
+    z-index: 1;
+  }
+  .guide-avatar:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 32px rgba(37,99,235,0.62), 0 2px 10px rgba(0,0,0,0.2);
+  }
+  .guide-avatar:active { transform: scale(0.95); }
+  .guide-avatar.wiggle  { animation: guideWiggle 0.52s ease-in-out; }
+  .guide-avatar svg { width: 100%; height: 100%; display: block; }
 </style>
 </head>
 <body>
@@ -1323,6 +1464,8 @@ function setLang(lang) {
   const isRtl = lang === 'he' || lang === 'ar';
 
   document.body.style.direction = isRtl ? 'rtl' : 'ltr';
+  const guide = document.getElementById('guide-character');
+  if (guide) guide.classList.toggle('rtl', isRtl);
 
   const ids = {
     'sl-steps': t.slSteps,
@@ -1367,6 +1510,7 @@ function showPanel(name) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   document.getElementById('nav-' + name).classList.add('active');
+  updateGuide(name);
 }
 
 function updateProgress() {
@@ -1651,8 +1795,107 @@ document.getElementById('nav-status').addEventListener('click', () => {
   updateProgress();
 });
 
+/* ── AI GUIDE ── */
+const GUIDE_MESSAGES = {
+  welcome: "שלום! I'll guide you through each step. Start with your eligibility check →",
+  kyc:     "Select the service that matches your situation. I'll verify your eligibility instantly.",
+  docs:    "Check off each document as you gather it. You need 100% to book your appointment.",
+  chat:    "Ask me anything — I answer in Hebrew, Arabic, Russian, or English.",
+  status:  "Your application is in progress. I'll notify you the moment anything changes."
+};
+
+let guideVisible = true;
+
+function initGuide() {
+  /* Ensure the guide bubble starts on the welcome panel message */
+  const el = document.getElementById('guide-msg');
+  if (el) el.textContent = GUIDE_MESSAGES.welcome;
+}
+
+function updateGuide(panel) {
+  const msg = GUIDE_MESSAGES[panel];
+  if (!msg) return;
+
+  const bubble = document.getElementById('guide-bubble');
+  const el     = document.getElementById('guide-msg');
+  if (!bubble || !el) return;
+  if (!guideVisible) return;
+
+  el.textContent = msg;
+
+  /* Restart fade-in animation */
+  bubble.style.animation = 'none';
+  void bubble.offsetWidth;               /* force reflow */
+  bubble.style.animation = 'guideMsgIn 0.38s cubic-bezier(0.34,1.56,0.64,1) both';
+
+  wiggleGuide();
+}
+
+function wiggleGuide() {
+  const avatar = document.getElementById('guide-avatar');
+  if (!avatar) return;
+  avatar.classList.remove('wiggle');
+  void avatar.offsetWidth;
+  avatar.classList.add('wiggle');
+  avatar.addEventListener('animationend', () => {
+    avatar.classList.remove('wiggle');
+  }, { once: true });
+}
+
+function toggleGuide() {
+  guideVisible = !guideVisible;
+  const bubble = document.getElementById('guide-bubble');
+  if (!bubble) return;
+  if (guideVisible) {
+    bubble.classList.remove('guide-hidden');
+    bubble.style.animation = 'none';
+    void bubble.offsetWidth;
+    bubble.style.animation = 'guideMsgIn 0.38s cubic-bezier(0.34,1.56,0.64,1) both';
+    wiggleGuide();
+  } else {
+    bubble.classList.add('guide-hidden');
+  }
+}
+
 /* ── INIT ── */
 buildTimeline();
+initGuide();
 </script>
+
+<!-- ── AI GUIDE CHARACTER ── -->
+<div id="guide-character">
+  <div class="guide-inner">
+    <div class="guide-bubble" id="guide-bubble">
+      <p id="guide-msg">שלום! I'll guide you through each step. Start with your eligibility check →</p>
+    </div>
+    <div class="guide-float">
+      <div class="guide-ring"></div>
+      <div class="guide-ring2"></div>
+      <button class="guide-avatar" id="guide-avatar" onclick="toggleGuide()" aria-label="Toggle guide">
+        <svg viewBox="0 0 48 48" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!--
+            Hoopoe (דוכיפת) — Israel's national bird.
+            Facing right: fan crest on head, long tapered beak.
+          -->
+          <!-- Body -->
+          <ellipse cx="17" cy="34" rx="11" ry="9"/>
+          <!-- Head (overlaps body upper-right, creating neck join) -->
+          <circle cx="29" cy="22" r="9"/>
+          <!-- Crest feather 1 — sweeps back-left -->
+          <ellipse cx="24" cy="10" rx="3.2" ry="8"
+                   transform="rotate(-28 24 18)"/>
+          <!-- Crest feather 2 — straight up -->
+          <ellipse cx="28" cy="9"  rx="3.2" ry="8"
+                   transform="rotate(0 28 17)"/>
+          <!-- Crest feather 3 — sweeps forward-right -->
+          <ellipse cx="32" cy="10" rx="3.2" ry="8"
+                   transform="rotate(25 32 18)"/>
+          <!-- Beak — long tapered triangle pointing right -->
+          <path d="M36,19 L47,22 L36,25 Z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
