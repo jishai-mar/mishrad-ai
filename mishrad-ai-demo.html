@@ -323,31 +323,185 @@ body.lang-fade .main{opacity:0}
 .ref-number{font-family:var(--f-mono);font-size:var(--t-28);font-weight:700;color:var(--c-blue);letter-spacing:.06em}
 .ref-hint{font-size:var(--t-12);color:var(--c-text-3);margin-top:5px}
 
-/* ── AI GUIDE ── */
-@keyframes guideBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-@keyframes guideWiggle{0%{transform:rotate(0) scale(1)}18%{transform:rotate(-11deg) scale(1.06)}42%{transform:rotate(9deg) scale(1.06)}62%{transform:rotate(-6deg) scale(1.02)}80%{transform:rotate(4deg) scale(1.01)}100%{transform:rotate(0) scale(1)}}
-@keyframes guideRingPulse{0%{transform:scale(1);opacity:.65}100%{transform:scale(1.6);opacity:0}}
-@keyframes guideMsgIn{from{opacity:0;transform:translateY(10px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+/* ── DUDU — LIVING HOOPOE GUIDE ── */
 
-#guide-character{position:fixed;bottom:28px;right:28px;left:auto;z-index:9999;display:flex;flex-direction:column;align-items:flex-end;pointer-events:none}
-#guide-character.rtl{right:auto;left:28px;align-items:flex-start}
-.guide-inner{display:flex;flex-direction:column;align-items:inherit;gap:10px;animation:guideBob 4.2s ease-in-out infinite;pointer-events:auto}
-.guide-bubble{background:#fff;border:1.5px solid var(--c-blue);border-radius:16px;padding:11px 15px;max-width:252px;min-width:170px;box-shadow:0 4px 24px rgba(37,99,235,.14),0 2px 8px rgba(0,0,0,.08);position:relative;animation:guideMsgIn .38s var(--spring) both;transform-origin:bottom center;cursor:default}
-.guide-bubble.guide-hidden{display:none}
-.guide-bubble p{font-size:var(--t-13);font-weight:500;color:var(--c-blue-deep);line-height:1.55;margin:0}
-.guide-bubble::before{content:'';position:absolute;bottom:-10px;right:21px;border:9px solid transparent;border-top-color:var(--c-blue);border-bottom:none}
-.guide-bubble::after{content:'';position:absolute;bottom:-8px;right:22.5px;border:7.5px solid transparent;border-top-color:#fff;border-bottom:none}
-#guide-character.rtl .guide-bubble::before{right:auto;left:21px}
-#guide-character.rtl .guide-bubble::after{right:auto;left:22.5px}
-.guide-float{position:relative;width:62px;height:62px;display:flex;align-items:center;justify-content:center;align-self:flex-end}
-#guide-character.rtl .guide-float{align-self:flex-start}
-.guide-ring{position:absolute;inset:-8px;border-radius:50%;border:2.5px solid rgba(37,99,235,.5);animation:guideRingPulse 3s ease-out infinite;pointer-events:none}
-.guide-ring2{position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(37,99,235,.25);animation:guideRingPulse 3s ease-out 1.5s infinite;pointer-events:none}
-.guide-avatar{width:62px;height:62px;border-radius:50%;background:linear-gradient(145deg,#3b82f6 0%,var(--c-blue) 55%,var(--c-blue-deep) 100%);cursor:pointer;border:none;padding:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 22px rgba(37,99,235,.52),0 2px 8px rgba(0,0,0,.16);transition:transform .2s var(--ease),box-shadow .2s var(--ease);position:relative;z-index:1}
-.guide-avatar:hover{transform:scale(1.1);box-shadow:0 8px 32px rgba(37,99,235,.62)}
-.guide-avatar:active{transform:scale(.95)}
-.guide-avatar.wiggle{animation:guideWiggle .52s ease-in-out}
-.guide-avatar svg{width:100%;height:100%;display:block}
+/* Container — JS sets left/top */
+#dudu-container{
+  position:fixed;z-index:9999;
+  pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;
+  /* GPU layer for smooth flight */
+  will-change:transform;
+}
+#dudu-container.rtl{align-items:flex-start}
+
+/* Bubble — organic border radii for handwritten feel */
+.dudu-bubble{
+  background:#fff;
+  border:1.5px solid var(--c-blue);
+  border-top:2.5px solid var(--c-blue);
+  border-radius:18px 14px 20px 15px / 15px 20px 16px 18px;
+  padding:12px 16px 10px;
+  max-width:262px;min-width:180px;
+  box-shadow:inset 0 2px 8px rgba(37,99,235,.05),0 4px 24px rgba(37,99,235,.15),0 2px 8px rgba(0,0,0,.08);
+  position:relative;
+  margin-bottom:10px;
+  pointer-events:auto;
+  animation:bubblePop .4s var(--spring) both;
+  transform-origin:bottom right;
+}
+.dudu-bubble.guide-hidden{display:none}
+.dudu-bubble.tail-left{transform-origin:bottom left}
+/* Tail pointing to beak (bottom-right default) */
+.dudu-bubble::before{content:'';position:absolute;bottom:-10px;right:20px;border:9px solid transparent;border-top-color:var(--c-blue);border-bottom:none}
+.dudu-bubble::after {content:'';position:absolute;bottom:-7.5px;right:21.5px;border:7.5px solid transparent;border-top-color:#fff;border-bottom:none}
+.dudu-bubble.tail-left::before{right:auto;left:20px}
+.dudu-bubble.tail-left::after {right:auto;left:21.5px}
+.dudu-bubble p{font-size:13px;font-weight:500;color:var(--c-blue-deep);line-height:1.55;margin:0}
+.dudu-bubble strong{font-weight:700}
+
+/* Name tag below bird */
+.dudu-name-tag{
+  font-size:10px;font-family:var(--f-body);font-weight:700;
+  color:var(--c-blue);letter-spacing:.07em;text-align:center;
+  margin-top:3px;
+  opacity:0;transition:opacity .25s;
+  user-select:none;
+}
+.dudu-name-visible .dudu-name-tag{opacity:1}
+
+/* Bird wrap — handles idle bob */
+.dudu-bird-wrap{
+  position:relative;display:flex;flex-direction:column;align-items:center;
+  animation:dudoBob 4s ease-in-out infinite;
+  will-change:transform;
+  pointer-events:auto;
+  cursor:pointer;
+}
+#dudu-container.flying .dudu-bird-wrap{animation:none}
+
+/* Shadow ellipse */
+.dudu-shadow{
+  width:58px;height:11px;
+  background:radial-gradient(ellipse,rgba(37,99,235,.2) 0%,transparent 72%);
+  border-radius:50%;
+  flex-shrink:0;margin-top:-2px;
+  transition:opacity .3s,transform .3s;
+}
+#dudu-container.flying .dudu-shadow{opacity:.3;transform:scaleX(.5)}
+
+/* Bird SVG */
+#dudu-svg{
+  width:82px;height:82px;
+  display:block;
+  will-change:transform;
+  transition:transform .3s var(--ease);
+  overflow:visible;
+}
+
+/* ── IDLE ANIMATIONS ── */
+@keyframes dudoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+
+/* Crest breathing in idle */
+@keyframes crestBreath{0%,100%{transform:scaleY(1) rotate(0deg)}50%{transform:scaleY(1.08) rotate(2.5deg)}}
+#dudu-crest{
+  transform-origin:79px 38px;
+  animation:crestBreath 3.5s ease-in-out infinite;
+}
+
+/* ── FLIGHT ── */
+@keyframes wingFlap{
+  0%  {transform:rotate(-22deg) scaleY(.65)}
+  35% {transform:rotate(4deg)   scaleY(1)}
+  68% {transform:rotate(24deg)  scaleY(1.14)}
+  100%{transform:rotate(-22deg) scaleY(.65)}
+}
+#dudu-wing{transform-origin:50px 66px}
+#dudu-container.flying #dudu-wing{animation:wingFlap .21s linear infinite}
+#dudu-container.flying #dudu-crest{
+  transform:rotate(36deg) scaleY(.45)!important;
+  animation:none!important;
+}
+
+/* ── BLINK ── */
+#dudu-eyelid{
+  transform-origin:87px 42px;
+  transform:scaleY(0);
+}
+@keyframes eyeBlink{0%{transform:scaleY(0)}38%{transform:scaleY(1)}100%{transform:scaleY(0)}}
+#dudu-eyelid.blink{animation:eyeBlink .32s ease-in-out}
+
+/* ── HEAD GROUP ── */
+#dudu-head-group{transform-origin:72px 58px}
+
+/* Look around when idle >30s */
+@keyframes lookAround{
+  0%{transform:rotate(0)}20%{transform:rotate(-15deg)}
+  45%{transform:rotate(0)}70%{transform:rotate(12deg)}
+  90%{transform:rotate(2deg)}100%{transform:rotate(0)}
+}
+#dudu-head-group.looking{animation:lookAround 2.5s ease-in-out}
+
+/* Nod on document check */
+@keyframes headNod{0%{transform:rotate(0)}30%{transform:rotate(14deg)}65%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
+#dudu-head-group.nodding{animation:headNod .46s ease-in-out}
+
+/* ── HOVER: crest fans ── */
+.dudu-bird-wrap:hover #dudu-crest{
+  transform:scaleY(1.35) rotate(12deg)!important;
+  animation:none!important;
+  transition:transform .28s ease;
+}
+
+/* ── LANGUAGE TILT ── */
+@keyframes langTilt{0%,100%{transform:rotate(0)}30%{transform:rotate(18deg)}}
+#dudu-svg.lang-tilting{animation:langTilt .55s ease-in-out}
+
+/* ── EXCITED HOP (service selected) ── */
+@keyframes excHop{
+  0%{transform:translateY(0)}22%{transform:translateY(-18px) rotate(-9deg)}
+  50%{transform:translateY(0) rotate(0)}70%{transform:translateY(-10px) rotate(6deg)}
+  100%{transform:translateY(0)}
+}
+#dudu-container.hopping .dudu-bird-wrap{animation:excHop .58s ease-in-out}
+
+/* ── CELEBRATION (100% docs) ── */
+@keyframes wingCelebrate{0%{transform:rotate(0) scaleY(1)}30%{transform:rotate(-52deg) scaleY(1.6)}65%{transform:rotate(-44deg) scaleY(1.5)}100%{transform:rotate(0) scaleY(1)}}
+#dudu-svg.celebrating #dudu-wing{animation:wingCelebrate 1.2s ease-in-out}
+#dudu-svg.celebrating #dudu-crest{transform:scaleY(1.6) rotate(15deg)!important;animation:none!important}
+
+/* ── BUBBLE POP ── */
+@keyframes bubblePop{from{opacity:0;transform:scale(.88) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
+/* ── TRAIL DOTS ── */
+.dudu-trail{position:fixed;width:5px;height:5px;border-radius:50%;background:rgba(37,99,235,.55);pointer-events:none;z-index:9996;animation:trailFade .65s ease-out forwards}
+@keyframes trailFade{from{opacity:.8;transform:scale(1)}to{opacity:0;transform:scale(.2)}}
+
+/* ── LANDING RIPPLE ── */
+.dudu-ripple{
+  position:fixed;width:60px;height:60px;border-radius:50%;
+  border:2px solid rgba(37,99,235,.45);
+  pointer-events:none;z-index:9995;
+  transform:translate(-50%,-50%) scale(0);
+  animation:rippleOut .9s ease-out forwards;
+}
+@keyframes rippleOut{from{transform:translate(-50%,-50%) scale(0);opacity:.75}to{transform:translate(-50%,-50%) scale(2.8);opacity:0}}
+
+/* ── STARBURST (doc verified) ── */
+.dudu-star{
+  position:fixed;width:5px;height:5px;border-radius:50%;
+  background:var(--c-blue);pointer-events:none;z-index:9998;
+  animation:starOut .7s ease-out forwards;
+}
+@keyframes starOut{from{transform:rotate(var(--sa)) translateX(0) scale(1);opacity:1}to{transform:rotate(var(--sa)) translateX(40px) scale(0);opacity:0}}
+
+/* ── CONFETTI ── */
+.dudu-confetti{
+  position:fixed;border-radius:2px;
+  pointer-events:none;z-index:9998;
+  animation:confFall 2.1s ease-in forwards;
+}
+@keyframes confFall{from{transform:translateY(0) translateX(0) rotate(0);opacity:1}to{transform:translateY(240px) translateX(var(--cx)) rotate(var(--cr));opacity:0}}
 
 /* ── RTL ── */
 body[dir=rtl] .message.user{align-self:flex-start}
@@ -1013,6 +1167,7 @@ const TIMELINE_EVENTS = [
 
 /* ── LANGUAGE ── */
 function setLang(lang) {
+  duduLangTilt();
   document.body.classList.add('lang-fade');
   setTimeout(() => {
     currentLang = lang;
@@ -1023,7 +1178,7 @@ function setLang(lang) {
     const isRtl = lang === 'he' || lang === 'ar';
     document.body.dir = isRtl ? 'rtl' : 'ltr';
     document.body.style.direction = isRtl ? 'rtl' : 'ltr';
-    const guide = document.getElementById('guide-character');
+    const guide = document.getElementById('dudu-container');
     if (guide) guide.classList.toggle('rtl', isRtl);
 
     const ids = {
@@ -1066,6 +1221,10 @@ function setLang(lang) {
 
 /* ── NAVIGATION ── */
 function showPanel(name) {
+  const oldIdx = PANEL_ORDER.indexOf(currentPanel);
+  const newIdx = PANEL_ORDER.indexOf(name);
+  const direction = newIdx >= oldIdx ? 'forward' : 'backward';
+
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
@@ -1078,7 +1237,19 @@ function showPanel(name) {
     else if (i < idx) s.classList.add('done');
   });
 
-  updateGuide(name);
+  currentPanel = name;
+
+  /* Dudu flies to the new panel */
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const target = getDuduTarget(name);
+      const steps = Math.abs(newIdx - oldIdx);
+      const dur = 700 + steps * 90;
+      duduFly(target.x, target.y, direction === 'forward', dur, () => {
+        updateGuide(name);
+      });
+    });
+  });
 }
 
 function updateProgress() {
@@ -1100,6 +1271,9 @@ function selectService(svc) {
 
   const eligEl = document.getElementById('eligibility-result');
   eligEl.classList.remove('show');
+
+  /* Dudu excited hop */
+  duduExcitedHop();
 
   const subCard = document.getElementById('sub-options-card');
   if (SUB_OPTIONS[svc]) {
@@ -1196,6 +1370,13 @@ function toggleDoc(id,el) {
     el.classList.remove('checked'); el.textContent = '';
   } else {
     el.classList.add('checked'); el.textContent = '✓';
+    duduHeadNod();
+    starburstEffect(duduX + 41, duduY + 41);
+    /* Check if all required docs are now checked */
+    const unchecked = document.querySelectorAll('.required-item .doc-checkbox:not(.checked)');
+    if (unchecked.length === 0) {
+      setTimeout(duduCelebrate, 200);
+    }
   }
 }
 
@@ -1351,57 +1532,331 @@ document.getElementById('nav-status').addEventListener('click', () => {
   }
 });
 
-/* ── AI GUIDE ── */
-const GUIDE_MESSAGES = {
-  welcome:"שלום! I'll guide you through each step. Start with your eligibility check →",
-  kyc:"Select the service that matches your situation. I'll verify your eligibility instantly.",
-  docs:"Check off each document as you gather it. You need 100% to book your appointment.",
-  chat:"Ask me anything — I answer in Hebrew, Arabic, Russian, or English.",
-  status:"Your application is in progress. I'll notify you the moment anything changes."
+/* ═══════════════════════════════════════════════
+   DUDU — Living Hoopoe Guide
+   ════════════════════════════════════════════ */
+
+const DUDU_W = 82, DUDU_H = 82;
+let duduX = 0, duduY = 0;
+let duduFacingRight = true;
+let duduFlying = false;
+let guideVisible = true;
+let currentPanel = 'welcome';
+let duduIdleTimer = null;
+let duduBlinkTimer = null;
+let duduTwRef = null;
+let duduChecked = 0; /* required docs checked count */
+
+const DUDU_MSGS = {
+  welcome: "שלום, I'm <b>Dudu</b>. I'll guide you through every step.",
+  kyc:     "Select the service that fits your situation — I'll verify your eligibility instantly.",
+  docs:    "Check off each document as you gather it. When all required docs are ready, I'll unlock your appointment.",
+  chat:    "Ask me anything — I answer in Hebrew, Arabic, Russian, or English.",
+  status:  "Your application is moving. I'll perch here until the decision arrives."
 };
 
-let guideVisible = true;
-
-function initGuide() {
-  const el = document.getElementById('guide-msg');
-  if (el) el.textContent = GUIDE_MESSAGES.welcome;
+/* ── Position helpers ── */
+function getDuduCorner() {
+  const isRtl = document.body.dir === 'rtl';
+  const m = 28;
+  return {
+    x: isRtl ? m : window.innerWidth - m - DUDU_W,
+    y: window.innerHeight - m - DUDU_H - 115 /* bubble height above */
+  };
 }
 
+function getDuduTarget(panel) {
+  const isRtl = document.body.dir === 'rtl';
+  if (panel === 'welcome') return getDuduCorner();
+
+  if (panel === 'status') {
+    const dot = document.querySelector('.tl-dot.active');
+    if (dot) {
+      const r = dot.getBoundingClientRect();
+      const x = r.left + r.width / 2 - DUDU_W / 2;
+      const y = r.top - DUDU_H - 14;
+      return { x: clampDX(x), y: Math.max(80, y) };
+    }
+  }
+
+  const sideW = window.innerWidth > 860 ? 260 : 0;
+  const headerH = 68;
+  const margin = 22;
+  return {
+    x: clampDX(isRtl ? sideW + margin : window.innerWidth - margin - DUDU_W),
+    y: Math.max(140, headerH + margin)
+  };
+}
+
+function clampDX(x) {
+  return Math.max(10, Math.min(window.innerWidth - DUDU_W - 10, x));
+}
+
+function setDuduPos(x, y) {
+  duduX = x; duduY = y;
+  const el = document.getElementById('dudu-container');
+  el.style.left = x + 'px';
+  el.style.top  = y + 'px';
+}
+
+function setDuduFacing(right) {
+  duduFacingRight = right;
+  const isRtl = document.body.dir === 'rtl';
+  const svg = document.getElementById('dudu-svg');
+  if (!svg) return;
+  /* In RTL, flip the default so facing "inward" means facing left */
+  const flipX = isRtl ? right : !right;
+  svg.style.transform = flipX ? 'scaleX(-1)' : '';
+}
+
+/* ── Flight ── */
+function easeInOut(t) { return t < .5 ? 2*t*t : -1 + (4-2*t)*t; }
+
+function duduFly(tx, ty, facingRight, duration, onLand) {
+  if (duduFlying) { setDuduPos(tx, ty); if (onLand) onLand(); return; }
+  duduFlying = true;
+
+  const cont = document.getElementById('dudu-container');
+  const bubble = document.getElementById('dudu-bubble');
+  cont.classList.add('flying');
+  if (bubble) bubble.classList.add('guide-hidden');
+  setDuduFacing(facingRight);
+
+  const sx = duduX, sy = duduY;
+  const dist = Math.hypot(tx-sx, ty-sy);
+  const arcH = Math.min(210, Math.max(55, dist * 0.34));
+  let t0 = null, lastTrail = 0;
+
+  function frame(ts) {
+    if (!t0) t0 = ts;
+    const t = Math.min((ts - t0) / duration, 1);
+    const e = easeInOut(t);
+    const x = sx + (tx-sx)*e;
+    const y = sy + (ty-sy)*e - arcH * 4 * e * (1-e);
+    setDuduPos(x, y);
+
+    if (ts - lastTrail > 58) {
+      spawnTrailDot(x + DUDU_W/2, y + DUDU_H/2);
+      lastTrail = ts;
+    }
+
+    if (t < 1) { requestAnimationFrame(frame); }
+    else {
+      setDuduPos(tx, ty);
+      duduFlying = false;
+      cont.classList.remove('flying');
+      /* Face inward toward content */
+      const isRtl = document.body.dir === 'rtl';
+      setDuduFacing(!isRtl);
+      /* Tail follows facing */
+      if (bubble) {
+        bubble.classList.toggle('tail-left', !!isRtl);
+      }
+      landingRipple(tx + DUDU_W/2, ty + DUDU_H);
+      setTimeout(() => {
+        if (guideVisible && bubble) {
+          bubble.classList.remove('guide-hidden');
+          bubble.style.animation = 'none';
+          void bubble.offsetWidth;
+          bubble.style.animation = 'bubblePop .4s var(--spring) both';
+          cont.classList.add('dudu-name-visible');
+        }
+        if (onLand) onLand();
+        resetIdleTimer();
+      }, 180);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ── Particles ── */
+function spawnTrailDot(cx, cy) {
+  const d = document.createElement('div');
+  d.className = 'dudu-trail';
+  d.style.cssText = `left:${cx-2.5}px;top:${cy-2.5}px`;
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 700);
+}
+
+function landingRipple(cx, cy) {
+  for (let i = 0; i < 3; i++) {
+    const r = document.createElement('div');
+    r.className = 'dudu-ripple';
+    r.style.cssText = `left:${cx}px;top:${cy}px;animation-delay:${i*.11}s`;
+    document.body.appendChild(r);
+    setTimeout(() => r.remove(), 1100);
+  }
+}
+
+function starburstEffect(cx, cy) {
+  for (let i = 0; i < 12; i++) {
+    const d = document.createElement('div');
+    d.className = 'dudu-star';
+    d.style.cssText = `left:${cx}px;top:${cy}px;--sa:${i*30}deg;animation-delay:${i*.018}s`;
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 800);
+  }
+}
+
+function confettiEffect() {
+  const colors = ['#2563eb','#bfdbfe','#1e3a8a','#93c5fd'];
+  const cx = duduX + DUDU_W/2, cy = duduY;
+  for (let i = 0; i < 46; i++) {
+    const p = document.createElement('div');
+    p.className = 'dudu-confetti';
+    const w = 5 + Math.random()*7, h = 4 + Math.random()*4;
+    p.style.cssText = `left:${cx+(Math.random()*80-40)}px;top:${cy}px;` +
+      `background:${colors[Math.floor(Math.random()*4)]};` +
+      `width:${w}px;height:${h}px;` +
+      `--cx:${Math.random()*200-100}px;--cr:${Math.random()*720-360}deg;` +
+      `animation-delay:${Math.random()*.45}s`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), 2600);
+  }
+}
+
+/* ── Typewriter ── */
+function typewriterText(rawHtml, el, speed) {
+  if (duduTwRef) clearInterval(duduTwRef);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = rawHtml;
+  const plain = tmp.textContent;
+  let i = 0;
+  el.textContent = '';
+  duduTwRef = setInterval(() => {
+    if (i >= plain.length) { clearInterval(duduTwRef); return; }
+    i++;
+    const slice = plain.slice(0, i);
+    /* Restore bold for "Dudu" in welcome message */
+    if (rawHtml.includes('<b>')) {
+      const bMatch = rawHtml.match(/<b>(.*?)<\/b>/);
+      const bWord = bMatch ? bMatch[1] : null;
+      if (bWord && slice.includes(bWord)) {
+        const parts = slice.split(bWord);
+        el.innerHTML = parts[0] + '<strong>' + bWord + '</strong>' + (parts[1] || '');
+        return;
+      }
+    }
+    el.textContent = slice;
+  }, speed || 28);
+}
+
+/* ── Behavior triggers ── */
+function duduExcitedHop() {
+  const c = document.getElementById('dudu-container');
+  if (!c || duduFlying) return;
+  c.classList.remove('hopping');
+  void c.offsetWidth;
+  c.classList.add('hopping');
+  c.addEventListener('animationend', () => c.classList.remove('hopping'), {once:true});
+}
+
+function duduHeadNod() {
+  const h = document.getElementById('dudu-head-group');
+  if (!h) return;
+  h.classList.remove('nodding');
+  void h.offsetWidth;
+  h.classList.add('nodding');
+  h.addEventListener('animationend', () => h.classList.remove('nodding'), {once:true});
+}
+
+function duduLangTilt() {
+  const s = document.getElementById('dudu-svg');
+  if (!s) return;
+  s.classList.add('lang-tilting');
+  s.addEventListener('animationend', () => s.classList.remove('lang-tilting'), {once:true});
+}
+
+function duduCelebrate() {
+  const s = document.getElementById('dudu-svg');
+  if (!s) return;
+  s.classList.add('celebrating');
+  confettiEffect();
+  setTimeout(() => s.classList.remove('celebrating'), 1300);
+}
+
+/* ── Blink ── */
+function scheduleBlink() {
+  duduBlinkTimer = setTimeout(() => {
+    if (!duduFlying) {
+      const lid = document.getElementById('dudu-eyelid');
+      if (lid) {
+        lid.classList.add('blink');
+        lid.addEventListener('animationend', () => lid.classList.remove('blink'), {once:true});
+      }
+    }
+    scheduleBlink();
+  }, 4000 + Math.random() * 4500);
+}
+
+/* ── Idle look-around ── */
+function resetIdleTimer() {
+  clearTimeout(duduIdleTimer);
+  duduIdleTimer = setTimeout(() => {
+    if (duduFlying) return;
+    const h = document.getElementById('dudu-head-group');
+    if (!h) return;
+    h.classList.add('looking');
+    h.addEventListener('animationend', () => h.classList.remove('looking'), {once:true});
+  }, 30000);
+}
+
+/* ── Public interface ── */
 function updateGuide(panel) {
-  const msg = GUIDE_MESSAGES[panel];
+  const msg = DUDU_MSGS[panel];
   if (!msg || !guideVisible) return;
-  const bubble = document.getElementById('guide-bubble');
-  const el = document.getElementById('guide-msg');
-  if (!bubble || !el) return;
-  el.textContent = msg;
-  bubble.style.animation = 'none';
-  void bubble.offsetWidth;
-  bubble.style.animation = 'guideMsgIn .38s cubic-bezier(.34,1.56,.64,1) both';
-  wiggleGuide();
-}
-
-function wiggleGuide() {
-  const avatar = document.getElementById('guide-avatar');
-  if (!avatar) return;
-  avatar.classList.remove('wiggle');
-  void avatar.offsetWidth;
-  avatar.classList.add('wiggle');
-  avatar.addEventListener('animationend', () => { avatar.classList.remove('wiggle'); }, {once:true});
+  const el = document.getElementById('dudu-msg');
+  if (el) typewriterText(msg, el, 28);
 }
 
 function toggleGuide() {
   guideVisible = !guideVisible;
-  const bubble = document.getElementById('guide-bubble');
+  const bubble = document.getElementById('dudu-bubble');
+  const cont = document.getElementById('dudu-container');
   if (!bubble) return;
   if (guideVisible) {
     bubble.classList.remove('guide-hidden');
     bubble.style.animation = 'none';
     void bubble.offsetWidth;
-    bubble.style.animation = 'guideMsgIn .38s cubic-bezier(.34,1.56,.64,1) both';
-    wiggleGuide();
+    bubble.style.animation = 'bubblePop .4s var(--spring) both';
+    cont.classList.add('dudu-name-visible');
+    const el = document.getElementById('dudu-msg');
+    if (el) typewriterText(DUDU_MSGS[currentPanel] || '', el, 28);
   } else {
     bubble.classList.add('guide-hidden');
+    cont.classList.remove('dudu-name-visible');
   }
+}
+
+/* ── INIT ── */
+function initGuide() {
+  const corner = getDuduCorner();
+  setDuduPos(corner.x, corner.y);
+  /* Ensure fixed left/top instead of right/bottom */
+  const el = document.getElementById('dudu-container');
+  el.style.right = 'auto';
+  el.style.bottom = 'auto';
+
+  /* Show RTL tail if needed */
+  const isRtl = document.body.dir === 'rtl';
+  if (isRtl) el.classList.add('rtl');
+  const bubble = document.getElementById('dudu-bubble');
+  if (bubble) bubble.classList.toggle('tail-left', isRtl);
+  setDuduFacing(!isRtl);
+
+  /* Type welcome message after short delay */
+  setTimeout(() => {
+    el.classList.add('dudu-name-visible');
+    const msgEl = document.getElementById('dudu-msg');
+    if (msgEl) typewriterText(DUDU_MSGS.welcome, msgEl, 28);
+  }, 500);
+
+  scheduleBlink();
+  resetIdleTimer();
+
+  /* Reset idle timer on user interaction */
+  document.addEventListener('pointermove', resetIdleTimer, {passive:true});
+  document.addEventListener('keydown', resetIdleTimer, {passive:true});
 }
 
 /* ── INIT ── */
@@ -1409,27 +1864,98 @@ buildTimeline();
 initGuide();
 </script>
 
-<!-- ── AI GUIDE CHARACTER ── -->
-<div id="guide-character">
-  <div class="guide-inner">
-    <div class="guide-bubble" id="guide-bubble">
-      <p id="guide-msg">שלום! I'll guide you through each step. Start with your eligibility check →</p>
-    </div>
-    <div class="guide-float">
-      <div class="guide-ring"></div>
-      <div class="guide-ring2"></div>
-      <button class="guide-avatar" id="guide-avatar" onclick="toggleGuide()" aria-label="Toggle guide">
-        <svg viewBox="0 0 48 48" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <ellipse cx="17" cy="34" rx="11" ry="9"/>
-          <circle cx="29" cy="22" r="9"/>
-          <ellipse cx="24" cy="10" rx="3.2" ry="8" transform="rotate(-28 24 18)"/>
-          <ellipse cx="28" cy="9"  rx="3.2" ry="8" transform="rotate(0 28 17)"/>
-          <ellipse cx="32" cy="10" rx="3.2" ry="8" transform="rotate(25 32 18)"/>
-          <path d="M36,19 L47,22 L36,25 Z"/>
-        </svg>
-      </button>
-    </div>
+<!-- ── DUDU — Living Hoopoe Guide ── -->
+<div id="dudu-container" onclick="toggleGuide()" style="cursor:pointer" aria-label="Toggle Dudu guide">
+
+  <!-- Speech bubble -->
+  <div class="dudu-bubble" id="dudu-bubble">
+    <p id="dudu-msg"></p>
   </div>
+
+  <!-- Bird + shadow + label -->
+  <div class="dudu-bird-wrap">
+    <!-- Proper side-facing hoopoe SVG, facing right by default -->
+    <svg id="dudu-svg" viewBox="0 0 110 92" xmlns="http://www.w3.org/2000/svg"
+         aria-hidden="true" style="overflow:visible">
+
+      <!-- Wing (back layer — animated for flapping) -->
+      <g id="dudu-wing">
+        <!-- Main wing shape with hoopoe bar pattern -->
+        <path d="M24,50 C11,61 9,80 24,83 C37,79 60,78 64,80 C53,65 24,50 24,50Z" fill="rgba(255,255,255,.88)"/>
+        <!-- Distinctive black/white bar stripes -->
+        <line x1="27" y1="54" x2="22" y2="79" stroke="rgba(30,58,138,.5)"  stroke-width="4"   stroke-linecap="round"/>
+        <line x1="34" y1="52" x2="32" y2="77" stroke="rgba(255,255,255,.35)" stroke-width="3.5" stroke-linecap="round"/>
+        <line x1="42" y1="51" x2="43" y2="76" stroke="rgba(30,58,138,.38)" stroke-width="3"   stroke-linecap="round"/>
+        <line x1="50" y1="52" x2="54" y2="76" stroke="rgba(255,255,255,.32)" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+
+      <!-- Body -->
+      <ellipse cx="48" cy="67" rx="29" ry="18" fill="white"/>
+
+      <!-- Tail -->
+      <path d="M17,66 C4,66 3,81 18,83 C11,73 23,71 23,71Z" fill="rgba(255,255,255,.88)"/>
+
+      <!-- Head group (for nod/tilt animations) -->
+      <g id="dudu-head-group">
+
+        <!-- Neck connection (small bridge from body to head) -->
+        <ellipse cx="70" cy="57" rx="10" ry="13" fill="white"/>
+
+        <!-- Head -->
+        <circle cx="79" cy="44" r="19" fill="white"/>
+
+        <!-- Crest (5 feathers with dark tips) -->
+        <g id="dudu-crest">
+          <!-- Feather shafts -->
+          <ellipse cx="71" cy="24" rx="3.2" ry="12"   transform="rotate(-38 71 38)" fill="white"/>
+          <ellipse cx="76" cy="20" rx="3.2" ry="13"   transform="rotate(-19 76 38)" fill="white"/>
+          <ellipse cx="80" cy="18" rx="3.2" ry="13.5" transform="rotate(-1  80 38)" fill="white"/>
+          <ellipse cx="85" cy="21" rx="2.8" ry="12"   transform="rotate( 17 85 38)" fill="white"/>
+          <ellipse cx="88" cy="27" rx="2.4" ry="10.5" transform="rotate( 31 88 38)" fill="white"/>
+          <!-- Dark tips (hoopoe's signature black-tipped crest) -->
+          <ellipse cx="71" cy="15" rx="2"   ry="3.8"  transform="rotate(-38 71 38)" fill="rgba(30,58,138,.72)"/>
+          <ellipse cx="76" cy="11" rx="2"   ry="4.2"  transform="rotate(-19 76 38)" fill="rgba(30,58,138,.72)"/>
+          <ellipse cx="80" cy="10" rx="2"   ry="4.5"  transform="rotate(-1  80 38)" fill="rgba(30,58,138,.72)"/>
+          <ellipse cx="85" cy="13" rx="1.8" ry="4"    transform="rotate( 17 85 38)" fill="rgba(30,58,138,.72)"/>
+          <ellipse cx="88" cy="20" rx="1.6" ry="3.4"  transform="rotate( 31 88 38)" fill="rgba(30,58,138,.72)"/>
+        </g>
+
+        <!-- Eye ring (orange eye of real hoopoe → subtle blue tint) -->
+        <circle cx="88" cy="42" r="6.5" fill="rgba(30,58,138,.13)"/>
+        <!-- Pupil -->
+        <circle cx="89" cy="42" r="4.2" fill="#1e3a8a"/>
+        <!-- Specular highlight -->
+        <circle cx="91" cy="40" r="1.6" fill="rgba(255,255,255,.92)"/>
+
+        <!-- Eyelid (animates down for blink) -->
+        <path id="dudu-eyelid"
+              d="M 82,42 Q 88,34.5 94,42"
+              fill="white"/>
+
+        <!-- Beak — long, thin, slightly down-curved -->
+        <path d="M 96,44.5 Q 107,46 110,49 Q 108,51.5 96,50Z" fill="white"/>
+
+      </g><!-- /head group -->
+
+      <!-- Breast accent (subtle warmth) -->
+      <ellipse cx="63" cy="57" rx="14" ry="9" fill="rgba(255,255,255,.11)"/>
+
+      <!-- Legs -->
+      <line x1="43" y1="84" x2="38" y2="92" stroke="rgba(255,255,255,.85)" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="52" y1="84" x2="57" y2="92" stroke="rgba(255,255,255,.85)" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Feet (3 toes each) -->
+      <path d="M33,92 Q38,92 41,91" stroke="rgba(255,255,255,.82)" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M38,92 Q42,93 46,92" stroke="rgba(255,255,255,.82)" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M52,92 Q57,92 60,91" stroke="rgba(255,255,255,.82)" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M57,92 Q61,93 64,92" stroke="rgba(255,255,255,.82)" stroke-width="2" stroke-linecap="round" fill="none"/>
+    </svg>
+
+    <!-- Ground shadow -->
+    <div class="dudu-shadow"></div>
+    <!-- Name label (visible when bubble is open) -->
+    <div class="dudu-name-tag">Dudu</div>
+  </div>
+
 </div>
 
 </body>
