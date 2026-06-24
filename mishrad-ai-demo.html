@@ -327,11 +327,9 @@ body.lang-fade .main{opacity:0}
 
 #dudu-container{
   position:fixed;z-index:9999;
-  pointer-events:none;
-  display:flex;flex-direction:column;align-items:center;
+  pointer-events:none;       /* never blocks page interaction */
   will-change:transform;
 }
-#dudu-container.rtl{align-items:flex-start}
 
 /* Glow aura behind bird */
 #dudu-container::after{
@@ -349,27 +347,28 @@ body.lang-fade .main{opacity:0}
 #dudu-container.flying::after{opacity:0}
 @keyframes glowPulse{0%,100%{opacity:.7;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.18)}}
 
-/* Speech bubble */
+/* Speech bubble — always to the LEFT of Dudu, never rightward */
 .dudu-bubble{
   background:#fff;
   border:1.5px solid var(--c-blue);
   border-top:2.5px solid var(--c-blue);
-  border-radius:18px 14px 20px 15px / 15px 20px 16px 18px;
+  border-radius:14px 18px 15px 20px / 20px 15px 18px 16px;
   padding:12px 16px 10px;
-  max-width:262px;min-width:180px;
+  max-width:240px;min-width:160px;
   box-shadow:inset 0 2px 8px rgba(37,99,235,.05),0 4px 24px rgba(37,99,235,.16),0 2px 8px rgba(0,0,0,.07);
-  position:relative;
-  margin-bottom:10px;
+  position:absolute;          /* floats left of container */
+  right:calc(100% + 14px);    /* sits 14px to the left of the bird */
+  top:0;
   pointer-events:auto;
-  transform-origin:bottom right;
+  transform-origin:right center;  /* pops outward from the bird side */
+  white-space:normal;
+  word-break:break-word;
 }
 .dudu-bubble.guide-hidden{display:none}
 .dudu-bubble.popping{animation:bubblePop .38s var(--spring) both}
-.dudu-bubble.tail-left{transform-origin:bottom left}
-.dudu-bubble::before{content:'';position:absolute;bottom:-10px;right:20px;border:9px solid transparent;border-top-color:var(--c-blue);border-bottom:none}
-.dudu-bubble::after {content:'';position:absolute;bottom:-7.5px;right:21.5px;border:7.5px solid transparent;border-top-color:#fff;border-bottom:none}
-.dudu-bubble.tail-left::before{right:auto;left:20px}
-.dudu-bubble.tail-left::after {right:auto;left:21.5px}
+/* Tail arrow points RIGHT — toward the bird */
+.dudu-bubble::before{content:'';position:absolute;top:16px;right:-9px;border:9px solid transparent;border-left-color:var(--c-blue);border-right:none}
+.dudu-bubble::after {content:'';position:absolute;top:17.5px;right:-7px;border:7.5px solid transparent;border-left-color:#fff;border-right:none}
 .dudu-bubble p{font-size:13px;font-weight:500;color:var(--c-blue-deep);line-height:1.6;margin:0}
 .dudu-bubble strong{font-weight:700}
 /* Typewriter cursor */
@@ -1228,10 +1227,10 @@ function showPanel(name) {
 
   currentPanel = name;
 
-  /* Dudu flies to the new panel — duration scales 600–1200ms with distance */
+  /* Dudu flies to empty space below the new panel's content */
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      const target = getDuduTarget(name);
+      const target = getRepositionTarget();
       const dist = Math.hypot(target.x - duduX, target.y - duduY);
       const dur  = Math.min(1200, Math.max(600, 400 + dist * 0.6));
       duduFly(target.x, target.y, direction === 'forward', dur, () => {
@@ -1860,78 +1859,81 @@ let duduTwRef = null;
 let duduChecked = 0; /* required docs checked count */
 
 const DUDU_MSGS = {
-  welcome: "שלום. I'm <b>Dudu</b>. I know this process feels overwhelming — follow me and I'll take you through it step by step.",
-  kyc:     "First, let's make sure you're eligible before you invest any more time. Select what brings you here today.",
-  docs:    "I've already removed everything the Ministry has on file for you. These are the only documents you actually need to bring.",
-  chat:    "If anything is unclear, ask Miri directly. She's answered these questions thousands of times.",
-  status:  "Your application is moving. I'll be here the moment anything changes."
+  welcome: "שלום! אני דודו, אנווט אותך בתהליך 🪶",
+  kyc:     "בואו נבדוק את הזכאות שלך — בחר שירות",
+  docs:    "אלו המסמכים שתצטרך להכין",
+  chat:    "שאל אותי כל שאלה — אני כאן לעזור",
+  status:  "הבקשה שלך בדרך! נעדכן אותך"
 };
 
 /* ── Position helpers ── */
-function getDuduCorner() {
-  const isRtl = document.body.dir === 'rtl';
-  const m = 28;
-  return {
-    x: isRtl ? m : window.innerWidth - m - DUDU_W,
-    y: window.innerHeight - m - DUDU_H - 115 /* bubble height above */
-  };
+
+/* Returns the landing target: below last content element, right-aligned, clamped to viewport */
+function getRepositionTarget() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  const cont = document.getElementById('dudu-container');
+  const birdH = cont && cont.offsetHeight > 20 ? cont.offsetHeight : DUDU_H;
+
+  /* Walk the active panel's direct children to find the bottom of the last visible one */
+  let lastBottom = 200;
+  const activePanel = document.querySelector('.panel.active');
+  if (activePanel) {
+    Array.from(activePanel.children).forEach(child => {
+      const r = child.getBoundingClientRect();
+      if (r.height > 0 && r.width > 0) lastBottom = Math.max(lastBottom, r.bottom);
+    });
+  }
+
+  /* If not enough empty space below content, sweep from top for first clear gap */
+  const emptyBelow = vh - lastBottom;
+  const dudux1 = vw - DUDU_W - 20;
+  const dudux2 = vw - 20;
+  let y;
+  if (emptyBelow < birdH + 40) {
+    const rects = [];
+    document.querySelectorAll('button, input, textarea, select, .service-option, .card, .doc-item, .tl-body').forEach(el => {
+      const er = el.getBoundingClientRect();
+      if (er.height > 0 && er.right > dudux1 && er.left < dudux2) rects.push(er);
+    });
+    rects.sort((a, b) => a.top - b.top);
+    let candidate = 80;
+    for (const r of rects) {
+      if (r.top >= candidate + birdH + 4) break;
+      candidate = Math.max(candidate, r.bottom + 4);
+    }
+    y = Math.min(candidate, vh - birdH - 20);
+  } else {
+    y = Math.min(lastBottom + 20, vh - birdH - 20);
+  }
+  y = Math.max(80, y);
+
+  /* Always right-aligned, 20px from edge */
+  const x = vw - DUDU_W - 20;
+  return { x, y };
 }
 
-function getDuduTarget(panel) {
-  const isRtl = document.body.dir === 'rtl';
-  const sideW = window.innerWidth > 860 ? 260 : 0;
-  const margin = 22;
-
-  if (panel === 'welcome') return getDuduCorner();
-
-  if (panel === 'kyc') {
-    /* Perch on right edge of service grid, vertically centered */
-    const grid = document.querySelector('.service-grid');
-    const sel  = document.querySelector('.service-option.selected') || grid;
-    if (sel) {
-      const r = sel.getBoundingClientRect();
-      const x = isRtl ? sideW + margin : r.right + 4;
-      return { x: clampDX(x), y: Math.max(90, r.top + r.height/2 - DUDU_H/2) };
-    }
-  }
-
-  if (panel === 'docs') {
-    /* Perch on top of readiness stepper bar */
-    const bar = document.querySelector('.readiness-stepper');
-    if (bar) {
-      const r = bar.getBoundingClientRect();
-      const x = isRtl ? sideW + margin : r.right - DUDU_W - 4;
-      return { x: clampDX(x), y: Math.max(80, r.top - DUDU_H - 4) };
-    }
-  }
-
-  if (panel === 'chat') {
-    /* Perch on top-right edge of chat header, next to Miri's name */
-    const head = document.querySelector('.chat-head');
-    if (head) {
-      const r = head.getBoundingClientRect();
-      const x = isRtl ? r.left - DUDU_W - 4 : r.right - DUDU_W + 8;
-      return { x: clampDX(x), y: Math.max(80, r.top - DUDU_H + 12) };
-    }
-  }
-
-  if (panel === 'status') {
-    const dot = document.querySelector('.tl-dot.active');
-    if (dot) {
-      const r = dot.getBoundingClientRect();
-      const x = r.left + r.width / 2 - DUDU_W / 2;
-      return { x: clampDX(x), y: Math.max(80, r.top - DUDU_H - 8) };
-    }
-  }
-
-  return {
-    x: clampDX(isRtl ? sideW + margin : window.innerWidth - margin - DUDU_W),
-    y: Math.max(140, 90)
-  };
+/* Teleport Dudu to computed empty space (used on resize & after step completes) */
+function repositionDudu() {
+  if (duduFlying) return;
+  const { x, y } = getRepositionTarget();
+  setDuduPos(x, y);
+  updateDuduZIndex();
+  updateGuide(currentPanel);
 }
 
-function clampDX(x) {
-  return Math.max(10, Math.min(window.innerWidth - DUDU_W - 10, x));
+/* Step back behind modals if any overlay with z-index 1001–8999 is open */
+function updateDuduZIndex() {
+  const cont = document.getElementById('dudu-container');
+  if (!cont) return;
+  let hasModal = false;
+  document.querySelectorAll('[style*="z-index"]').forEach(el => {
+    if (el === cont || cont.contains(el)) return;
+    const zi = parseInt(el.style.zIndex, 10);
+    if (!isNaN(zi) && zi > 1000 && zi < 9000) hasModal = true;
+  });
+  cont.style.zIndex = hasModal ? '999' : '9999';
 }
 
 function setDuduPos(x, y) {
@@ -2001,7 +2003,6 @@ function _flyArc(tx, ty, facingRight, duration, onLand, cont, bubble) {
 
       const isRtl = document.body.dir === 'rtl';
       setDuduFacing(!isRtl);
-      if (bubble) bubble.classList.toggle('tail-left', !!isRtl);
 
       /* Landing ripple + overshoot settle */
       landingRipple(tx + DUDU_W/2, ty + DUDU_H);
@@ -2200,18 +2201,16 @@ function toggleGuide() {
 
 /* ── INIT ── */
 function initGuide() {
-  const corner = getDuduCorner();
-  setDuduPos(corner.x, corner.y);
+  const { x, y } = getRepositionTarget();
+  setDuduPos(x, y);
   /* Ensure fixed left/top instead of right/bottom */
   const el = document.getElementById('dudu-container');
   el.style.right = 'auto';
   el.style.bottom = 'auto';
 
-  /* Show RTL tail if needed */
+  /* RTL class for layout hints (bubble is always-left so no tail-left needed) */
   const isRtl = document.body.dir === 'rtl';
   if (isRtl) el.classList.add('rtl');
-  const bubble = document.getElementById('dudu-bubble');
-  if (bubble) bubble.classList.toggle('tail-left', isRtl);
   setDuduFacing(!isRtl);
 
   /* Type welcome message after short delay */
@@ -2223,6 +2222,9 @@ function initGuide() {
 
   scheduleBlink();
   resetIdleTimer();
+
+  /* Reposition Dudu on viewport resize */
+  window.addEventListener('resize', () => { if (!duduFlying) repositionDudu(); }, {passive:true});
 
   /* Reset idle timer on user interaction */
   document.addEventListener('pointermove', resetIdleTimer, {passive:true});
