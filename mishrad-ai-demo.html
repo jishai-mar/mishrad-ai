@@ -951,6 +951,11 @@ const T = {
     progressLabel:(n)=>`${n} of 4 steps complete`,
     kycProceed:'Confirm & Build Document Checklist →',
     docsBook:'Book Appointment with Verified Checklist →',
+    duduWelcome:"Hello! I'm Dudu, I'll guide you through the process 🪶",
+    duduKyc:"Let's check your eligibility — select a service",
+    duduDocs:"Here are the documents you'll need to prepare",
+    duduChat:"Ask me anything — I'm here to help",
+    duduStatus:"Your application is on its way! We'll keep you updated",
   },
   he: {
     slSteps:'המסע שלך',
@@ -981,6 +986,11 @@ const T = {
     progressLabel:(n)=>`${n} מתוך 4 שלבים הושלמו`,
     kycProceed:'אשר ובנה רשימת מסמכים →',
     docsBook:'קבע תור עם רשימה מאומתת →',
+    duduWelcome:"שלום! אני דודו, אנווט אותך בתהליך 🪶",
+    duduKyc:"בואו נבדוק את הזכאות שלך — בחר שירות",
+    duduDocs:"אלו המסמכים שתצטרך להכין",
+    duduChat:"שאל אותי כל שאלה — אני כאן לעזור",
+    duduStatus:"הבקשה שלך בדרך! נעדכן אותך",
   },
   ru: {
     slSteps:'Ваш путь',
@@ -1011,6 +1021,11 @@ const T = {
     progressLabel:(n)=>`${n} из 4 шагов завершено`,
     kycProceed:'Подтвердить и построить список →',
     docsBook:'Записаться на приём с проверенным списком →',
+    duduWelcome:"Привет! Я Дуду, проведу тебя через весь процесс 🪶",
+    duduKyc:"Давайте проверим ваше право — выберите услугу",
+    duduDocs:"Вот документы, которые вам понадобятся",
+    duduChat:"Задайте любой вопрос — я здесь, чтобы помочь",
+    duduStatus:"Ваша заявка в пути! Мы будем держать вас в курсе",
   },
   ar: {
     slSteps:'رحلتك',
@@ -1041,6 +1056,11 @@ const T = {
     progressLabel:(n)=>`${n} من 4 خطوات مكتملة`,
     kycProceed:'تأكيد وإنشاء قائمة المستندات →',
     docsBook:'احجز موعداً مع القائمة المحققة →',
+    duduWelcome:"مرحباً! أنا دودو، سأرشدك خلال العملية 🪶",
+    duduKyc:"دعنا نتحقق من أهليتك — اختر خدمة",
+    duduDocs:"هذه المستندات التي ستحتاج إلى تحضيرها",
+    duduChat:"اسألني أي شيء — أنا هنا للمساعدة",
+    duduStatus:"طلبك في الطريق! سنبقيك على اطلاع",
   }
 };
 
@@ -1202,6 +1222,8 @@ function setLang(lang) {
     if (pl) pl.textContent = t.progressLabel(stepsComplete);
     const cg = document.getElementById('cm-greeting');
     if (cg) cg.textContent = t.chatGreeting;
+
+    updateGuide(currentPanel);
 
     document.body.classList.remove('lang-fade');
   }, 150);
@@ -1858,13 +1880,10 @@ let duduBlinkTimer = null;
 let duduTwRef = null;
 let duduChecked = 0; /* required docs checked count */
 
-const DUDU_MSGS = {
-  welcome: "שלום! אני דודו, אנווט אותך בתהליך 🪶",
-  kyc:     "בואו נבדוק את הזכאות שלך — בחר שירות",
-  docs:    "אלו המסמכים שתצטרך להכין",
-  chat:    "שאל אותי כל שאלה — אני כאן לעזור",
-  status:  "הבקשה שלך בדרך! נעדכן אותך"
-};
+function getDuduMsg(panel) {
+  const key = 'dudu' + panel.charAt(0).toUpperCase() + panel.slice(1);
+  return (T[currentLang] && T[currentLang][key]) || '';
+}
 
 /* ── Position helpers ── */
 
@@ -2174,10 +2193,13 @@ function resetIdleTimer() {
 
 /* ── Public interface ── */
 function updateGuide(panel) {
-  const msg = DUDU_MSGS[panel];
+  const msg = getDuduMsg(panel);
   if (!msg || !guideVisible) return;
   const el = document.getElementById('dudu-msg');
-  if (el) typewriterText(msg, el, 28);
+  if (el) {
+    el.dir = (currentLang === 'he' || currentLang === 'ar') ? 'rtl' : 'ltr';
+    typewriterText(msg, el, 28);
+  }
 }
 
 function toggleGuide() {
@@ -2192,7 +2214,7 @@ function toggleGuide() {
     bubble.style.animation = 'bubblePop .4s var(--spring) both';
     cont.classList.add('dudu-name-visible');
     const el = document.getElementById('dudu-msg');
-    if (el) typewriterText(DUDU_MSGS[currentPanel] || '', el, 28);
+    if (el) { el.dir = (currentLang === 'he' || currentLang === 'ar') ? 'rtl' : 'ltr'; typewriterText(getDuduMsg(currentPanel), el, 28); }
   } else {
     bubble.classList.add('guide-hidden');
     cont.classList.remove('dudu-name-visible');
@@ -2217,7 +2239,7 @@ function initGuide() {
   setTimeout(() => {
     el.classList.add('dudu-name-visible');
     const msgEl = document.getElementById('dudu-msg');
-    if (msgEl) typewriterText(DUDU_MSGS.welcome, msgEl, 28);
+    if (msgEl) { msgEl.dir = (currentLang === 'he' || currentLang === 'ar') ? 'rtl' : 'ltr'; typewriterText(getDuduMsg('welcome'), msgEl, 28); }
   }, 500);
 
   scheduleBlink();
@@ -2233,7 +2255,6 @@ function initGuide() {
 
 /* ── INIT ── */
 buildTimeline();
-initGuide();
 </script>
 
 <!-- ── DUDU — Living Hoopoe Guide ── -->
@@ -2328,6 +2349,7 @@ initGuide();
   </div>
 
 </div>
+<script>initGuide();</script>
 
 </body>
 </html>
